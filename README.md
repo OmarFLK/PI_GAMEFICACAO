@@ -1,18 +1,46 @@
-## Getting Started
+# 🧪 LabQuest: Game para Identificação de Materiais e Sistemas de Laboratório
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+> **Projeto Acadêmico em parceria com a ETEC Júlio de Mesquita**
+> **Público-alvo:** Alunos ingressantes do 1º ano do curso técnico em Química (14-15 anos).
 
-## Folder Structure
+## 📌 Sobre o Projeto
+O **LabQuest** é um jogo educativo desenvolvido para auxiliar estudantes de Química na identificação de vidrarias, utensílios e na montagem de sistemas experimentais. O objetivo é transformar o aprendizado técnico em uma experiência interativa, facilitando a transição dos alunos para as práticas presenciais em laboratório.
 
-The workspace contains two folders by default, where:
+## 🛠️ Tecnologias Utilizadas
+* **Linguagem:** Java
+* **Interface Gráfica:** JavaFX (ou Swing)
+* **Banco de Dados:** MySQL (Obrigatório)
+* **Persistência:** JDBC / Hibernate (JPA)
+* **Gerenciador de Dependências:** Maven
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## 📋 Requisitos Funcionais (Principais)
+- [ ] **Quiz Interativo:** Perguntas de múltipla escolha com foco visual (uso de imagens).
+- [ ] **Sistemas de Associação:** Relacionar Material ↔ Função e Material ↔ Sistema Experimental.
+- [ ] **Gamificação:** Níveis de dificuldade progressivos e registro de pontuação.
+- [ ] **Mecânicas de Ajuda:** Eliminação de alternativas e dicas textuais.
+- [ ] **Painel do Professor:** Interface para inclusão de novas questões e atualização do banco.
+- [ ] **Autenticação:** Login para Alunos e Professores.
+- [ ] **Relatórios:** Acompanhamento de desempenho individual para análise pedagógica.
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+## ⚙️ Requisitos Não Funcionais
+* **Interface:** Design intuitivo e adaptado para adolescentes do ensino médio.
+* **Plataforma:** Execução em computadores (Desktop).
+* **Segurança:** Proteção de dados conforme a LGPD.
+* **Acessibilidade:** Contraste adequado, fontes legíveis e descrição de imagens.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## 🗄️ Estrutura do Banco de Dados
+O sistema utiliza **MySQL** para armazenar:
+1.  **Usuários:** Dados de acesso e perfis (Aluno/Professor).
+2.  **Banco de Questões:** Imagens, enunciados e alternativas corretas.
+3.  **Histórico:** Logs de desempenho e progresso dos estudantes.
 
-## Dependency Management
+---
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+## 🚀 Como Executar (Em breve)
+
+
+---
+**Desenvolvedores:** [Guilherme, Omar, Bernardo, Luiz, Lucas, Andrey]  
+**Instituição:** Instituto Mauá de Tecnologia (IMT)  
+**Parceria:** ETEC Júlio de Mesquita  
+**Representante ETEC:** Profa. Maria do Socorro Sousa da Silva
