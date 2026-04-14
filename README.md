@@ -40,7 +40,7 @@ O sistema utiliza **MySQL** para armazenar:
 
 
 ---
-**Desenvolvedores:** [Guilherme, Omar, Bernardo, Luiz, Lucas, Andrey]  
+**Desenvolvedores:** [Guilherme, Omar, Bernardo, Luiz, Fouad, Andrey]  
 **Instituição:** Instituto Mauá de Tecnologia (IMT)  
 **Parceria:** ETEC Júlio de Mesquita  
 **Representante ETEC:** Profa. Maria do Socorro Sousa da Silva
