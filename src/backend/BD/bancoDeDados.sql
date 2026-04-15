@@ -7,53 +7,47 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema mydb
 -- -----------------------------------------------------
-
--- -----------------------------------------------------
--- Schema mydb
--- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
 USE `mydb` ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`usuario`
+-- Table `usuario`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`usuario` (
+CREATE TABLE IF NOT EXISTS `usuario` (
   `idUsuario` INT NOT NULL AUTO_INCREMENT,
   `nomeUsuario` VARCHAR(100) NOT NULL,
   `emailUsuario` VARCHAR(100) NOT NULL,
   `senha` VARCHAR(255) NOT NULL,
   `tipo` ENUM('ALUNO', 'PROFESSOR') NULL,
-  `dataCriacao` DATETIME NOT NULL DEFAULT DEFAULT CURRENT_TIMESTAMP,
+  `dataCriacao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`idUsuario`),
-  UNIQUE INDEX `email_UNIQUE` (`emailUsuario` ASC) VISIBLE)
-ENGINE = InnoDB;
-
+  UNIQUE INDEX `email_UNIQUE` (`emailUsuario` ASC) VISIBLE
+) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mydb`.`perguntas`
+-- Table `perguntas`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`perguntas` (
+CREATE TABLE IF NOT EXISTS `perguntas` (
   `idPergunta` INT NOT NULL AUTO_INCREMENT,
   `enunciado` VARCHAR(200) NOT NULL,
   `imagemURL` VARCHAR(255) NULL,
   `dificuldade` ENUM('FACIL', 'MEDIO', 'DIFICIL') NOT NULL,
   `criadoPor` INT NOT NULL,
-  `dataCriacao` DATETIME NOT NULL DEFAULT DEFAULT CURRENT_TIMESTAMP,
-  `ativa` TINYINT NOT NULL DEFAULT DEFAULT TRUE,
+  `dataCriacao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ativa` TINYINT NOT NULL DEFAULT 1,
   PRIMARY KEY (`idPergunta`),
   INDEX `criadoPor_idx` (`criadoPor` ASC) VISIBLE,
   CONSTRAINT `criadoPor`
     FOREIGN KEY (`criadoPor`)
-    REFERENCES `mydb`.`usuario` (`idUsuario`)
+    REFERENCES `usuario` (`idUsuario`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mydb`.`Alternativa`
+-- Table `Alternativa`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Alternativa` (
+CREATE TABLE IF NOT EXISTS `Alternativa` (
   `idAlternativa` INT NOT NULL AUTO_INCREMENT,
   `idPergunta` INT NOT NULL,
   `Texto` VARCHAR(200) NOT NULL,
@@ -63,16 +57,15 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Alternativa` (
   INDEX `idPergunta_idx` (`idPergunta` ASC) VISIBLE,
   CONSTRAINT `idPergunta`
     FOREIGN KEY (`idPergunta`)
-    REFERENCES `mydb`.`perguntas` (`idPergunta`)
+    REFERENCES `perguntas` (`idPergunta`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mydb`.`Partida`
+-- Table `Partida`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Partida` (
+CREATE TABLE IF NOT EXISTS `Partida` (
   `idPartida` INT NOT NULL AUTO_INCREMENT,
   `idUsuario` INT NOT NULL,
   `Pontuacao` INT NOT NULL DEFAULT 0,
@@ -82,16 +75,15 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Partida` (
   INDEX `idUsuario_idx` (`idUsuario` ASC) VISIBLE,
   CONSTRAINT `idUsuario`
     FOREIGN KEY (`idUsuario`)
-    REFERENCES `mydb`.`usuario` (`idUsuario`)
+    REFERENCES `usuario` (`idUsuario`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mydb`.`resposta`
+-- Table `resposta`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`resposta` (
+CREATE TABLE IF NOT EXISTS `resposta` (
   `idResposta` INT NOT NULL AUTO_INCREMENT,
   `idPergunta` INT NOT NULL,
   `idPartida` INT NOT NULL,
@@ -104,37 +96,35 @@ CREATE TABLE IF NOT EXISTS `mydb`.`resposta` (
   INDEX `idAlternativa_idx` (`idAlternativa` ASC) VISIBLE,
   CONSTRAINT `idPartida`
     FOREIGN KEY (`idPartida`)
-    REFERENCES `mydb`.`Partida` (`idPartida`)
+    REFERENCES `Partida` (`idPartida`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `idPergunta`
     FOREIGN KEY (`idPergunta`)
-    REFERENCES `mydb`.`perguntas` (`idPergunta`)
+    REFERENCES `perguntas` (`idPergunta`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `idAlternativa`
     FOREIGN KEY (`idAlternativa`)
-    REFERENCES `mydb`.`Alternativa` (`idAlternativa`)
+    REFERENCES `Alternativa` (`idAlternativa`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mydb`.`ajuda`
+-- Table `ajuda`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`ajuda` (
+CREATE TABLE IF NOT EXISTS `ajuda` (
   `idAjuda` INT NOT NULL AUTO_INCREMENT,
   `nome` VARCHAR(50) NOT NULL,
   `descricao` VARCHAR(200) NULL,
-  PRIMARY KEY (`idAjuda`))
-ENGINE = InnoDB;
-
+  PRIMARY KEY (`idAjuda`)
+) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mydb`.`usoDeAjuda`
+-- Table `usoDeAjuda`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`usoDeAjuda` (
+CREATE TABLE IF NOT EXISTS `usoDeAjuda` (
   `idUsoDeAjuda` INT NOT NULL AUTO_INCREMENT,
   `idPartida` INT NOT NULL,
   `idAjuda` INT NOT NULL,
@@ -143,35 +133,33 @@ CREATE TABLE IF NOT EXISTS `mydb`.`usoDeAjuda` (
   INDEX `idAjuda_idx` (`idAjuda` ASC) VISIBLE,
   CONSTRAINT `idPartida`
     FOREIGN KEY (`idPartida`)
-    REFERENCES `mydb`.`Partida` (`idPartida`)
+    REFERENCES `Partida` (`idPartida`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `idAjuda`
     FOREIGN KEY (`idAjuda`)
-    REFERENCES `mydb`.`ajuda` (`idAjuda`)
+    REFERENCES `ajuda` (`idAjuda`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mydb`.`estatistica`
+-- Table `estatistica`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`estatistica` (
+CREATE TABLE IF NOT EXISTS `estatistica` (
   `idEstatistica` INT NOT NULL AUTO_INCREMENT,
   `idUsuario` INT NOT NULL,
-  `totalAcertos` INT NOT NULL DEFAULT DEFAULT 0,
-  `totalErros` INT NOT NULL DEFAULT DEFAULT 0,
+  `totalAcertos` INT NOT NULL DEFAULT 0,
+  `totalErros` INT NOT NULL DEFAULT 0,
   `tempoMedio` FLOAT NOT NULL,
   PRIMARY KEY (`idEstatistica`),
   INDEX `idUsuario_idx` (`idUsuario` ASC) VISIBLE,
   CONSTRAINT `idUsuario`
     FOREIGN KEY (`idUsuario`)
-    REFERENCES `mydb`.`usuario` (`idUsuario`)
+    REFERENCES `usuario` (`idUsuario`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
