@@ -1,0 +1,35 @@
+package backend;
+
+import java.sql.*;
+
+import backend.servidor.Conexao;
+
+public class UsuarioDAO {
+    
+    public Usuario efetuarLogin(String email, String senha) {
+        // Query usando os nomes exatos das suas colunas
+        String sql = "SELECT idUsuario, nomeUsuario, emailUsuario, tipo FROM usuario WHERE emailUsuario = ? AND senha = ?";
+        
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, email);
+            stmt.setString(2, senha);
+            
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                // Se encontrou, retorna o objeto Usuario preenchido
+                return new Usuario(
+                    rs.getInt("idUsuario"),
+                    rs.getString("nomeUsuario"),
+                    rs.getString("emailUsuario"),
+                    rs.getString("tipo")
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao conectar: " + e.getMessage());
+        }
+        return null; // Retorna null se o login falhar
+    }
+}
