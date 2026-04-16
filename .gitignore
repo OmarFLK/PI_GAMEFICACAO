@@ -1,3 +1,4 @@
 .env
 bin/
-*.jar
+*.class
+.vscode/
