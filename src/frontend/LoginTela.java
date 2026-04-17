@@ -1,8 +1,9 @@
 package frontend;
 
 import javax.swing.JOptionPane;
-import backend.UsuarioDAO.Usuario;
-import backend.UsuarioDAO.UsuarioDAO;
+
+import backend.usuarioDAO.Usuario;
+import backend.usuarioDAO.UsuarioDAO;
 
 public class LoginTela extends javax.swing.JFrame {
 

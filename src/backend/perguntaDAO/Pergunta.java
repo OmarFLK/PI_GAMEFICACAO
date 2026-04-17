@@ -1,4 +1,4 @@
-package backend.PerguntasDAO;
+package backend.perguntaDAO;
 
 public class Pergunta {
     private int id;

@@ -1,4 +1,4 @@
-package backend.UsuarioDAO;
+package backend.usuarioDAO;
 
 import java.sql.*;
 

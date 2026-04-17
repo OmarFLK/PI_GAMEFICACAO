@@ -1,6 +1,7 @@
 import frontend.LoginTela;
 import javax.swing.SwingUtilities;
-import backend.PerguntasDAO.PerguntaDAO;
+
+import backend.perguntaDAO.PerguntaDAO;
 
 public class App {
     public static void main(String[] args) {

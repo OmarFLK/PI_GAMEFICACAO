@@ -1,4 +1,4 @@
-package backend.UsuarioDAO;
+package backend.usuarioDAO;
 
 public class Usuario {
     private int id;

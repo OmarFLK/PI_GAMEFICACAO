@@ -1,4 +1,4 @@
-package backend.PerguntasDAO;
+package backend.perguntaDAO;
 
 import java.sql.*;
 
