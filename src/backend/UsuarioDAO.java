@@ -33,7 +33,7 @@ public class UsuarioDAO {
         }
         return null; // Retorna null se o login falhar
     }
-    
+
     public void cadastrarUsuario(String nome,String email, String senha, String tipo){
         String sql = "INSERT INTO usuario(nomeUsuario, emailUsuario,senha, tipo) VALUES(?,?,?,?)";
         try (Connection conn = Conexao.conectar();
@@ -43,6 +43,19 @@ public class UsuarioDAO {
             stmt.setString(2, email);
             stmt.setString(3, senha);
             stmt.setString(4, tipo);
+
+            stmt.executeUpdate();
+            
+        }catch(SQLException e){
+            System.err.println("Erro ao conectar: " + e.getMessage());
+        }
+    }
+        public void deletarUsuario(int id){
+        String sql = "DELETE FROM usuario WHERE idUsuario = ?";
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)){
+
+            stmt.setInt(1, id);
 
             stmt.executeUpdate();
             
