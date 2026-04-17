@@ -1,5 +1,5 @@
 package backend.servidor;
-
+//biblotecas
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,12 +14,16 @@ public class Conexao {
     private static final String USER = dotenv.get("DB_USER");
     private static final String PASS = dotenv.get("DB_PASS");
 
+    //conecta com o banco
     public static Connection conectar() throws SQLException {
         try {
+            //cunversa com o .jar do lib para ler sql
             Class.forName("com.mysql.cj.jdbc.Driver");
-            return DriverManager.getConnection(URL, USER, PASS);
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("Driver não encontrado", e);
+            //retorna um objeto da Classe Connection  que recebe comandos em sql
+            return DriverManager.getConnection(URL,USER,PASS);
+         //trata se der erro (faz o L)
+        }catch(ClassNotFoundException e){
+            throw new SQLException("Driver nao encontrado", e);
         }
     }
 }
