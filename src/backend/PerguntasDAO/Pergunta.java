@@ -6,13 +6,18 @@ public class Pergunta {
     private String imagemURL;
     private String dificuldade;
     private int criadoPor;
+    private int ativa;
 
-    public Pergunta(String enunciado, String imagemURL, String dificuldade,int criadoPor) {
+    
+
+    public Pergunta(int id, String enunciado, String imagemURL, String dificuldade, int criadoPor, int ativa) {
+        this.id = id;
         this.enunciado = enunciado;
         this.imagemURL = imagemURL;
         this.dificuldade = dificuldade;
         this.criadoPor = criadoPor;
-    }  
+        this.ativa = ativa;
+    }
 
     public String getEnunciado() {
         return enunciado;
@@ -28,6 +33,25 @@ public class Pergunta {
 
     public int getCriadoPor() {
         return criadoPor;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getAtiva() {
+        return ativa;
+    }
+
+    @Override
+    public String toString() {
+        return "------------------------------------------\n" +
+            "ID: " + id + "\n" +
+            "Pergunta: " + enunciado + "\n" +
+            "Dificuldade: " + dificuldade + "\n" +
+            "Imagem: " + (imagemURL != null ? imagemURL : "Sem imagem") + "\n" +
+            "Ativa: " + (ativa == 1 ? "Sim" : "Não") + "\n" +
+            "------------------------------------------";
     }
     
 }
