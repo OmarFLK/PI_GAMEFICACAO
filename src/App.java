@@ -4,28 +4,24 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import backend.alternativasDAO.Alternativa;
-import backend.alternativasDAO.AlternativasDAO;
-import backend.perguntaDAO.PerguntaDAO;
+import backend.DAO.alternativasDAO.Alternativa;
+import backend.DAO.alternativasDAO.AlternativasDAO;
+import backend.DAO.perguntaDAO.PerguntaDAO;
 
 public class App {
     public static void main(String[] args) {
-        // Inicia a interface de forma segura
+        // teste metodo para pegar pergunta por id
         PerguntaDAO pergunta = new PerguntaDAO();
         System.out.println(pergunta.getPergunta(1));
 
+        //testa pegar alternativas por pergunta por id
         AlternativasDAO altDao = new AlternativasDAO();
-        Alternativa a = altDao.getAlternativa(1); 
-
-        if(a != null) {
+        List<Alternativa> alternativas = altDao.getAlternativasPorPergunta(1);
+        for (Alternativa a : alternativas) {
             System.out.println(a);
         }
 
-        List<Alternativa> alternativas = altDao.getAlternativasPorPergunta(1);
-        for (Alternativa b : alternativas) {
-            System.out.println(b); // Vai printar as 4 alternativas da ETEC uma embaixo da outra
-        }
-
+        // Inicia a interface gráfica tela login 
         SwingUtilities.invokeLater(() -> {
             new LoginTela().setVisible(true);
         });

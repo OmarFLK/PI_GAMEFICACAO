@@ -1,6 +1,10 @@
-package backend.perguntaDAO;
+//imports e package
+package backend.DAO.perguntaDAO;
 
+//classe
 public class Pergunta {
+
+    //atributos
     private int id;
     private String enunciado;
     private String imagemURL;
@@ -8,8 +12,7 @@ public class Pergunta {
     private int criadoPor;
     private int ativa;
 
-    
-
+    //construtor
     public Pergunta(int id, String enunciado, String imagemURL, String dificuldade, int criadoPor, int ativa) {
         this.id = id;
         this.enunciado = enunciado;
@@ -19,6 +22,19 @@ public class Pergunta {
         this.ativa = ativa;
     }
 
+    //to string para printar no terminal (temporario para teste)
+    @Override
+    public String toString() {
+        return "------------------------------------------\n" +
+            "ID: " + id + "\n" +
+            "Pergunta: " + enunciado + "\n" +
+            "Dificuldade: " + dificuldade + "\n" +
+            "Imagem: " + (imagemURL != null ? imagemURL : "Sem imagem") + "\n" +
+            "Ativa: " + (ativa == 1 ? "Sim" : "Não") + "\n" +
+            "------------------------------------------";
+    }
+    
+    //metodos getters
     public String getEnunciado() {
         return enunciado;
     }
@@ -43,16 +59,6 @@ public class Pergunta {
         return ativa;
     }
 
-    @Override
-    public String toString() {
-        return "------------------------------------------\n" +
-            "ID: " + id + "\n" +
-            "Pergunta: " + enunciado + "\n" +
-            "Dificuldade: " + dificuldade + "\n" +
-            "Imagem: " + (imagemURL != null ? imagemURL : "Sem imagem") + "\n" +
-            "Ativa: " + (ativa == 1 ? "Sim" : "Não") + "\n" +
-            "------------------------------------------";
-    }
     
 }
 

@@ -1,11 +1,13 @@
-package backend.perguntaDAO;
+//imports e package
+package backend.DAO.perguntaDAO;
 
 import java.sql.*;
-
 import backend.servidor.Conexao;
 
+//classe
 public class PerguntaDAO {
 
+    //metodo para criar e adicionar uma pergunta no banco de dados
     public void criarPergunta(String enunciado,String imagemURL,String dificuldade,int criadoPor){
         String sql = "INSERT INTO perguntas(enunciado, imagemURL, dificuldade, criadoPor) VALUES(?,?,?,?)";
         try (Connection conn = Conexao.conectar();
@@ -23,6 +25,7 @@ public class PerguntaDAO {
         }
     }
     
+    //metodo para pegar uma pergunta do banco de dados e coloca-lá no molde da classe pergunta
     public Pergunta getPergunta(int idPergunta){
         String sql = "SELECT idPergunta, enunciado, imagemURL, dificuldade, criadoPor, ativa FROM perguntas WHERE idPergunta = ?";
         try (Connection conn = Conexao.conectar();

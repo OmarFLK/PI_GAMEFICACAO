@@ -1,4 +1,5 @@
-package backend.alternativasDAO;
+//imports e package
+package backend.DAO.alternativasDAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,11 +7,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import backend.servidor.Conexao;
 
+//classe
 public class AlternativasDAO {
 
+    //metodo para pegar a alternativa do banco por id e colocar no molde
+    //da classe alternativa
     public Alternativa getAlternativa(int id) {
         String sql = "SELECT idAlternativa, idPergunta, Texto, imagemURL, correta FROM Alternativa WHERE idAlternativa = ?";
         try (Connection conn = Conexao.conectar();
@@ -34,6 +37,9 @@ public class AlternativasDAO {
         return null; 
     }
 
+    //metodo para pegar todas as alternativas de uma pergunta,
+    //colocar-las no modelo da classe alternativa e colocar
+    // todas as alternativas numa lista
     public List<Alternativa> getAlternativasPorPergunta(int idPergunta) {
         List<Alternativa> lista = new ArrayList<>();
         String sql = "SELECT idAlternativa, idPergunta, Texto, imagemURL, correta FROM Alternativa WHERE idPergunta = ?";

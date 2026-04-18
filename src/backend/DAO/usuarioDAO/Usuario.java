@@ -1,6 +1,10 @@
-package backend.usuarioDAO;
+//imports e package
+package backend.DAO.usuarioDAO;
 
+//classe
 public class Usuario {
+
+    //atributos
     private int id;
     private String nome;
     private String email;
@@ -15,6 +19,19 @@ public class Usuario {
     }
 
     // Getters para usar depois no sistema
-    public String getNome() { return nome; }
-    public String getTipo() { return tipo; }
+    public String getNome() { 
+        return nome; 
+    }
+    
+    public String getTipo() { 
+        return tipo; 
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 }

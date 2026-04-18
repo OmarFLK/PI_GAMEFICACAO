@@ -1,11 +1,13 @@
-package backend.usuarioDAO;
+//imports e package
+package backend.DAO.usuarioDAO;
 
 import java.sql.*;
-
 import backend.servidor.Conexao;
 
+//classe
 public class UsuarioDAO {
 
+    //metodo para efetuar login 
     public Usuario efetuarLogin(String email, String senha) {
         // Query usando os nomes exatos das suas colunas
         String sql = "SELECT idUsuario, nomeUsuario, emailUsuario, tipo FROM usuario WHERE emailUsuario = ? AND senha = ?";
@@ -34,6 +36,7 @@ public class UsuarioDAO {
         return null; // Retorna null se o login falhar
     }
 
+    //metodo para fazer cadastro
     public void cadastrarUsuario(String nome,String email, String senha, String tipo){
         String sql = "INSERT INTO usuario(nomeUsuario, emailUsuario,senha, tipo) VALUES(?,?,?,?)";
         try (Connection conn = Conexao.conectar();
@@ -63,5 +66,4 @@ public class UsuarioDAO {
             System.err.println("Erro ao conectar: " + e.getMessage());
         }
     }
-
 }
