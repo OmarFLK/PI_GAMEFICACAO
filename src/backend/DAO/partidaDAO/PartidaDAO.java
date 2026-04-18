@@ -5,10 +5,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import backend.servidor.Conexao;
 
+//classes
 public class PartidaDAO {
+    
+    //metodo para pegar partidas no banco de dados 
     public Partida getPartida(int id){
         String sql = "SELECT idPartida, idUsuario, pontuacao, dataInicio FROM Partida WHERE idPartida = ?";
 

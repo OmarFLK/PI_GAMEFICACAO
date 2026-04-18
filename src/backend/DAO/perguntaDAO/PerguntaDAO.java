@@ -21,7 +21,7 @@ public class PerguntaDAO {
             stmt.executeUpdate();
             
         }catch(SQLException e){
-            System.err.println("Erro ao conectar: " + e.getMessage());
+            System.err.println("Erro para criar pergunta: " + e.getMessage());
         }
     }
     
@@ -47,7 +47,7 @@ public class PerguntaDAO {
                 );
             }
         }catch(SQLException e){
-            System.err.println("Erro ao conectar: " + e.getMessage());
+            System.err.println("Erro ao buscar pergunta: " + e.getMessage());
         }
         return null;
     }

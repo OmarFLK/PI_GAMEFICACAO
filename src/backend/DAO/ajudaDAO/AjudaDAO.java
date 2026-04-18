@@ -12,7 +12,7 @@ public class AjudaDAO {
 
     // metodo para pegar "ajuda" do banco de dados e colocar no molde ajuda
     public Ajuda getAjuda(int id) {
-        String sql = "SELECT idAjuda, nome, descrição FROM ajuda WHERE idAjuda = ?";
+        String sql = "SELECT idAjuda, nome, descricao FROM ajuda WHERE idAjuda = ?";
 
         try(Connection conn = Conexao.conectar();
             PreparedStatement stmt = conn.prepareStatement(sql)){
