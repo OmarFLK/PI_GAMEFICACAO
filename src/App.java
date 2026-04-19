@@ -5,7 +5,7 @@ import frontend.LoginTela;
 //classe main
 public class App {
     public static void main(String[] args) {
-
+        
         // Inicia a interface gráfica (Swing)
         SwingUtilities.invokeLater(() -> {
             try {
