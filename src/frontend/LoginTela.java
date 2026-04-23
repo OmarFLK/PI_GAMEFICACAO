@@ -1,88 +1,146 @@
 package frontend;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
-import backend.DAO.usuarioDAO.Usuario;
-import backend.DAO.usuarioDAO.UsuarioDAO;
+import frontend.base.TelaBase;
+import frontend.util.Navegador;
 
-public class LoginTela extends javax.swing.JFrame {
+public class LoginTela extends TelaBase {
+
+    private JTextField loginTextField;
+    private JPasswordField senhaPasswordField;
+    private JRadioButton alunoRadioButton;
+    private JRadioButton professorRadioButton;
 
     public LoginTela() {
-        super("Sistema Acadêmico - Quiz");
+        super("QuimLab - Login");
         initComponents();
-        this.setLocationRelativeTo(null);
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Código Gerado pelo NetBeans">
     private void initComponents() {
-        loginTextField = new javax.swing.JTextField();
-        senhaPasswordField = new javax.swing.JPasswordField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        JPanel painelPrincipal = criarPainelPrincipal();
+        JPanel painelExterno = new JPanel(new BorderLayout());
+        painelExterno.setOpaque(false);
+        painelExterno.setBorder(BorderFactory.createEmptyBorder(24, 160, 24, 160));
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        JPanel canvas = criarCanvasCentral();
+        JPanel centro = new JPanel(new BorderLayout());
+        centro.setOpaque(false);
 
-        loginTextField.setBorder(javax.swing.BorderFactory.createTitledBorder("Digite seu e-mail"));
-        senhaPasswordField.setBorder(javax.swing.BorderFactory.createTitledBorder("Digite sua senha"));
+        JPanel coluna = criarColunaCentral(520);
+        coluna.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        jButton1.setText("Sair");
-        jButton1.addActionListener(evt -> this.dispose());
+        JLabel titulo = criarTituloHero("Etec");
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 74));
+        JLabel subtitulo = criarSubtituloHero("Escola Tecnica Estadual");
+        subtitulo.setFont(new Font("SansSerif", Font.PLAIN, 22));
 
-        jButton2.setText("Login");
-        jButton2.addActionListener(evt -> jButton2ActionPerformed(evt));
+        loginTextField = criarCampoTexto("Login");
+        senhaPasswordField = criarCampoSenha("Senha");
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(61, 61, 61)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(24, 24, 24)
-                        .addComponent(jButton1)
-                        .addGap(64, 64, 64)
-                        .addComponent(jButton2))
-                    .addComponent(senhaPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
-                    .addComponent(loginTextField))
-                .addContainerGap(91, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(29, 29, 29)
-                .addComponent(loginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(44, 44, 44)
-                .addComponent(senhaPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addGap(41, 41, 41))
-        );
-        pack();
+        alunoRadioButton = criarOpcaoPerfil("Aluno");
+        professorRadioButton = criarOpcaoPerfil("Professor");
+        alunoRadioButton.setSelected(true);
+
+        ButtonGroup grupo = new ButtonGroup();
+        grupo.add(alunoRadioButton);
+        grupo.add(professorRadioButton);
+
+        JPanel perfilPanel = new JPanel();
+        perfilPanel.setOpaque(false);
+        perfilPanel.setLayout(new BoxLayout(perfilPanel, BoxLayout.X_AXIS));
+        perfilPanel.add(alunoRadioButton);
+        perfilPanel.add(Box.createHorizontalStrut(14));
+        perfilPanel.add(professorRadioButton);
+
+        JButton esquecerSenha = criarBotaoLink("Esqueci a senha");
+        esquecerSenha.addActionListener(evt -> JOptionPane.showMessageDialog(
+            this,
+            "Fluxo de recuperacao ainda mockado.",
+            "QuimLab",
+            JOptionPane.INFORMATION_MESSAGE
+        ));
+
+        JButton entrarButton = criarBotaoPrincipal("ENTRAR");
+        entrarButton.addActionListener(evt -> entrarSistema());
+
+        JButton registroButton = criarBotaoLink("Cadastrar aluno");
+        registroButton.addActionListener(evt -> Navegador.abrirTela(this, new RegistroTela()));
+
+        coluna.add(Box.createVerticalStrut(28));
+        coluna.add(titulo);
+        coluna.add(Box.createVerticalStrut(6));
+        coluna.add(subtitulo);
+        coluna.add(Box.createVerticalStrut(42));
+        coluna.add(loginTextField);
+        coluna.add(Box.createVerticalStrut(20));
+        coluna.add(senhaPasswordField);
+        coluna.add(Box.createVerticalStrut(20));
+        coluna.add(perfilPanel);
+        coluna.add(Box.createVerticalStrut(20));
+        coluna.add(esquecerSenha);
+        coluna.add(Box.createVerticalStrut(20));
+        coluna.add(entrarButton);
+        coluna.add(Box.createVerticalStrut(18));
+        coluna.add(registroButton);
+
+        centro.add(coluna, BorderLayout.CENTER);
+        canvas.add(centro, BorderLayout.CENTER);
+        painelExterno.add(canvas, BorderLayout.CENTER);
+        painelPrincipal.add(painelExterno, BorderLayout.CENTER);
+        setContentPane(painelPrincipal);
     }
-    // </editor-fold>
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
-        String email = loginTextField.getText();
-        String senha = new String(senhaPasswordField.getPassword());
+    private JPasswordField criarCampoSenha(String texto) {
+        JPasswordField campo = new JPasswordField(texto);
+        campo.setHorizontalAlignment(JTextField.CENTER);
+        campo.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        campo.setForeground(COR_CINZA);
+        campo.setBackground(COR_BRANCO);
+        campo.setBorder(new RoundedLineBorder(COR_PRETO, 2, 30, 18));
+        campo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 68));
+        campo.setPreferredSize(new Dimension(0, 68));
+        return campo;
+    }
 
-        // CHAMA O BANCO DE DADOS
-        UsuarioDAO dao = new UsuarioDAO();
-        Usuario logado = dao.efetuarLogin(email, senha);
+    private JRadioButton criarOpcaoPerfil(String texto) {
+        JRadioButton radioButton = new JRadioButton(texto);
+        radioButton.setOpaque(false);
+        radioButton.setFocusPainted(false);
+        radioButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        radioButton.setForeground(COR_PRETO);
+        return radioButton;
+    }
 
-        if (logado != null) {
-            JOptionPane.showMessageDialog(this, "Bem vindo, " + logado.getNome() + "!");
-            // poderia abrir a próxima tela:
-        } else {
-            JOptionPane.showMessageDialog(this, "E-mail ou senha incorretos!", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+    private void entrarSistema() {
+        String login = loginTextField.getText().trim();
+        String senha = new String(senhaPasswordField.getPassword()).trim();
+
+        if (login.isEmpty() || "Login".equalsIgnoreCase(login) || senha.isEmpty() || "Senha".equalsIgnoreCase(senha)) {
+            JOptionPane.showMessageDialog(this, "Preencha login e senha para continuar.", "QuimLab", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    }
 
-    // Variáveis
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JTextField loginTextField;
-    private javax.swing.JPasswordField senhaPasswordField;
+        if (professorRadioButton.isSelected()) {
+            Navegador.abrirTela(this, new HomeProfessorTela());
+            return;
+        }
+
+        Navegador.abrirTela(this, new HomeAlunoTela());
+    }
 }

@@ -1,0 +1,338 @@
+# Documentação do Banco de Dados - TEC GAME
+
+## Visão Geral
+
+O banco de dados `tec_game` foi criado pro projeto TEC GAME, um jogo estilo quiz, parecido com Gênio Quiz, focado em alunos do curso técnico em Química.
+
+A ideia do sistema é simples:
+
+* aluno entra e joga
+* professor entra e administra perguntas
+* sistema salva desempenho
+* mostra estatísticas
+* guarda histórico das partidas
+
+O banco foi feito em MySQL e organizado para suportar login, perguntas, respostas, partidas e acompanhamento dos alunos.
+
+---
+
+# Banco de Dados
+
+```sql
+CREATE DATABASE tec_game;
+USE tec_game;
+```
+
+---
+
+# Tabela usuario
+
+A tabela `usuario` guarda todos os usuários do sistema.
+
+Aqui entram:
+
+* alunos
+* professores
+
+Ela serve para login e identificação.
+
+## Campos
+
+* `idUsuario` = código único do usuário
+* `nomeUsuario` = nome da pessoa
+* `emailUsuario` = email usado no login
+* `senha` = senha de acesso
+* `tipo` = define se é ALUNO ou PROFESSOR
+* `dataCriacao` = data em que a conta foi criada
+
+## Função
+
+Se a pessoa entrar no sistema, ela precisa existir nessa tabela.
+
+---
+
+# Tabela perguntas
+
+A tabela `perguntas` guarda todas as perguntas do jogo.
+
+Exemplo:
+
+Qual objeto é um béquer?
+
+Ou:
+
+Qual material é usado na filtração simples?
+
+## Campos
+
+* `idPergunta` = código da pergunta
+* `enunciado` = texto da pergunta
+* `imagemURL` = imagem da pergunta
+* `dificuldade` = FACIL, MEDIO ou DIFICIL
+* `criadoPor` = professor que cadastrou
+* `dataCriacao` = data de criação
+* `ativa` = se a pergunta pode aparecer no jogo
+
+## Função
+
+Toda pergunta que aparecer no quiz sai dessa tabela.
+
+---
+
+# Tabela alternativa
+
+A tabela `alternativa` guarda as opções de resposta de cada pergunta.
+
+Exemplo:
+
+Pergunta:
+
+Qual objeto é um béquer?
+
+Alternativas:
+
+A) Pipeta
+B) Béquer
+C) Bureta
+D) Funil
+
+## Campos
+
+* `idAlternativa` = código da alternativa
+* `idPergunta` = pergunta dona da alternativa
+* `texto` = texto da opção
+* `imagemURL` = imagem da alternativa
+* `correta` = define se é a certa
+
+## Função
+
+Cada pergunta pode ter várias alternativas.
+
+Normalmente 4 opções.
+
+---
+
+# Tabela partida
+
+A tabela `partida` representa uma sessão de jogo.
+
+Tipo assim:
+
+João começou às 10:00, terminou às 10:10, respondeu 10 perguntas e fez 100 pontos.
+
+Isso vira uma partida.
+
+Depois ele pode jogar de novo e será outra partida.
+
+## Campos
+
+* `idPartida` = código da partida
+* `idUsuario` = quem jogou
+* `pontuacao` = pontos finais
+* `dataInicio` = hora que começou
+* `dataFim` = hora que terminou
+
+## Função
+
+Guarda:
+
+* quem jogou
+* quando jogou
+* quanto pontuou
+* histórico das tentativas
+
+---
+
+# Tabela resposta
+
+A tabela `resposta` mostra cada resposta dada dentro de uma partida.
+
+Exemplo:
+
+João estava jogando e na partida 5 respondeu:
+
+| Pergunta | Marcou | Correta |
+| -------- | ------ | ------- |
+| P1       | C      | Sim     |
+| P2       | D      | Não     |
+
+Cada linha é uma resposta individual.
+
+## Campos
+
+* `idResposta` = código
+* `idPergunta` = pergunta respondida
+* `idPartida` = partida relacionada
+* `idAlternativa` = alternativa marcada
+* `correta` = se acertou
+* `tempoResposta` = tempo gasto
+
+## Função
+
+Guardar tudo que o jogador fez durante a partida.
+
+---
+
+# Tabela ajuda
+
+A tabela `ajuda` guarda os tipos de ajuda do jogo.
+
+Exemplo:
+
+* eliminar alternativas
+* dica textual
+* pular pergunta
+
+## Campos
+
+* `idAjuda` = código
+* `nome` = nome da ajuda
+* `descricao` = explicação
+
+---
+
+# Tabela usoDeAjuda
+
+Essa tabela mostra quando uma ajuda foi usada em uma partida.
+
+## Campos
+
+* `idUsoDeAjuda` = código
+* `idPartida` = partida
+* `idAjuda` = ajuda usada
+
+## Função
+
+Saber quantas vezes o jogador usou ajuda.
+
+---
+
+# Tabela estatistica
+
+A tabela `estatistica` guarda desempenho geral do aluno.
+
+## Campos
+
+* `idEstatistica` = código
+* `idUsuario` = usuário
+* `totalAcertos` = total de acertos
+* `totalErros` = total de erros
+* `tempoMedio` = média de tempo
+
+## Função
+
+Mostrar evolução do aluno no sistema.
+
+---
+
+# Relacionamentos
+
+## usuario -> perguntas
+
+Um professor pode criar várias perguntas.
+
+1 para N
+
+---
+
+## usuario -> partida
+
+Um aluno pode jogar várias partidas.
+
+1 para N
+
+---
+
+## usuario -> estatistica
+
+Cada usuário possui uma estatística.
+
+1 para 1
+
+---
+
+## perguntas -> alternativa
+
+Uma pergunta possui várias alternativas.
+
+1 para N
+
+---
+
+## partida -> resposta
+
+Uma partida possui várias respostas.
+
+1 para N
+
+---
+
+## perguntas -> resposta
+
+Uma pergunta pode aparecer em várias respostas.
+
+1 para N
+
+---
+
+## alternativa -> resposta
+
+Uma alternativa pode ser marcada várias vezes.
+
+1 para N
+
+---
+
+## partida -> usoDeAjuda
+
+Uma partida pode usar várias ajudas.
+
+1 para N
+
+---
+
+## ajuda -> usoDeAjuda
+
+Uma ajuda pode aparecer em várias partidas.
+
+1 para N
+
+---
+
+# Fluxo do Sistema
+
+## Aluno
+
+1. faz login
+2. inicia partida
+3. responde perguntas
+4. sistema registra respostas
+5. calcula pontuação
+6. salva estatística
+
+## Professor
+
+1. faz login
+2. cadastra perguntas
+3. cadastra alternativas
+4. ativa ou desativa perguntas
+5. acompanha desempenho
+
+---
+
+# Resumo Final
+
+Esse banco foi montado para suportar um jogo completo de quiz.
+
+Ele permite:
+
+* autenticação
+* perguntas com imagem
+* alternativas
+* partidas
+* respostas
+* ranking futuro
+* relatórios
+* estatísticas
+
+Foi pensado para crescer depois sem precisar refazer tudo.

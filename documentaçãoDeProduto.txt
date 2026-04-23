@@ -1,0 +1,167 @@
+Projeto: QuimLab
+Instituição parceira: ETEC Júlio de Mesquita
+
+1. Visão geral do projeto
+
+O QuimLab é um sistema desktop em Java voltado para gamificação do ensino de química e laboratório.
+O projeto foi organizado com backend em JDBC/MySQL, uma camada frontend em Swing e o servidor em nuvem 
+para o MySQL usando o railway.
+
+2. Objetivo do sistema
+
+Entregar uma experiência visual navegável para login, registro, homes, gameplay, ranking, estatísticas,
+perfil e gerenciamento de perguntas.
+
+3. Público-alvo
+
+* alunos do ensino médio técnico em Química
+* professores que administram perguntas e acompanham desempenho
+
+4. Estrutura atual do projeto
+
+* src/App.java = ponto de entrada
+* src/backend = camada já existente do projeto original
+* src/frontend = camada visual em Swing
+* lib = dependências do projeto
+* build/classes = saída dos arquivos compilados .class
+
+5. Padrões do time encontrados no código
+
+* classes curtas e objetivas
+* nomes em português
+* comentários simples explicando intenção local
+* uso de Swing com estrutura direta
+* organização por responsabilidade prática
+
+6. Decisão de trabalhar só o frontend
+
+Nesta etapa o foco é somente o frontend.
+Não haverá integração real com backend, banco de dados, DAO, service ou JDBC.
+
+7. Estrutura das telas criadas
+
+* LoginTela
+* RegistroTela
+* HomeAlunoTela
+* HomeProfessorTela
+* GameplayTela
+* ResultadoTela
+* RankingTela
+* EstatisticasTela
+* PerfilTela
+* GerenciarPerguntasTela
+* PerguntaFormTela
+
+8. Ligações entre telas
+
+Login:
+* LoginTela -> HomeAlunoTela
+* LoginTela -> HomeProfessorTela
+* LoginTela -> RegistroTela
+* LoginTela -> aviso visual de recuperação de senha
+
+Registro:
+* RegistroTela -> LoginTela
+* RegistroTela -> confirmação visual -> LoginTela
+
+Aluno:
+* HomeAlunoTela -> GameplayTela
+* HomeAlunoTela -> EstatisticasTela
+* HomeAlunoTela -> RankingTela
+* HomeAlunoTela -> PerfilTela
+* HomeAlunoTela -> Logout -> LoginTela
+
+Professor:
+* HomeProfessorTela -> GameplayTela
+* HomeProfessorTela -> PerguntaFormTela
+* HomeProfessorTela -> GerenciarPerguntasTela
+* HomeProfessorTela -> EstatisticasTela
+* HomeProfessorTela -> RankingTela
+* HomeProfessorTela -> PerfilTela
+* HomeProfessorTela -> Logout -> LoginTela
+
+Gameplay:
+* GameplayTela -> próxima pergunta mockada
+* GameplayTela -> ResultadoTela
+* GameplayTela -> sair -> home correta
+
+Fluxos auxiliares:
+* ResultadoTela -> home correta
+* RankingTela -> home correta
+* EstatisticasTela -> home correta
+* PerfilTela -> home correta / LoginTela
+* GerenciarPerguntasTela -> PerguntaFormTela
+* GerenciarPerguntasTela -> HomeProfessorTela
+* PerguntaFormTela -> GerenciarPerguntasTela
+
+9. Componentes reutilizáveis
+
+* TelaBase = base visual compartilhada entre as telas
+* Navegador = utilitário simples para troca de telas
+* DadosMockados = fonte local de dados do frontend
+
+10. Decisões visuais
+
+* identidade textual com QuimLab e ETEC
+* visual limpo com cards, cabeçalho e botões consistentes
+* layout desktop apresentável e simples de manter
+* paleta azul/verde com fundo claro
+* uso de cards para destacar ações principais
+* placeholders claros para imagem, gráficos e dados futuros
+
+11. O que está mockado
+
+* usuários
+* perguntas
+* ranking
+* estatísticas
+* gerenciamento de perguntas
+
+12. O que futuramente será integrado com backend
+
+* login real
+* cadastro real
+* gameplay persistido
+* estatísticas reais
+* ranking real
+* professor gerenciando perguntas reais
+
+13. Como navegar no sistema
+
+* o projeto abre em LoginTela
+* no login, o combo de perfil mockado decide a home de destino
+* aluno navega por jogo, ranking, estatísticas e perfil
+* professor navega por teste, formulário e gerenciamento de perguntas
+* todas as telas de apoio têm botão de voltar funcional
+* logout volta para LoginTela
+
+14. Como rodar o frontend
+
+Compilar:
+
+`mkdir -p build/classes`
+
+`javac -cp 'lib/*' -d build/classes $(find src -name '*.java' | tr '\n' ' ' )`
+
+Executar:
+
+`java -cp 'build/classes:lib/*' App`
+
+Observação:
+
+No ambiente de desenvolvimento local com interface gráfica o sistema abre normalmente.
+No sandbox desta sessão não foi possível abrir a janela por falta de servidor gráfico X11.
+
+Organização dos arquivos:
+
+* os arquivos `.java` continuam dentro de `src/`
+* os arquivos `.class` devem ficar apenas em `build/classes/`
+* isso evita misturar fonte com compilado
+
+15. Pendências futuras
+
+* integrar com backend existente
+* trocar dados mockados por dados reais
+* conectar fluxo visual com autenticação e banco
+* revisar detalhes finos de UX direto em ambiente gráfico
+* ligar cadastro, ranking, estatísticas e perguntas ao backend real
