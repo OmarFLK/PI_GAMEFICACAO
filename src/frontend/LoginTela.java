@@ -135,6 +135,8 @@ public class LoginTela extends TelaBase {
         backend.DAO.usuarioDAO.Usuario usuarioLogado = usuarioDAO.efetuarLogin(email, senha);
 
         if (usuarioLogado != null) {
+            // SALVA NA SESSÃO PARA USAR EM QUALQUER TELA
+            backend.util.SessaoUsuario.setUsuario(usuarioLogado);
             // Redireciona baseado no tipo vindo do banco
             if ("PROFESSOR".equals(usuarioLogado.getTipo())) {
                 Navegador.abrirTela(this, new HomeProfessorTela());
