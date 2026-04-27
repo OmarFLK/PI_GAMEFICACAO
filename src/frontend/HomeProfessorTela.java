@@ -2,13 +2,16 @@ package frontend;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import javax.swing.JLabel;
 
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
@@ -16,7 +19,7 @@ import frontend.util.Navegador;
 public class HomeProfessorTela extends TelaBase {
 
     public HomeProfessorTela() {
-        super("QuimLab - Professor");
+        super("QuimLab - Painel do Professor");
         initComponents();
     }
 
@@ -30,16 +33,17 @@ public class HomeProfessorTela extends TelaBase {
         JPanel conteudo = new JPanel(new BorderLayout(0, 18));
         conteudo.setOpaque(false);
 
+        // Botão de Perfil do Professor
         JButton perfilButton = criarBotaoNeutro("Meu perfil");
-        perfilButton.setPreferredSize(new java.awt.Dimension(170, 58));
+        perfilButton.setPreferredSize(new Dimension(170, 58));
         perfilButton.addActionListener(evt -> Navegador.abrirTela(this, new PerfilTela(Navegador.TIPO_PROFESSOR)));
 
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-        topo.add(criarBadge("PROFESSOR", new java.awt.Color(235, 243, 252), COR_AZUL_ESCURO), BorderLayout.WEST);
+        topo.add(criarBadge("PROFESSOR", new Color(235, 240, 255), new Color(50, 100, 200)), BorderLayout.WEST);
         topo.add(perfilButton, BorderLayout.EAST);
 
-        JPanel centro = criarColunaCentral(780);
+        JPanel centro = criarColunaCentral(740);
         centro.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel marcaPanel = new JPanel();
@@ -47,25 +51,33 @@ public class HomeProfessorTela extends TelaBase {
         marcaPanel.setLayout(new BoxLayout(marcaPanel, BoxLayout.X_AXIS));
         marcaPanel.add(criarIconeLaboratorio());
         marcaPanel.add(Box.createHorizontalStrut(16));
-        marcaPanel.add(criarTituloHero("QuimLab"));
+        marcaPanel.add(criarTituloHero("QuimLab Pro"));
         marcaPanel.add(Box.createHorizontalStrut(16));
         marcaPanel.add(criarIconeLaboratorio());
 
-        javax.swing.JLabel subtitulo = criarSubtituloHero("Gerencie perguntas, acompanhe turmas e valide atividades");
-        javax.swing.JLabel apoio = criarTextoCentral("Acesso rapido para as acoes principais do professor.");
+        JLabel subtitulo = criarSubtituloHero("Gestão de conteúdos e análise de turmas");
+        JLabel apoio = criarTextoCentral("Gerencie o banco de questões ou acompanhe o engajamento dos alunos.");
         apoio.setForeground(COR_TEXTO_SUAVE);
 
-        JButton testarQuestoesButton = criarBotaoPrincipal("TESTAR QUESTOES");
-        testarQuestoesButton.addActionListener(evt -> Navegador.abrirTela(this, new GameplayTela(Navegador.TIPO_PROFESSOR, "TESTE")));
+        // Ação para Gerenciar Perguntas
+        JButton gerenciarButton = criarBotaoPrincipal("GERENCIAR PERGUNTAS");
+        gerenciarButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarPerguntasTela()));
 
-        JButton perguntasButton = criarBotaoSecundario("ADICIONAR E EDITAR PERGUNTAS");
-        perguntasButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarPerguntasTela()));
+        // BOTÃO AJUSTADO: Aviso de desenvolvimento para o Professor
+        JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DAS TURMAS");
+        estatisticasButton.addActionListener(evt -> {
+            JOptionPane.showMessageDialog(
+                this, 
+                "<html><div style='text-align: center;'><b>Painel de Análise em Desenvolvimento</b><br>" +
+                "Em breve você poderá visualizar gráficos de desempenho por turma e matéria.<br>" +
+                "<font size='5'>📊👨‍🏫</font></div></html>", 
+                "QuimLab - Em Breve", 
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        });
 
-        JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DOS ALUNOS");
-        estatisticasButton.addActionListener(evt -> Navegador.abrirTela(this, new EstatisticasTela(Navegador.TIPO_PROFESSOR)));
-
-        JButton rankingButton = criarBotaoNeutro("RANKING GERAL");
-        rankingButton.setPreferredSize(new java.awt.Dimension(0, 70));
+        JButton rankingButton = criarBotaoNeutro("RANKING GLOBAL DE ALUNOS");
+        rankingButton.setPreferredSize(new Dimension(0, 70));
         rankingButton.addActionListener(evt -> Navegador.abrirTela(this, new RankingTela(Navegador.TIPO_PROFESSOR)));
 
         centro.add(Box.createVerticalStrut(18));
@@ -74,21 +86,20 @@ public class HomeProfessorTela extends TelaBase {
         centro.add(subtitulo);
         centro.add(Box.createVerticalStrut(8));
         centro.add(apoio);
-        centro.add(Box.createVerticalStrut(34));
-        centro.add(testarQuestoesButton);
-        centro.add(Box.createVerticalStrut(16));
-        centro.add(perguntasButton);
-        centro.add(Box.createVerticalStrut(16));
+        centro.add(Box.createVerticalStrut(38));
+        centro.add(gerenciarButton);
+        centro.add(Box.createVerticalStrut(18));
         centro.add(estatisticasButton);
-        centro.add(Box.createVerticalStrut(16));
+        centro.add(Box.createVerticalStrut(18));
         centro.add(rankingButton);
 
         JPanel rodape = new JPanel(new BorderLayout());
         rodape.setOpaque(false);
-        rodape.add(criarTextoSuave("ETEC | Painel academico do professor"), BorderLayout.WEST);
-        JButton sairButton = criarBotaoLink("Sair");
+        rodape.add(criarTextoSuave("Painel Administrativo | ETEC Química"), BorderLayout.WEST);
+        
+        JButton sairButton = criarBotaoLink("Encerrar Sessão");
         sairButton.addActionListener(evt -> {
-            JOptionPane.showMessageDialog(this, "Saindo do perfil do professor.", "QuimLab", JOptionPane.INFORMATION_MESSAGE);
+            backend.Seguranca.SessaoUsuario.getInstancia().encerrarSessao();
             Navegador.abrirLogin(this);
         });
         rodape.add(sairButton, BorderLayout.EAST);

@@ -2,6 +2,7 @@ package frontend;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -31,7 +32,7 @@ public class HomeAlunoTela extends TelaBase {
         conteudo.setOpaque(false);
 
         JButton perfilButton = criarBotaoNeutro("Meu perfil");
-        perfilButton.setPreferredSize(new java.awt.Dimension(170, 58));
+        perfilButton.setPreferredSize(new Dimension(170, 58));
         perfilButton.addActionListener(evt -> Navegador.abrirTela(this, new PerfilTela(Navegador.TIPO_ALUNO)));
 
         JPanel topo = new JPanel(new BorderLayout());
@@ -58,11 +59,21 @@ public class HomeAlunoTela extends TelaBase {
         JButton iniciarJogoButton = criarBotaoPrincipal("INICIAR JOGO");
         iniciarJogoButton.addActionListener(evt -> Navegador.abrirTela(this, new GameplayTela(Navegador.TIPO_ALUNO, "JOGO")));
 
+        // BOTÃO AJUSTADO: Agora exibe aviso de desenvolvimento
         JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DO ALUNO");
-        estatisticasButton.addActionListener(evt -> Navegador.abrirTela(this, new EstatisticasTela(Navegador.TIPO_ALUNO)));
+        estatisticasButton.addActionListener(evt -> {
+            JOptionPane.showMessageDialog(
+                this, 
+                "<html><div style='text-align: center;'><b>Página em Desenvolvimento</b><br>" +
+                "Estamos preparando gráficos incríveis para você acompanhar seu progresso!<br>" +
+                "<font size='5'>🧪🏗️</font></div></html>", 
+                "QuimLab - Em Breve", 
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        });
 
         JButton rankingButton = criarBotaoNeutro("RANKING GERAL");
-        rankingButton.setPreferredSize(new java.awt.Dimension(0, 70));
+        rankingButton.setPreferredSize(new Dimension(0, 70));
         rankingButton.addActionListener(evt -> Navegador.abrirTela(this, new RankingTela(Navegador.TIPO_ALUNO)));
 
         centro.add(Box.createVerticalStrut(18));

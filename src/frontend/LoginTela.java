@@ -17,6 +17,9 @@ import javax.swing.JTextField;
 
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
+import backend.DAO.usuarioDAO.Usuario;
+import backend.DAO.usuarioDAO.UsuarioDAO;
+import backend.Seguranca.SessaoUsuario;
 
 public class LoginTela extends TelaBase {
 
@@ -52,7 +55,7 @@ public class LoginTela extends TelaBase {
 
         Dimension tamanhoPadrao = new Dimension(380, 55);
 
-        JLabel labelLogin = new JLabel("Login");
+        JLabel labelLogin = new JLabel("Login (E-mail)");
         labelLogin.setFont(new Font("SansSerif", Font.BOLD, 14));
         labelLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -130,21 +133,20 @@ public class LoginTela extends TelaBase {
             return;
         }
 
-        // INTEGRAÇÃO REAL
-        backend.DAO.usuarioDAO.UsuarioDAO usuarioDAO = new backend.DAO.usuarioDAO.UsuarioDAO();
-        backend.DAO.usuarioDAO.Usuario usuarioLogado = usuarioDAO.efetuarLogin(email, senha);
+        // Instancia o DAO para buscar no banco
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        
+        // Chamada ao banco de dados
+        Usuario usuario = usuarioDAO.efetuarLogin(email, senha);
 
-        if (usuarioLogado != null) {
-            // SALVA NA SESSÃO PARA USAR EM QUALQUER TELA
-            backend.util.SessaoUsuario.setUsuario(usuarioLogado);
-            // Redireciona baseado no tipo vindo do banco
-            if ("PROFESSOR".equals(usuarioLogado.getTipo())) {
-                Navegador.abrirTela(this, new HomeProfessorTela());
-            } else {
-                Navegador.abrirTela(this, new HomeAlunoTela());
-            }
+        if (usuario != null) {
+            // SALVA O OBJETO NA SESSÃO PARA USO GLOBAL
+            SessaoUsuario.getInstancia().setUsuario(usuario);
+            
+            // Navega para a Home correspondente (Aluno ou Professor)
+            Navegador.abrirHome(this, usuario.getTipo());
         } else {
-            JOptionPane.showMessageDialog(this, "E-mail ou senha incorretos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Usuário ou senha inválidos.", "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
