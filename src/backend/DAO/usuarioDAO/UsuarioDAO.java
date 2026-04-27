@@ -21,21 +21,21 @@ public class UsuarioDAO {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
 
-            if(rs.next()) {
+            if (rs.next()) {
                 String senhaDoBanco = rs.getString("senha");
-
-                if (SenhaService.verificarSenha(senhaDigitada, senhaDoBanco)) {
-                // verifica se a senha digitada é igual o senha criptografada (hash)
-                return new Usuario(
-                    rs.getInt("idUsuario"),
-                    rs.getString("nomeUsuario"),
-                    rs.getString("emailUsuario"),
-                    rs.getString("tipo")
-                );
+                try {
+                    if (SenhaService.verificarSenha(senhaDigitada, senhaDoBanco)) {
+                        return new Usuario(
+                            rs.getInt("idUsuario"),
+                            rs.getString("nomeUsuario"),
+                            rs.getString("emailUsuario"),
+                            rs.getString("tipo")
+                        );
+                    }
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Senha no banco não está em formato BCrypt: " + e.getMessage());
+                }
             }
-            }
-            
-
         } catch (SQLException e) {
             System.err.println("Erro ao conectar: " + e.getMessage());
         }
