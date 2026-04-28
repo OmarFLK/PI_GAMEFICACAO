@@ -1,86 +1,116 @@
 package frontend;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.*;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import frontend.base.TelaBase;
-import frontend.mock.DadosMockados;
-import frontend.mock.DadosMockados.PerguntaCadastroMock;
 import frontend.util.Navegador;
+import backend.DAO.perguntaDAO.*;
 
 public class GerenciarPerguntasTela extends TelaBase {
 
-    private JTable perguntasTable;
-    private final List<PerguntaCadastroMock> perguntas;
+    private JTable tabela;
+    private DefaultTableModel modelo;
+    private final PerguntaDAO perguntaDAO = new PerguntaDAO();
 
     public GerenciarPerguntasTela() {
-        super("QuimLab - Gerenciar perguntas");
-        this.perguntas = DadosMockados.getPerguntasGerenciar();
+        super("QuimLab Pro - Gerenciar Questões");
         initComponents();
+        atualizarTabela();
     }
 
     private void initComponents() {
         JPanel painelPrincipal = criarPainelPrincipal();
-        JPanel painelExterno = new JPanel(new BorderLayout());
+        JPanel painelExterno = new JPanel(new BorderLayout(0, 20));
         painelExterno.setOpaque(false);
-        painelExterno.setBorder(BorderFactory.createEmptyBorder(26, 90, 26, 90));
+        painelExterno.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
-        JPanel canvas = criarCanvasCentral();
-        JPanel conteudo = new JPanel(new BorderLayout(20, 20));
-        conteudo.setOpaque(false);
+        // --- CABEÇALHO COM BOTÃO VOLTAR ---
+        JPanel topo = new JPanel(new BorderLayout());
+        topo.setOpaque(false);
 
-        JButton voltarButton = criarBotaoNeutro("Voltar");
-        voltarButton.setPreferredSize(new Dimension(160, 60));
-        voltarButton.addActionListener(evt -> Navegador.abrirTela(this, new HomeProfessorTela()));
-        conteudo.add(criarTopoComVoltar("ADICIONAR/EDITAR PERGUNTAS", voltarButton), BorderLayout.NORTH);
+        JLabel titulo = new JLabel("Gerenciamento de Perguntas");
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 28));
+        titulo.setForeground(new Color(44, 62, 80));
+        
+        JButton btnVoltarHome = criarBotaoLink("← Voltar para o Painel");
+        btnVoltarHome.addActionListener(e -> Navegador.abrirHome(this, Navegador.TIPO_PROFESSOR));
 
-        DefaultTableModel model = new DefaultTableModel(new Object[] { "Pergunta", "Dificuldade", "Status" }, 0) {
+        topo.add(titulo, BorderLayout.CENTER);
+        topo.add(btnVoltarHome, BorderLayout.WEST); // Botão de voltar no canto superior esquerdo
+        
+        painelExterno.add(topo, BorderLayout.NORTH);
+
+        // --- TABELA ---
+        modelo = new DefaultTableModel(new Object[]{"ID", "Enunciado", "Dificuldade", "Status"}, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
+        tabela = new JTable(modelo);
+        tabela.setRowHeight(35);
+        JScrollPane scroll = new JScrollPane(tabela);
+        
+        painelExterno.add(scroll, BorderLayout.CENTER);
 
-        for (PerguntaCadastroMock pergunta : perguntas) {
-            model.addRow(new Object[] { pergunta.getEnunciado(), pergunta.getDificuldade(), pergunta.getStatus() });
-        }
+        // --- BARRA DE AÇÕES ---
+        JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0));
+        acoes.setOpaque(false);
 
-        perguntasTable = new JTable(model);
-        perguntasTable.setRowHeight(36);
+        JButton btnNovo = criarBotaoPrincipal("NOVA PERGUNTA");
+        btnNovo.addActionListener(e -> Navegador.abrirTela(this, new PerguntaFormTela(null)));
 
-        JPanel acoes = criarLinhaBotoes(
-            criarBotaoPrincipal("Nova Pergunta"),
-            criarBotaoNeutro("Editar Selecionada")
-        );
+        JButton btnEditar = criarBotaoSecundario("EDITAR SELECIONADA");
+        btnEditar.addActionListener(e -> prepararEdicao());
 
-        JButton novaPerguntaButton = (JButton) acoes.getComponent(0);
-        JButton editarButton = (JButton) acoes.getComponent(1);
-        novaPerguntaButton.addActionListener(evt -> Navegador.abrirTela(this, new PerguntaFormTela(null)));
-        editarButton.addActionListener(evt -> editarPerguntaSelecionada());
+        JButton btnExcluir = criarBotaoNeutro("EXCLUIR");
+        btnExcluir.setForeground(Color.RED);
+        btnExcluir.addActionListener(e -> confirmarExclusao());
 
-        conteudo.add(criarScroll(perguntasTable), BorderLayout.CENTER);
-        conteudo.add(acoes, BorderLayout.SOUTH);
+        acoes.add(btnNovo);
+        acoes.add(btnEditar);
+        acoes.add(btnExcluir);
 
-        canvas.add(conteudo, BorderLayout.CENTER);
-        painelExterno.add(canvas, BorderLayout.CENTER);
-        painelPrincipal.add(painelExterno, BorderLayout.CENTER);
+        painelExterno.add(acoes, BorderLayout.SOUTH);
+        painelPrincipal.add(painelExterno);
         setContentPane(painelPrincipal);
     }
 
-    private void editarPerguntaSelecionada() {
-        int linhaSelecionada = perguntasTable.getSelectedRow();
-        if (linhaSelecionada == -1) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Selecione uma pergunta da lista para editar.", "QuimLab", javax.swing.JOptionPane.ERROR_MESSAGE);
+    private void atualizarTabela() {
+        modelo.setRowCount(0);
+        List<Pergunta> lista = perguntaDAO.getTodasPerguntas(); 
+        for (Pergunta p : lista) {
+            modelo.addRow(new Object[]{
+                p.getId(), 
+                p.getEnunciado(), 
+                p.getDificuldade(), 
+                p.getAtiva() == 1 ? "Ativa" : "Inativa"
+            });
+        }
+    }
+
+    private void prepararEdicao() {
+        int linha = tabela.getSelectedRow();
+        if (linha == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione uma pergunta primeiro.");
             return;
         }
+        int id = (int) modelo.getValueAt(linha, 0);
+        Pergunta p = perguntaDAO.getPergunta(id);
+        Navegador.abrirTela(this, new PerguntaFormTela(p));
+    }
 
-        Navegador.abrirTela(this, new PerguntaFormTela(perguntas.get(linhaSelecionada)));
+    private void confirmarExclusao() {
+        int linha = tabela.getSelectedRow();
+        if (linha == -1) return;
+        
+        int id = (int) modelo.getValueAt(linha, 0);
+        int resp = JOptionPane.showConfirmDialog(this, "Excluir permanentemente a pergunta " + id + "?", "Aviso", JOptionPane.YES_NO_OPTION);
+        
+        if (resp == JOptionPane.YES_OPTION) {
+            perguntaDAO.deletarPergunta(id);
+            atualizarTabela();
+        }
     }
 }
