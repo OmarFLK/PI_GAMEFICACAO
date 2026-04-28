@@ -2,6 +2,9 @@
 package backend.DAO.perguntaDAO;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import backend.servidor.Conexao;
 
 //classe
@@ -52,4 +55,35 @@ public class PerguntaDAO {
         return null;
     }
 
+    //metodo para puxar peguntas pela dificuldade, o metodo retorna uma lista de perguntas para a partida
+    public List<Pergunta> getPerguntasPorDificuldade(String dificuldade) {
+    List<Pergunta> lista = new ArrayList<>();
+    //UPPER para garantir que bata com o ENUM do banco (FACIL, MEDIO, DIFICIL)
+    String sql = "SELECT idPergunta, enunciado, imagemURL, dificuldade, criadoPor, ativa " +
+                 "FROM perguntas WHERE dificuldade = UPPER(?) AND ativa = 1 ORDER BY RAND()";
+
+    try (Connection conn = Conexao.conectar();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setString(1, dificuldade);
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            lista.add(new Pergunta(
+                rs.getInt("idPergunta"),
+                rs.getString("enunciado"),
+                rs.getString("imagemURL"),
+                rs.getString("dificuldade"),
+                rs.getInt("criadoPor"),
+                rs.getInt("ativa")
+            ));
+        }
+    } catch (SQLException e) {
+        System.err.println("Erro ao buscar perguntas por dificuldade: " + e.getMessage());
+    }
+    return lista;
+}
+
+    //metodo para puxar perguntas pela dificuldade
+    
 }
