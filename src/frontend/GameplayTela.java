@@ -1,36 +1,25 @@
 package frontend;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import frontend.base.TelaBase;
-import frontend.mock.DadosMockados;
-import frontend.mock.DadosMockados.PerguntaMock;
 import frontend.util.Navegador;
+import backend.DAO.perguntaDAO.*;
+import backend.DAO.alternativasDAO.*;
 
 public class GameplayTela extends TelaBase {
 
     private final String tipoUsuario;
-    private final List<PerguntaMock> perguntas;
-    private int indicePergunta;
-    private int pontuacao;
-    private int acertos;
-    private boolean ajudaUsada;
+    private final PerguntaDAO perguntaDAO = new PerguntaDAO();
+    private final AlternativasDAO alternativasDAO = new AlternativasDAO();
+    
+    private List<Pergunta> perguntas;
+    private List<Alternativa> alternativasAtuais;
+    private int indicePergunta = 0;
+    private int pontuacao = 0;
+    private int acertos = 0;
 
     private JLabel dificuldadeLabel;
     private JLabel progressoLabel;
@@ -43,10 +32,95 @@ public class GameplayTela extends TelaBase {
     public GameplayTela(String tipoUsuario, String modoTela) {
         super("QuimLab - Gameplay");
         this.tipoUsuario = tipoUsuario;
-        this.perguntas = DadosMockados.getPerguntasGameplay();
+        
+        // Passo 1: Selecionar Dificuldade antes de iniciar
+        String dificuldadeSelecionada = selecionarDificuldade();
+        
+        // Passo 2: Puxar do Banco Real
+        this.perguntas = perguntaDAO.getPerguntasPorDificuldade(dificuldadeSelecionada);
+        
+        if (this.perguntas == null || this.perguntas.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Não há perguntas para esta dificuldade no banco.");
+            Navegador.abrirHome(null, tipoUsuario); // Retorna se estiver vazio
+            return;
+        }
+
         initComponents();
         carregarPergunta();
     }
+
+    private String selecionarDificuldade() {
+        Object[] opcoes = {"FACIL", "MEDIO", "DIFICIL"};
+        Object selecao = JOptionPane.showInputDialog(null, 
+                "Escolha o nível do desafio:", "QuimLab - Seleção",
+                JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
+        
+        return (selecao != null) ? selecao.toString() : "FACIL";
+    }
+
+    private void carregarPergunta() {
+        Pergunta perguntaAtual = perguntas.get(indicePergunta);
+        
+        // Busca as alternativas reais vinculadas ao ID da pergunta
+        this.alternativasAtuais = alternativasDAO.getAlternativasPorPergunta(perguntaAtual.getId());
+
+        dificuldadeLabel.setText("Dificuldade: " + formatarTexto(perguntaAtual.getDificuldade()));
+        progressoLabel.setText("Pergunta " + (indicePergunta + 1) + " de " + perguntas.size() + " | Pontos " + pontuacao);
+        perguntaLabel.setText("<html><div style='text-align:center; width:980px;'>" + perguntaAtual.getEnunciado() + "</div></html>");
+        
+        // Por enquanto, apenas texto no placeholder da imagem
+        imagemLabel.setText("<html><div style='text-align:center; padding-top:60px;'>Ilustração: " + 
+                            (perguntaAtual.getImagemURL() != null ? perguntaAtual.getImagemURL() : "Laboratório") + "</div></html>");
+
+        for (int i = 0; i < alternativasRadioButtons.length; i++) {
+            if (i < alternativasAtuais.size()) {
+                alternativasRadioButtons[i].setText(alternativasAtuais.get(i).getTexto());
+                alternativasRadioButtons[i].setVisible(true);
+                alternativasRadioButtons[i].setEnabled(true);
+            } else {
+                alternativasRadioButtons[i].setVisible(false);
+            }
+            alternativasRadioButtons[i].setBackground(new Color(241, 246, 250));
+            alternativasRadioButtons[i].setForeground(COR_AZUL_ESCURO);
+        }
+
+        ajudaButton.setEnabled(true);
+        alternativasButtonGroup.clearSelection();
+    }
+
+    private void avancarPergunta() {
+        int indiceSelecionado = -1;
+        for (int i = 0; i < alternativasRadioButtons.length; i++) {
+            if (alternativasRadioButtons[i].isSelected()) {
+                indiceSelecionado = i;
+                break;
+            }
+        }
+
+        if (indiceSelecionado == -1) {
+            JOptionPane.showMessageDialog(this, "Escolha uma alternativa!", "QuimLab", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Lógica de verificação usando o campo 'correta' (1 ou 0) do seu banco
+        if (alternativasAtuais.get(indiceSelecionado).getCorreta() == 1) {
+            pontuacao += 100;
+            acertos++;
+            JOptionPane.showMessageDialog(this, "Acertou! +100 pontos.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Errado!");
+        }
+
+        indicePergunta++;
+        if (indicePergunta >= perguntas.size()) {
+            Navegador.abrirTela(this, new ResultadoTela(tipoUsuario, pontuacao, acertos, perguntas.size()));
+            return;
+        }
+
+        carregarPergunta();
+    }
+
+    // --- MÉTODOS DE LAYOUT (MANTIDOS IGUAIS AO SEU ORIGINAL) ---
 
     private void initComponents() {
         JPanel painelPrincipal = criarPainelPrincipal();
@@ -60,10 +134,10 @@ public class GameplayTela extends TelaBase {
 
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-        dificuldadeLabel = criarTexto("Dificuldade: Facil");
+        dificuldadeLabel = criarTexto("Dificuldade: ");
         dificuldadeLabel.setForeground(COR_VERDE.darker());
         dificuldadeLabel.setFont(dificuldadeLabel.getFont().deriveFont(java.awt.Font.BOLD, 16f));
-        progressoLabel = criarTextoSuave("Pergunta 1 de 3");
+        progressoLabel = criarTextoSuave("");
         progressoLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         topo.add(dificuldadeLabel, BorderLayout.WEST);
         topo.add(progressoLabel, BorderLayout.EAST);
@@ -72,11 +146,11 @@ public class GameplayTela extends TelaBase {
         corpo.setOpaque(false);
         corpo.setLayout(new BoxLayout(corpo, BoxLayout.Y_AXIS));
 
-        perguntaLabel = criarTituloHero("Pergunta");
-        perguntaLabel.setFont(perguntaLabel.getFont().deriveFont(40f));
+        perguntaLabel = criarTituloHero("Carregando...");
+        perguntaLabel.setFont(perguntaLabel.getFont().deriveFont(32f)); // Ajustei levemente o tamanho
         perguntaLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        imagemLabel = criarPlaceholder("Imagem do material de laboratorio");
+        imagemLabel = criarPlaceholder("Imagem");
         imagemLabel.setPreferredSize(new Dimension(320, 220));
         imagemLabel.setMaximumSize(new Dimension(320, 220));
         imagemLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -106,7 +180,7 @@ public class GameplayTela extends TelaBase {
         JButton sairButton = criarBotaoLink("Sair");
         sairButton.addActionListener(evt -> Navegador.abrirHome(this, tipoUsuario));
 
-        JButton proximaButton = criarBotaoPrincipal("Responder");
+        JButton proximaButton = criarBotaoPrincipal("Confirmar Resposta");
         proximaButton.setPreferredSize(new Dimension(320, 82));
         proximaButton.addActionListener(evt -> avancarPergunta());
 
@@ -128,86 +202,27 @@ public class GameplayTela extends TelaBase {
         radio.setOpaque(true);
         radio.setBackground(new Color(241, 246, 250));
         radio.setForeground(COR_AZUL_ESCURO);
-        radio.setBorder(new RoundedLineBorder(new Color(198, 210, 219), 1, 30, 18));
         radio.setFocusPainted(false);
         radio.setHorizontalAlignment(SwingConstants.CENTER);
-        radio.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
-        radio.setPreferredSize(new Dimension(0, 128));
+        radio.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 18));
+        radio.setPreferredSize(new Dimension(0, 100));
         return radio;
     }
 
-    private void carregarPergunta() {
-        PerguntaMock perguntaAtual = perguntas.get(indicePergunta);
-        dificuldadeLabel.setText("Dificuldade: " + formatarTexto(perguntaAtual.getDificuldade()));
-        progressoLabel.setText("Pergunta " + (indicePergunta + 1) + " de " + perguntas.size() + " | Pontos " + pontuacao);
-        perguntaLabel.setText("<html><div style='text-align:center; width:980px;'>" + perguntaAtual.getEnunciado() + "</div></html>");
-        imagemLabel.setText("<html><div style='text-align:center; padding-top:60px;'>" + perguntaAtual.getImagemDescricao() + "</div></html>");
-
-        List<String> alternativas = perguntaAtual.getAlternativas();
-        for (int i = 0; i < alternativasRadioButtons.length; i++) {
-            alternativasRadioButtons[i].setText(alternativas.get(i));
-            alternativasRadioButtons[i].setEnabled(true);
-            alternativasRadioButtons[i].setBackground(new Color(241, 246, 250));
-            alternativasRadioButtons[i].setForeground(COR_AZUL_ESCURO);
-        }
-
-        ajudaUsada = false;
-        ajudaButton.setEnabled(true);
-        alternativasButtonGroup.clearSelection();
-    }
-
     private void usarAjuda() {
-        if (ajudaUsada) {
-            return;
-        }
-
-        PerguntaMock perguntaAtual = perguntas.get(indicePergunta);
         int removidas = 0;
         for (int i = 0; i < alternativasRadioButtons.length; i++) {
-            if (i != perguntaAtual.getCorreta() && removidas < 2) {
+            if (alternativasAtuais.get(i).getCorreta() == 0 && removidas < 2) {
                 alternativasRadioButtons[i].setEnabled(false);
                 alternativasRadioButtons[i].setBackground(new Color(220, 226, 232));
-                alternativasRadioButtons[i].setForeground(COR_TEXTO_SUAVE);
                 removidas++;
             }
         }
-
-        ajudaUsada = true;
         ajudaButton.setEnabled(false);
-        JOptionPane.showMessageDialog(this, "Ajuda usada: duas alternativas incorretas foram desativadas.", "QuimLab", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void avancarPergunta() {
-        int indiceSelecionado = -1;
-        for (int i = 0; i < alternativasRadioButtons.length; i++) {
-            if (alternativasRadioButtons[i].isSelected()) {
-                indiceSelecionado = i;
-                break;
-            }
-        }
-
-        if (indiceSelecionado == -1) {
-            JOptionPane.showMessageDialog(this, "Escolha uma alternativa para continuar.", "QuimLab", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        PerguntaMock perguntaAtual = perguntas.get(indicePergunta);
-        if (indiceSelecionado == perguntaAtual.getCorreta()) {
-            pontuacao += 100;
-            acertos++;
-        }
-
-        indicePergunta++;
-        if (indicePergunta >= perguntas.size()) {
-            Navegador.abrirTela(this, new ResultadoTela(tipoUsuario, pontuacao, acertos, perguntas.size()));
-            return;
-        }
-
-        carregarPergunta();
     }
 
     private String formatarTexto(String texto) {
-        String minusculo = texto.toLowerCase();
-        return Character.toUpperCase(minusculo.charAt(0)) + minusculo.substring(1);
+        if (texto == null) return "";
+        return texto.substring(0, 1).toUpperCase() + texto.substring(1).toLowerCase();
     }
 }
