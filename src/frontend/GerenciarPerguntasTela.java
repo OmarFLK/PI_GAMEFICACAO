@@ -4,7 +4,6 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
 import backend.DAO.perguntaDAO.*;
@@ -14,6 +13,7 @@ public class GerenciarPerguntasTela extends TelaBase {
     private JTable tabela;
     private DefaultTableModel modelo;
     private final PerguntaDAO perguntaDAO = new PerguntaDAO();
+    private JButton btnNovo, btnEditar, btnExcluir;
 
     public GerenciarPerguntasTela() {
         super("QuimLab Pro - Gerenciar Questões");
@@ -27,50 +27,37 @@ public class GerenciarPerguntasTela extends TelaBase {
         painelExterno.setOpaque(false);
         painelExterno.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
-        // --- CABEÇALHO COM BOTÃO VOLTAR ---
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-
-        JLabel titulo = new JLabel("Gerenciamento de Perguntas");
+        JLabel titulo = new JLabel("Gerenciamento de Banco de Dados");
         titulo.setFont(new Font("SansSerif", Font.BOLD, 28));
         titulo.setForeground(new Color(44, 62, 80));
-        
         JButton btnVoltarHome = criarBotaoLink("← Voltar para o Painel");
         btnVoltarHome.addActionListener(e -> Navegador.abrirHome(this, Navegador.TIPO_PROFESSOR));
-
         topo.add(titulo, BorderLayout.CENTER);
-        topo.add(btnVoltarHome, BorderLayout.WEST); // Botão de voltar no canto superior esquerdo
-        
+        topo.add(btnVoltarHome, BorderLayout.WEST);
         painelExterno.add(topo, BorderLayout.NORTH);
 
-        // --- TABELA ---
         modelo = new DefaultTableModel(new Object[]{"ID", "Enunciado", "Dificuldade", "Status"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         tabela = new JTable(modelo);
         tabela.setRowHeight(35);
-        JScrollPane scroll = new JScrollPane(tabela);
-        
-        painelExterno.add(scroll, BorderLayout.CENTER);
+        painelExterno.add(new JScrollPane(tabela), BorderLayout.CENTER);
 
-        // --- BARRA DE AÇÕES ---
         JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0));
         acoes.setOpaque(false);
-
-        JButton btnNovo = criarBotaoPrincipal("NOVA PERGUNTA");
+        btnNovo = criarBotaoPrincipal("NOVA PERGUNTA");
         btnNovo.addActionListener(e -> Navegador.abrirTela(this, new PerguntaFormTela(null)));
-
-        JButton btnEditar = criarBotaoSecundario("EDITAR SELECIONADA");
+        
+        btnEditar = criarBotaoSecundario("EDITAR SELECIONADA");
         btnEditar.addActionListener(e -> prepararEdicao());
-
-        JButton btnExcluir = criarBotaoNeutro("EXCLUIR");
+        
+        btnExcluir = criarBotaoNeutro("EXCLUIR");
         btnExcluir.setForeground(Color.RED);
         btnExcluir.addActionListener(e -> confirmarExclusao());
-
-        acoes.add(btnNovo);
-        acoes.add(btnEditar);
-        acoes.add(btnExcluir);
+        
+        acoes.add(btnNovo); acoes.add(btnEditar); acoes.add(btnExcluir);
 
         painelExterno.add(acoes, BorderLayout.SOUTH);
         painelPrincipal.add(painelExterno);
@@ -78,39 +65,81 @@ public class GerenciarPerguntasTela extends TelaBase {
     }
 
     private void atualizarTabela() {
+        setEstadoBotoes(false, "Carregando...");
         modelo.setRowCount(0);
-        List<Pergunta> lista = perguntaDAO.getTodasPerguntas(); 
-        for (Pergunta p : lista) {
-            modelo.addRow(new Object[]{
-                p.getId(), 
-                p.getEnunciado(), 
-                p.getDificuldade(), 
-                p.getAtiva() == 1 ? "Ativa" : "Inativa"
-            });
-        }
+        modelo.addRow(new Object[]{"...", "Buscando dados...", "...", "..."});
+
+        SwingWorker<List<Pergunta>, Void> worker = new SwingWorker<>() {
+            @Override protected List<Pergunta> doInBackground() throws Exception {
+                return perguntaDAO.getTodasPerguntas();
+            }
+            @Override protected void done() {
+                try {
+                    List<Pergunta> lista = get();
+                    modelo.setRowCount(0);
+                    lista.forEach(p -> modelo.addRow(new Object[]{p.getId(), p.getEnunciado(), p.getDificuldade(), p.getAtiva() == 1 ? "Ativa" : "Inativa"}));
+                } catch (Exception e) { JOptionPane.showMessageDialog(null, "Erro ao carregar."); }
+                finally { setEstadoBotoes(true, ""); }
+            }
+        };
+        worker.execute();
     }
 
     private void prepararEdicao() {
         int linha = tabela.getSelectedRow();
-        if (linha == -1) {
-            JOptionPane.showMessageDialog(this, "Selecione uma pergunta primeiro.");
-            return;
-        }
+        if (linha == -1) { JOptionPane.showMessageDialog(this, "Selecione uma pergunta."); return; }
+        
+        setEstadoBotoes(false, "Abrindo...");
         int id = (int) modelo.getValueAt(linha, 0);
-        Pergunta p = perguntaDAO.getPergunta(id);
-        Navegador.abrirTela(this, new PerguntaFormTela(p));
+        
+        // SwingWorker para buscar o objeto pergunta antes de abrir a tela
+        SwingWorker<Pergunta, Void> worker = new SwingWorker<>() {
+            @Override protected Pergunta doInBackground() throws Exception {
+                return perguntaDAO.getPergunta(id);
+            }
+            @Override protected void done() {
+                try {
+                    Navegador.abrirTela(GerenciarPerguntasTela.this, new PerguntaFormTela(get()));
+                } catch (Exception e) { 
+                    JOptionPane.showMessageDialog(null, "Erro ao abrir."); 
+                    setEstadoBotoes(true, "");
+                }
+            }
+        };
+        worker.execute();
     }
 
     private void confirmarExclusao() {
         int linha = tabela.getSelectedRow();
         if (linha == -1) return;
-        
         int id = (int) modelo.getValueAt(linha, 0);
-        int resp = JOptionPane.showConfirmDialog(this, "Excluir permanentemente a pergunta " + id + "?", "Aviso", JOptionPane.YES_NO_OPTION);
         
-        if (resp == JOptionPane.YES_OPTION) {
-            perguntaDAO.deletarPergunta(id);
-            atualizarTabela();
+        if (JOptionPane.showConfirmDialog(this, "Excluir pergunta " + id + "?", "Aviso", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            setEstadoBotoes(false, "Excluindo...");
+            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                @Override protected Void doInBackground() throws Exception {
+                    perguntaDAO.deletarPergunta(id);
+                    return null;
+                }
+                @Override protected void done() {
+                    atualizarTabela();
+                }
+            };
+            worker.execute();
+        }
+    }
+
+    private void setEstadoBotoes(boolean ativo, String textoStatus) {
+        btnNovo.setEnabled(ativo);
+        btnEditar.setEnabled(ativo);
+        btnExcluir.setEnabled(ativo);
+        
+        if (!ativo) {
+            btnEditar.setText(textoStatus);
+        } else {
+            btnNovo.setText("NOVA PERGUNTA");
+            btnEditar.setText("EDITAR SELECIONADA");
+            btnExcluir.setText("EXCLUIR");
         }
     }
 }

@@ -23,13 +23,13 @@ public class PerguntaFormTela extends TelaBase {
     private JTextField[] txtImagensAlternativas;
     private JRadioButton[] rbCorretas;
     private JButton btnSalvar;
-    private JButton btnCancelar; // Adicionado explicitamente
+    private JButton btnCancelar;
 
     public PerguntaFormTela(Pergunta p) {
         super(p == null ? "QuimLab Pro - Nova Pergunta" : "QuimLab Pro - Editar Pergunta");
         this.perguntaExistente = p;
         initComponents();
-        if (p != null) carregarDadosParaEdicao();
+        if (p != null) carregarDadosComFeedback();
     }
 
     private void initComponents() {
@@ -106,7 +106,7 @@ public class PerguntaFormTela extends TelaBase {
         corpo.add(painelAlts);
 
         // --- RODAPÉ: BOTÕES ---
-        JPanel rodape = new JPanel(new BorderLayout()); // Mudei para BorderLayout para separar os botões
+        JPanel rodape = new JPanel(new BorderLayout());
         rodape.setOpaque(false);
 
         btnCancelar = criarBotaoNeutro("CANCELAR E VOLTAR");
@@ -117,8 +117,8 @@ public class PerguntaFormTela extends TelaBase {
         btnSalvar.setPreferredSize(new Dimension(250, 60));
         btnSalvar.addActionListener(e -> salvar());
 
-        rodape.add(btnCancelar, BorderLayout.WEST); // Cancelar na esquerda
-        rodape.add(btnSalvar, BorderLayout.EAST);   // Salvar na direita
+        rodape.add(btnCancelar, BorderLayout.WEST);
+        rodape.add(btnSalvar, BorderLayout.EAST);
 
         canvas.add(corpo, BorderLayout.CENTER);
         painelExterno.add(canvas, BorderLayout.CENTER);
@@ -127,22 +127,42 @@ public class PerguntaFormTela extends TelaBase {
         setContentPane(painelPrincipal);
     }
 
-    private void carregarDadosParaEdicao() {
-        txtEnunciado.setText(perguntaExistente.getEnunciado());
-        cbDificuldade.setSelectedItem(perguntaExistente.getDificuldade());
-        txtImagemPergunta.setText(perguntaExistente.getImagemURL());
+    private void carregarDadosComFeedback() {
+        setEstadoInterface(false, "Buscando dados...");
         
-        List<Alternativa> alts = alternativasDAO.getAlternativasPorPergunta(perguntaExistente.getId());
-        for (int i = 0; i < alts.size() && i < 4; i++) {
-            txtAlternativas[i].setText(alts.get(i).getTexto());
-            txtImagensAlternativas[i].setText(alts.get(i).getImagemURL());
-            if (alts.get(i).getCorreta() == 1) rbCorretas[i].setSelected(true);
-        }
+        SwingWorker<List<Alternativa>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<Alternativa> doInBackground() throws Exception {
+                return alternativasDAO.getAlternativasPorPergunta(perguntaExistente.getId());
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<Alternativa> alts = get();
+                    txtEnunciado.setText(perguntaExistente.getEnunciado());
+                    cbDificuldade.setSelectedItem(perguntaExistente.getDificuldade());
+                    txtImagemPergunta.setText(perguntaExistente.getImagemURL());
+                    
+                    for (int i = 0; i < alts.size() && i < 4; i++) {
+                        txtAlternativas[i].setText(alts.get(i).getTexto());
+                        txtImagensAlternativas[i].setText(alts.get(i).getImagemURL());
+                        if (alts.get(i).getCorreta() == 1) rbCorretas[i].setSelected(true);
+                    }
+                    setEstadoInterface(true, "");
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(PerguntaFormTela.this, "Erro ao carregar: " + e.getMessage());
+                    Navegador.abrirTela(PerguntaFormTela.this, new GerenciarPerguntasTela());
+                }
+            }
+        };
+        worker.execute();
     }
 
     private void acaoCancelar() {
         int op = JOptionPane.showConfirmDialog(this, "Deseja descartar as alterações e voltar?", "QuimLab", JOptionPane.YES_NO_OPTION);
         if (op == JOptionPane.YES_OPTION) {
+            setEstadoInterface(false, "Saindo...");
             Navegador.abrirTela(this, new GerenciarPerguntasTela());
         }
     }
@@ -158,10 +178,7 @@ public class PerguntaFormTela extends TelaBase {
             return;
         }
 
-        // Feedback de carregamento
-        btnSalvar.setEnabled(false);
-        btnCancelar.setEnabled(false); // Desativa o cancelar também para não dar conflito
-        btnSalvar.setText("Processando...");
+        setEstadoInterface(false, "Processando...");
 
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
@@ -190,14 +207,33 @@ public class PerguntaFormTela extends TelaBase {
                     JOptionPane.showMessageDialog(PerguntaFormTela.this, "Pergunta salva com sucesso!");
                     Navegador.abrirTela(PerguntaFormTela.this, new GerenciarPerguntasTela());
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(PerguntaFormTela.this, "Erro ao conectar com o servidor: " + e.getMessage());
-                    btnSalvar.setEnabled(true);
-                    btnCancelar.setEnabled(true);
-                    btnSalvar.setText("SALVAR PERGUNTA");
+                    JOptionPane.showMessageDialog(PerguntaFormTela.this, "Erro ao salvar: " + e.getMessage());
+                    setEstadoInterface(true, "");
                 }
             }
         };
         worker.execute();
+    }
+
+    private void setEstadoInterface(boolean ativo, String textoBotao) {
+        btnSalvar.setEnabled(ativo);
+        btnCancelar.setEnabled(ativo);
+        txtEnunciado.setEnabled(ativo);
+        cbDificuldade.setEnabled(ativo);
+        txtImagemPergunta.setEnabled(ativo);
+        
+        for (int i = 0; i < 4; i++) {
+            txtAlternativas[i].setEnabled(ativo);
+            txtImagensAlternativas[i].setEnabled(ativo);
+            rbCorretas[i].setEnabled(ativo);
+        }
+
+        if (!ativo) {
+            btnSalvar.setText(textoBotao);
+        } else {
+            btnSalvar.setText(perguntaExistente == null ? "SALVAR PERGUNTA" : "ATUALIZAR PERGUNTA");
+            btnCancelar.setText("CANCELAR E VOLTAR");
+        }
     }
 
     private String tratarNull(String s) {

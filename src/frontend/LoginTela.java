@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -14,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
@@ -25,6 +28,7 @@ public class LoginTela extends TelaBase {
 
     private JTextField loginTextField;
     private JPasswordField senhaPasswordField;
+    private JButton entrarButton;
 
     public LoginTela() {
         super("QuimLab - Login");
@@ -71,7 +75,19 @@ public class LoginTela extends TelaBase {
         senhaPasswordField.setMaximumSize(tamanhoPadrao);
         senhaPasswordField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton entrarButton = criarBotaoPrincipal("ENTRAR");
+        // --- SUPORTE AO TECLA ENTER ---
+        KeyAdapter enterKeyAdapter = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    entrarSistema();
+                }
+            }
+        };
+        loginTextField.addKeyListener(enterKeyAdapter);
+        senhaPasswordField.addKeyListener(enterKeyAdapter);
+
+        entrarButton = criarBotaoPrincipal("ENTRAR");
         entrarButton.setMaximumSize(tamanhoPadrao);
         entrarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         entrarButton.addActionListener(evt -> entrarSistema());
@@ -133,20 +149,40 @@ public class LoginTela extends TelaBase {
             return;
         }
 
-        // Instancia o DAO para buscar no banco
-        UsuarioDAO usuarioDAO = new UsuarioDAO();
-        
-        // Chamada ao banco de dados
-        Usuario usuario = usuarioDAO.efetuarLogin(email, senha);
+        // Feedback de carregamento (desativa o botão e muda o texto)
+        setEstadoInterface(false, "AUTENTICANDO...");
 
-        if (usuario != null) {
-            // SALVA O OBJETO NA SESSÃO PARA USO GLOBAL
-            SessaoUsuario.getInstancia().setUsuario(usuario);
-            
-            // Navega para a Home correspondente (Aluno ou Professor)
-            Navegador.abrirHome(this, usuario.getTipo());
-        } else {
-            JOptionPane.showMessageDialog(this, "Usuário ou senha inválidos.", "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
-        }
+        SwingWorker<Usuario, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Usuario doInBackground() throws Exception {
+                UsuarioDAO usuarioDAO = new UsuarioDAO();
+                return usuarioDAO.efetuarLogin(email, senha);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    Usuario usuario = get();
+                    if (usuario != null) {
+                        SessaoUsuario.getInstancia().setUsuario(usuario);
+                        Navegador.abrirHome(LoginTela.this, usuario.getTipo());
+                    } else {
+                        JOptionPane.showMessageDialog(LoginTela.this, "Usuário ou senha inválidos.", "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+                        setEstadoInterface(true, "ENTRAR");
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(LoginTela.this, "Erro ao conectar com o banco: " + e.getMessage());
+                    setEstadoInterface(true, "ENTRAR");
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private void setEstadoInterface(boolean ativo, String textoBotao) {
+        entrarButton.setEnabled(ativo);
+        entrarButton.setText(textoBotao);
+        loginTextField.setEnabled(ativo);
+        senhaPasswordField.setEnabled(ativo);
     }
 }
