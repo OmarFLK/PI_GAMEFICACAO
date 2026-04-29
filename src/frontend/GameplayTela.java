@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
