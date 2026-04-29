@@ -56,14 +56,21 @@ public class HomeProfessorTela extends TelaBase {
         marcaPanel.add(criarIconeLaboratorio());
 
         JLabel subtitulo = criarSubtituloHero("Gestão de conteúdos e análise de turmas");
-        JLabel apoio = criarTextoCentral("Gerencie o banco de questões ou acompanhe o engajamento dos alunos.");
+        JLabel apoio = criarTextoCentral("Gerencie o banco de questões, usuários ou acompanhe o engajamento.");
         apoio.setForeground(COR_TEXTO_SUAVE);
 
-        // Ação para Gerenciar Perguntas
-        JButton gerenciarButton = criarBotaoPrincipal("GERENCIAR PERGUNTAS");
-        gerenciarButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarPerguntasTela()));
+        // --- BOTÕES DE GERENCIAMENTO ---
+        
+        JButton gerenciarPerguntasButton = criarBotaoPrincipal("GERENCIAR PERGUNTAS");
+        gerenciarPerguntasButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarPerguntasTela()));
 
-        // BOTÃO AJUSTADO: Aviso de desenvolvimento para o Professor
+        // NOVO BOTÃO: Gerenciar Usuários
+        JButton gerenciarUsuariosButton = criarBotaoPrincipal("GERENCIAR USUÁRIOS");
+        gerenciarUsuariosButton.addActionListener(evt -> {
+            // Chamaremos a nova tela que criaremos a seguir
+            Navegador.abrirTela(this, new GerenciarUsuariosTela());
+        });
+
         JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DAS TURMAS");
         estatisticasButton.addActionListener(evt -> {
             JOptionPane.showMessageDialog(
@@ -80,6 +87,7 @@ public class HomeProfessorTela extends TelaBase {
         rankingButton.setPreferredSize(new Dimension(0, 70));
         rankingButton.addActionListener(evt -> Navegador.abrirTela(this, new RankingTela(Navegador.TIPO_PROFESSOR)));
 
+        // Organização na coluna central
         centro.add(Box.createVerticalStrut(18));
         centro.add(marcaPanel);
         centro.add(Box.createVerticalStrut(8));
@@ -87,7 +95,10 @@ public class HomeProfessorTela extends TelaBase {
         centro.add(Box.createVerticalStrut(8));
         centro.add(apoio);
         centro.add(Box.createVerticalStrut(38));
-        centro.add(gerenciarButton);
+        
+        centro.add(gerenciarPerguntasButton);
+        centro.add(Box.createVerticalStrut(18));
+        centro.add(gerenciarUsuariosButton); // Adicionado à lista
         centro.add(Box.createVerticalStrut(18));
         centro.add(estatisticasButton);
         centro.add(Box.createVerticalStrut(18));
