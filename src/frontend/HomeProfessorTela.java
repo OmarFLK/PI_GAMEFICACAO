@@ -56,7 +56,7 @@ public class HomeProfessorTela extends TelaBase {
         marcaPanel.add(criarIconeLaboratorio());
 
         JLabel subtitulo = criarSubtituloHero("Gestão de conteúdos e análise de turmas");
-        JLabel apoio = criarTextoCentral("Gerencie o banco de questões, usuários ou acompanhe o engajamento.");
+        JLabel apoio = criarTextoCentral("Gerencie o banco de questões, usuários ou teste o simulador.");
         apoio.setForeground(COR_TEXTO_SUAVE);
 
         // --- BOTÕES DE GERENCIAMENTO ---
@@ -64,23 +64,21 @@ public class HomeProfessorTela extends TelaBase {
         JButton gerenciarPerguntasButton = criarBotaoPrincipal("GERENCIAR PERGUNTAS");
         gerenciarPerguntasButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarPerguntasTela()));
 
-        // NOVO BOTÃO: Gerenciar Usuários
         JButton gerenciarUsuariosButton = criarBotaoPrincipal("GERENCIAR USUÁRIOS");
-        gerenciarUsuariosButton.addActionListener(evt -> {
-            // Chamaremos a nova tela que criaremos a seguir
-            Navegador.abrirTela(this, new GerenciarUsuariosTela());
+        gerenciarUsuariosButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarUsuariosTela()));
+
+        // --- NOVO BOTÃO: MODO JOGADOR ---
+        // Usei o criarBotaoSecundario ou um estilo customizado para destacar que é uma ação de "play"
+        JButton jogarButton = criarBotaoPrincipal("MODO JOGADOR (TESTAR QUESTÕES)");
+        jogarButton.setBackground(new Color(0, 150, 136)); // Um tom de verde água/teal para diferenciar
+        jogarButton.addActionListener(evt -> {
+            // Abre a gameplay passando o tipo PROFESSOR para que ele volte para esta tela ao sair
+            Navegador.abrirTela(this, new GameplayTela(Navegador.TIPO_PROFESSOR, "MODO_TESTE"));
         });
 
         JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DAS TURMAS");
         estatisticasButton.addActionListener(evt -> {
-            JOptionPane.showMessageDialog(
-                this, 
-                "<html><div style='text-align: center;'><b>Painel de Análise em Desenvolvimento</b><br>" +
-                "Em breve você poderá visualizar gráficos de desempenho por turma e matéria.<br>" +
-                "<font size='5'>📊👨‍🏫</font></div></html>", 
-                "QuimLab - Em Breve", 
-                JOptionPane.INFORMATION_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Painel de Análise em Desenvolvimento...", "QuimLab", JOptionPane.INFORMATION_MESSAGE);
         });
 
         JButton rankingButton = criarBotaoNeutro("RANKING GLOBAL DE ALUNOS");
@@ -94,14 +92,16 @@ public class HomeProfessorTela extends TelaBase {
         centro.add(subtitulo);
         centro.add(Box.createVerticalStrut(8));
         centro.add(apoio);
-        centro.add(Box.createVerticalStrut(38));
+        centro.add(Box.createVerticalStrut(30));
         
+        centro.add(jogarButton); // Botão de jogar no topo das ações
+        centro.add(Box.createVerticalStrut(12));
         centro.add(gerenciarPerguntasButton);
-        centro.add(Box.createVerticalStrut(18));
-        centro.add(gerenciarUsuariosButton); // Adicionado à lista
-        centro.add(Box.createVerticalStrut(18));
+        centro.add(Box.createVerticalStrut(12));
+        centro.add(gerenciarUsuariosButton);
+        centro.add(Box.createVerticalStrut(12));
         centro.add(estatisticasButton);
-        centro.add(Box.createVerticalStrut(18));
+        centro.add(Box.createVerticalStrut(12));
         centro.add(rankingButton);
 
         JPanel rodape = new JPanel(new BorderLayout());
