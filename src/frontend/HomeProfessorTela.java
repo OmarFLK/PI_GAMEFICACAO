@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Color;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -67,13 +66,13 @@ public class HomeProfessorTela extends TelaBase {
         JButton gerenciarUsuariosButton = criarBotaoPrincipal("GERENCIAR USUÁRIOS");
         gerenciarUsuariosButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarUsuariosTela()));
 
-        // --- NOVO BOTÃO: MODO JOGADOR ---
-        // Usei o criarBotaoSecundario ou um estilo customizado para destacar que é uma ação de "play"
+        /// --- BOTÃO MODO JOGADOR (CORRIGIDO E INTEGRADO) ---
         JButton jogarButton = criarBotaoPrincipal("MODO JOGADOR (TESTAR QUESTÕES)");
-        jogarButton.setBackground(new Color(0, 150, 136)); // Um tom de verde água/teal para diferenciar
+        jogarButton.setBackground(new Color(0, 153, 136));
         jogarButton.addActionListener(evt -> {
-            // Abre a gameplay passando o tipo PROFESSOR para que ele volte para esta tela ao sair
-            Navegador.abrirTela(this, new GameplayTela(Navegador.TIPO_PROFESSOR, "MODO_TESTE"));
+         // Abrimos o modal passando 'this' e identificando como PROFESSOR
+         // Isso garante que o fluxo de seleção de dificuldade seja idêntico ao do aluno
+            new SelecaoNivelModal(this, Navegador.TIPO_PROFESSOR).setVisible(true);
         });
 
         JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DAS TURMAS");
@@ -94,7 +93,7 @@ public class HomeProfessorTela extends TelaBase {
         centro.add(apoio);
         centro.add(Box.createVerticalStrut(30));
         
-        centro.add(jogarButton); // Botão de jogar no topo das ações
+        centro.add(jogarButton); 
         centro.add(Box.createVerticalStrut(12));
         centro.add(gerenciarPerguntasButton);
         centro.add(Box.createVerticalStrut(12));
@@ -110,8 +109,8 @@ public class HomeProfessorTela extends TelaBase {
         
         JButton sairButton = criarBotaoLink("Encerrar Sessão");
         sairButton.addActionListener(evt -> {
-            backend.Seguranca.SessaoUsuario.getInstancia().encerrarSessao();
-            Navegador.abrirLogin(this);
+            // Aqui usamos o SairModal que criamos para padronizar
+            new SairModal(this).setVisible(true);
         });
         rodape.add(sairButton, BorderLayout.EAST);
 

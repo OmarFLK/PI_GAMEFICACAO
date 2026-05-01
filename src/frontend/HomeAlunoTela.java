@@ -61,13 +61,7 @@ public class HomeAlunoTela extends TelaBase {
         iniciarJogoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         iniciarJogoButton.addActionListener(evt -> {
-            SelecaoNivelModal modal = new SelecaoNivelModal(this);
-            modal.setVisible(true); 
-
-            String nivel = modal.getNivel();
-            if (nivel != null) {
-                Navegador.abrirTela(this, new GameplayTela(Navegador.TIPO_ALUNO, nivel));
-            }
+            new SelecaoNivelModal(this, Navegador.TIPO_ALUNO).setVisible(true);
         });
         
 

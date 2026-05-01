@@ -3,30 +3,35 @@ package frontend;
 import java.awt.*;
 import javax.swing.*;
 import frontend.base.TelaBase;
+import frontend.util.Navegador; // Importante para abrir a tela
 
 public class SelecaoNivelModal extends JDialog {
     private String nivelSelecionado = null;
+    private JFrame pai;
+    private String tipoUsuario;
 
-    public SelecaoNivelModal(JFrame pai) {
-        super(pai, true); // true para ser modal (travar a tela de trás)
-        setUndecorated(true); // Remove a barra de título feia do Windows/Linux
-        setBackground(new Color(0, 0, 0, 0)); // Fundo transparente para o arredondamento funcionar
+    // Atualizei o construtor para aceitar o tipo de usuário (ALUNO ou PROFESSOR)
+    public SelecaoNivelModal(JFrame pai, String tipoUsuario) {
+        super(pai, true);
+        this.pai = pai;
+        this.tipoUsuario = tipoUsuario;
+        
+        setUndecorated(true);
+        setBackground(new Color(0, 0, 0, 0));
 
         initComponents();
         
         pack();
-        setLocationRelativeTo(pai); // Centraliza no meio do programa
+        setLocationRelativeTo(pai);
     }
 
     private void initComponents() {
-        // Usamos o método criarCartaoSuave da TelaBase (precisamos instanciar ou simular aqui)
-        // Como o JDialog não estende TelaBase, vamos replicar o estilo visual:
         JPanel painel = new JPanel();
         painel.setBackground(Color.WHITE);
         painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
         painel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(33, 37, 41), 2, true), // Borda Azul Escuro
-            BorderFactory.createEmptyBorder(30, 40, 30, 40) // Respiro interno
+            BorderFactory.createLineBorder(new Color(33, 37, 41), 2, true),
+            BorderFactory.createEmptyBorder(30, 40, 30, 40)
         ));
 
         JLabel titulo = new JLabel("Dificuldade");
@@ -39,10 +44,9 @@ public class SelecaoNivelModal extends JDialog {
         sub.setAlignmentX(CENTER_ALIGNMENT);
         sub.setForeground(Color.GRAY);
 
-        // Botões de Nível (Estilizados como os seus botões principais)
-        JButton btnFacil = criarBotaoModal("FÁCIL", new Color(40, 167, 69)); // Verde
-        JButton btnMedio = criarBotaoModal("MÉDIO", new Color(255, 193, 7)); // Amarelo/Laranja
-        JButton btnDificil = criarBotaoModal("DIFÍCIL", new Color(220, 53, 69)); // Vermelho
+        JButton btnFacil = criarBotaoModal("FÁCIL", new Color(40, 167, 69));
+        JButton btnMedio = criarBotaoModal("MÉDIO", new Color(255, 193, 7));
+        JButton btnDificil = criarBotaoModal("DIFÍCIL", new Color(220, 53, 69));
         
         JButton btnCancelar = new JButton("Cancelar");
         btnCancelar.setBorderPainted(false);
@@ -50,13 +54,12 @@ public class SelecaoNivelModal extends JDialog {
         btnCancelar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnCancelar.setAlignmentX(CENTER_ALIGNMENT);
 
-        // Ações
-        btnFacil.addActionListener(e -> selecionar("FACIL"));
-        btnMedio.addActionListener(e -> selecionar("MEDIO"));
-        btnDificil.addActionListener(e -> selecionar("DIFICIL"));
+        // AÇÕES CORRIGIDAS: Agora elas chamam o método iniciarJogo
+        btnFacil.addActionListener(e -> iniciarJogo("FACIL"));
+        btnMedio.addActionListener(e -> iniciarJogo("MEDIO"));
+        btnDificil.addActionListener(e -> iniciarJogo("DIFICIL"));
         btnCancelar.addActionListener(e -> dispose());
 
-        // Montagem
         painel.add(titulo);
         painel.add(sub);
         painel.add(Box.createVerticalStrut(25));
@@ -69,6 +72,16 @@ public class SelecaoNivelModal extends JDialog {
         painel.add(btnCancelar);
 
         add(painel);
+    }
+
+    // MÉTODO NOVO: É aqui que a mágica acontece
+    private void iniciarJogo(String nivel) {
+        this.nivelSelecionado = nivel;
+        this.dispose(); // Fecha o modal
+        
+        // Abre a tela de Gameplay passando a dificuldade E o tipo de usuário
+        // Isso garante que o banco de dados receba o filtro e as questões apareçam
+        Navegador.abrirTela(pai, new GameplayTela(tipoUsuario, nivel));
     }
 
     private JButton criarBotaoModal(String texto, Color cor) {
@@ -84,13 +97,7 @@ public class SelecaoNivelModal extends JDialog {
         return btn;
     }
 
-    private void selecionar(String nivel) {
-        this.nivelSelecionado = nivel;
-        dispose();
-    }
-
     public String getNivel() {
         return nivelSelecionado;
     }
 }
-
