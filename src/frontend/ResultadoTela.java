@@ -2,6 +2,7 @@ package frontend;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
@@ -30,6 +31,7 @@ public class ResultadoTela extends TelaBase {
     }
 
     private void initComponents() {
+        // 1. Estrutura Base
         JPanel painelPrincipal = criarPainelPrincipal();
         JPanel painelExterno = new JPanel(new BorderLayout());
         painelExterno.setOpaque(false);
@@ -40,27 +42,40 @@ public class ResultadoTela extends TelaBase {
         conteudo.setOpaque(false);
         conteudo.setLayout(new BoxLayout(conteudo, BoxLayout.Y_AXIS));
 
+        // 2. Cabeçalho e Badges (Mantendo o que já funcionava)
         conteudo.add(criarBadge("PARTIDA ENCERRADA", new java.awt.Color(228, 240, 248), COR_AZUL_ESCURO));
         conteudo.add(Box.createVerticalStrut(16));
-        conteudo.add(criarCabecalhoMarca("Resultado", "Resumo rapido do seu desempenho"));
+        conteudo.add(criarCabecalhoMarca("Resultado", "Resumo rápido do seu desempenho"));
         conteudo.add(Box.createVerticalStrut(24));
 
+        // 3. Cards de Resumo (Pontuação, Acertos, Modo)
         JPanel cards = new JPanel(new GridLayout(1, 3, 16, 16));
         cards.setOpaque(false);
         cards.add(criarResumo("Pontuacao final", String.valueOf(pontuacao)));
         cards.add(criarResumo("Acertos", acertos + " / " + totalPerguntas));
         cards.add(criarResumo("Modo", Navegador.TIPO_PROFESSOR.equals(tipoUsuario) ? "Professor" : "Aluno"));
+        
         conteudo.add(cards);
         conteudo.add(Box.createVerticalStrut(26));
 
-        JButton voltarHomeButton = criarBotaoPrincipal("Voltar para a home");
-        voltarHomeButton.setPreferredSize(new Dimension(420, 82));
-        voltarHomeButton.addActionListener(evt -> Navegador.abrirHome(this, tipoUsuario));
-        conteudo.add(voltarHomeButton);
+        // 4. O Botão "Voltar para a Home" (Ajustado para o padrão 420x70)
+        JPanel containerBotaoHome = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        containerBotaoHome.setOpaque(false);
 
+        JButton voltarButton = criarBotaoPrincipal("Voltar para a home");
+        voltarButton.setPreferredSize(new Dimension(420, 70));
+        voltarButton.addActionListener(evt -> Navegador.abrirHome(this, tipoUsuario));
+
+        containerBotaoHome.add(voltarButton);
+
+        // 5. Montagem Final da Hierarquia (Sem duplicidade)
         canvas.add(conteudo, BorderLayout.CENTER);
+        
         painelExterno.add(canvas, BorderLayout.CENTER);
+        painelExterno.add(containerBotaoHome, BorderLayout.SOUTH);
+
         painelPrincipal.add(painelExterno, BorderLayout.CENTER);
+        
         setContentPane(painelPrincipal);
     }
 

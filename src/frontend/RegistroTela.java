@@ -43,7 +43,8 @@ public class RegistroTela extends TelaBase {
 
         JPanel coluna = criarColunaCentral(560);
         JLabel titulo = criarTituloHero("Etec");
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 70));
+        titulo.setForeground(COR_VERMELHO_ETEC);
+        titulo.setFont(new Font("Arial", Font.BOLD, 85));
         JLabel subtitulo = criarSubtituloHero("Escola Tecnica Estadual");
         subtitulo.setFont(new Font("SansSerif", Font.PLAIN, 22));
         JLabel aviso = criarTextoCentral("Apenas alunos. Cadastro de professor e feito pelo administrador.");

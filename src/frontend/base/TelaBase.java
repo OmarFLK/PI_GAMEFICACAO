@@ -40,6 +40,9 @@ public class TelaBase extends JFrame {
     protected static final Color COR_PRETO = new Color(16, 21, 28);
     protected static final Color COR_CINZA = new Color(133, 145, 157);
     protected static final Color COR_CINZA_CLARO = new Color(231, 236, 240);
+    protected static final Color COR_VERMELHO_ETEC = new Color(190, 0, 0); 
+    protected static final Color COR_FUNDO_CLARO_C = new Color(245, 245, 245); 
+    protected static final Color COR_TEXTO_TITULO = new Color(190, 0, 0);
 
     public TelaBase(String titulo) {
         super(titulo);
@@ -153,7 +156,7 @@ public class TelaBase extends JFrame {
     protected JButton criarBotaoPrincipal(String texto) {
         RoundedButton botao = new RoundedButton(texto, COR_PRETO, COR_BRANCO, 34, 20);
         botao.setMaximumSize(new Dimension(Integer.MAX_VALUE, 88));
-        botao.setPreferredSize(new Dimension(0, 88));
+        botao.setPreferredSize(new Dimension(420, 70));
         return botao;
     }
 

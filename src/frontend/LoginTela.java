@@ -1,6 +1,7 @@
 package frontend;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -17,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
+import javax.swing.Timer;
 
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
@@ -29,6 +31,7 @@ public class LoginTela extends TelaBase {
     private JTextField loginTextField;
     private JPasswordField senhaPasswordField;
     private JButton entrarButton;
+    private JLabel erroLabel; // Nova variável para a linha de erro
 
     public LoginTela() {
         super("QuimLab - Login");
@@ -75,7 +78,13 @@ public class LoginTela extends TelaBase {
         senhaPasswordField.setMaximumSize(tamanhoPadrao);
         senhaPasswordField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // --- SUPORTE AO TECLA ENTER ---
+        // --- LINHA DE ERRO (Invisível por padrão) ---
+        erroLabel = new JLabel("Usuário ou senha inválidos.");
+        erroLabel.setForeground(Color.RED);
+        erroLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        erroLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        erroLabel.setVisible(false);
+
         KeyAdapter enterKeyAdapter = new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -117,7 +126,11 @@ public class LoginTela extends TelaBase {
         coluna.add(Box.createVerticalStrut(8));
         coluna.add(senhaPasswordField);
         
-        coluna.add(Box.createVerticalStrut(30));
+        // Adiciona a linha de erro logo abaixo da senha
+        coluna.add(Box.createVerticalStrut(10));
+        coluna.add(erroLabel);
+        
+        coluna.add(Box.createVerticalStrut(20));
         coluna.add(entrarButton);
         coluna.add(Box.createVerticalStrut(15));
         coluna.add(esquecerSenha);
@@ -145,11 +158,11 @@ public class LoginTela extends TelaBase {
         String senha = new String(senhaPasswordField.getPassword()).trim();
 
         if (email.isEmpty() || senha.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Preencha os campos para continuar.", "QuimLab", JOptionPane.ERROR_MESSAGE);
+            erroLabel.setText("Preencha todos os campos.");
+            mostrarErroTemporario();
             return;
         }
 
-        // Feedback de carregamento (desativa o botão e muda o texto)
         setEstadoInterface(false, "AUTENTICANDO...");
 
         SwingWorker<Usuario, Void> worker = new SwingWorker<>() {
@@ -167,16 +180,35 @@ public class LoginTela extends TelaBase {
                         SessaoUsuario.getInstancia().setUsuario(usuario);
                         Navegador.abrirHome(LoginTela.this, usuario.getTipo());
                     } else {
-                        JOptionPane.showMessageDialog(LoginTela.this, "Usuário ou senha inválidos.", "Erro de Autenticação", JOptionPane.ERROR_MESSAGE);
+                        // AQUI: Em vez do JOptionPane, limpa senha e mostra texto
+                        senhaPasswordField.setText("");
+                        erroLabel.setText("Usuário ou senha inválidos.");
+                        mostrarErroTemporario();
                         setEstadoInterface(true, "ENTRAR");
                     }
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(LoginTela.this, "Erro ao conectar com o banco: " + e.getMessage());
+                    erroLabel.setText("Erro de conexão.");
+                    mostrarErroTemporario();
                     setEstadoInterface(true, "ENTRAR");
                 }
             }
         };
         worker.execute();
+    }
+
+    // Método para controlar a exibição da linha de erro
+    private void mostrarErroTemporario() {
+        erroLabel.setVisible(true);
+        this.revalidate();
+        this.repaint();
+
+        Timer timer = new Timer(3000, e -> {
+            erroLabel.setVisible(false);
+            this.revalidate();
+            this.repaint();
+        });
+        timer.setRepeats(false);
+        timer.start();
     }
 
     private void setEstadoInterface(boolean ativo, String textoBotao) {

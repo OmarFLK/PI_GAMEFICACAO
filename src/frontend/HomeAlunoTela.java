@@ -57,10 +57,24 @@ public class HomeAlunoTela extends TelaBase {
         apoio.setForeground(COR_TEXTO_SUAVE);
 
         JButton iniciarJogoButton = criarBotaoPrincipal("INICIAR JOGO");
-        iniciarJogoButton.addActionListener(evt -> Navegador.abrirTela(this, new GameplayTela(Navegador.TIPO_ALUNO, "JOGO")));
+        iniciarJogoButton.setMaximumSize(new Dimension(428, 70));
+        iniciarJogoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        iniciarJogoButton.addActionListener(evt -> {
+            SelecaoNivelModal modal = new SelecaoNivelModal(this);
+            modal.setVisible(true); 
+
+            String nivel = modal.getNivel();
+            if (nivel != null) {
+                Navegador.abrirTela(this, new GameplayTela(Navegador.TIPO_ALUNO, nivel));
+            }
+        });
+        
 
         // BOTÃO AJUSTADO: Agora exibe aviso de desenvolvimento
         JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DO ALUNO");
+        estatisticasButton.setMaximumSize(new Dimension(420, 70));
+        estatisticasButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         estatisticasButton.addActionListener(evt -> {
             JOptionPane.showMessageDialog(
                 this, 
@@ -73,7 +87,8 @@ public class HomeAlunoTela extends TelaBase {
         });
 
         JButton rankingButton = criarBotaoNeutro("RANKING GERAL");
-        rankingButton.setPreferredSize(new Dimension(0, 70));
+        rankingButton.setMaximumSize(new Dimension(420, 70));
+        rankingButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         rankingButton.addActionListener(evt -> Navegador.abrirTela(this, new RankingTela(Navegador.TIPO_ALUNO)));
 
         centro.add(Box.createVerticalStrut(18));
@@ -94,8 +109,15 @@ public class HomeAlunoTela extends TelaBase {
         rodape.add(criarTextoSuave("ETEC | Ambiente academico gamificado"), BorderLayout.WEST);
         JButton sairButton = criarBotaoLink("Sair");
         sairButton.addActionListener(evt -> {
-            JOptionPane.showMessageDialog(this, "Saindo do perfil do aluno.", "QuimLab", JOptionPane.INFORMATION_MESSAGE);
-            Navegador.abrirLogin(this);
+         // 1. Instancia o modal customizado
+        
+         SairModal modal = new SairModal(this);
+         modal.setVisible(true);
+
+               // 2. Só sai se o usuário clicou no botão vermelho de SAIR
+             if (modal.isConfirmarSair()) {
+               Navegador.abrirTela(this, new LoginTela());
+             }
         });
         rodape.add(sairButton, BorderLayout.EAST);
 

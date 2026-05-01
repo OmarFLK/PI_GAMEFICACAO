@@ -32,15 +32,32 @@ public class GerenciarUsuariosTela extends TelaBase {
         // --- TOPO ---
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-        JLabel titulo = new JLabel("Gestão de Alunos e Professores");
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 28));
+        topo.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+
+        // Título centralizado e com destaque
+        JLabel titulo = new JLabel("Gestão de Alunos e Professores", SwingConstants.CENTER);
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 32));
         titulo.setForeground(new Color(44, 62, 80));
         
-        JButton btnVoltar = criarBotaoLink("← Voltar para o Painel");
+        // BOTÃO VOLTAR: Agora usando criarBotaoSecundario para seguir o estilo dos botões de baixo
+        JButton btnVoltar = criarBotaoSecundario("← Voltar");
+        btnVoltar.setFont(new Font("SansSerif", Font.BOLD, 14));
+        btnVoltar.setPreferredSize(new Dimension(150, 40)); // Tamanho menor para o topo
         btnVoltar.addActionListener(e -> Navegador.abrirHome(this, Navegador.TIPO_PROFESSOR));
 
+        // Container para alinhar o botão à esquerda sem esticar
+        JPanel containerVoltar = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        containerVoltar.setOpaque(false);
+        containerVoltar.add(btnVoltar);
+
+        // Placeholder à direita para garantir centralização perfeita do título
+        Dimension tamanhoBotao = btnVoltar.getPreferredSize();
+        Component spacer = Box.createRigidArea(tamanhoBotao);
+
+        topo.add(containerVoltar, BorderLayout.WEST);
         topo.add(titulo, BorderLayout.CENTER);
-        topo.add(btnVoltar, BorderLayout.WEST);
+        topo.add(spacer, BorderLayout.EAST);
+
         painelExterno.add(topo, BorderLayout.NORTH);
 
         // --- TABELA ---
@@ -51,8 +68,8 @@ public class GerenciarUsuariosTela extends TelaBase {
         tabela.setRowHeight(35);
         painelExterno.add(new JScrollPane(tabela), BorderLayout.CENTER);
 
-        // --- AÇÕES ---
-        JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0)); // Agora com 3 colunas
+        // --- AÇÕES (ESTILO REFERÊNCIA) ---
+        JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0)); 
         acoes.setOpaque(false);
 
         btnNovo = criarBotaoPrincipal("NOVO USUÁRIO");
@@ -114,7 +131,6 @@ public class GerenciarUsuariosTela extends TelaBase {
         String email = (String) modelo.getValueAt(linha, 2);
         String tipo = (String) modelo.getValueAt(linha, 3);
 
-        // Criamos um objeto temporário para passar os dados para a tela de form
         Usuario selecionado = new Usuario(id, nome, email, tipo);
         Navegador.abrirTela(this, new UsuariosFormsTela(selecionado));
     }

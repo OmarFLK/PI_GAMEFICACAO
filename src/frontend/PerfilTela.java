@@ -1,17 +1,7 @@
 package frontend;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
+import java.awt.*;
+import javax.swing.*;
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
 import backend.DAO.usuarioDAO.Usuario;
@@ -28,7 +18,6 @@ public class PerfilTela extends TelaBase {
     }
 
     private void initComponents() {
-        // Busca os dados reais da sessão no pacote Seguranca
         Usuario usuario = SessaoUsuario.getInstancia().getUsuario();
         
         String nomeExibicao = (usuario != null) ? usuario.getNome() : "Utilizador";
@@ -43,15 +32,41 @@ public class PerfilTela extends TelaBase {
         JPanel conteudo = new JPanel(new BorderLayout(0, 30));
         conteudo.setOpaque(false);
 
-        // TOPO
+        // --- TOPO CUSTOMIZADO (CENTRALIZADO E DESTACADO) ---
+        JPanel cabecalho = new JPanel(new BorderLayout());
+        cabecalho.setOpaque(false);
+        cabecalho.setPreferredSize(new Dimension(0, 100)); // Altura fixa para o topo
+
+        // Título centralizado e com fonte maior
+        JLabel lbTituloHeader = new JLabel("Meu Perfil");
+        if (Navegador.TIPO_PROFESSOR.equals(tipoUsuario)) {
+            lbTituloHeader.setText("Informações do Professor");
+        }
+        lbTituloHeader.setFont(new Font("Segoe UI", Font.BOLD, 42)); // Fonte bem maior
+        lbTituloHeader.setForeground(COR_AZUL_ESCURO);
+        lbTituloHeader.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Botão voltar posicionado à direita sem entortar o centro
         JButton voltarButton = criarBotaoNeutro("Voltar");
         voltarButton.setPreferredSize(new Dimension(160, 58));
         voltarButton.addActionListener(evt -> Navegador.abrirHome(this, tipoUsuario));
+        
+        JPanel painelBotaoVoltar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        painelBotaoVoltar.setOpaque(false);
+        painelBotaoVoltar.add(voltarButton);
 
-        String tituloHeader = Navegador.TIPO_PROFESSOR.equals(tipoUsuario) ? "Informações do Professor" : "Meu Perfil";
-        conteudo.add(criarTopoComVoltar(tituloHeader, voltarButton), BorderLayout.NORTH);
+        // Placeholder à esquerda para equilibrar o BorderLayout e manter o título no centro exato
+        JPanel placeholder = new JPanel();
+        placeholder.setOpaque(false);
+        placeholder.setPreferredSize(new Dimension(160, 58));
 
-        // ÁREA CENTRAL
+        cabecalho.add(placeholder, BorderLayout.WEST);
+        cabecalho.add(lbTituloHeader, BorderLayout.CENTER);
+        cabecalho.add(painelBotaoVoltar, BorderLayout.EAST);
+
+        conteudo.add(cabecalho, BorderLayout.NORTH);
+
+        // --- ÁREA CENTRAL ---
         JPanel corpo = new JPanel(new BorderLayout(40, 0));
         corpo.setOpaque(false);
 
@@ -64,7 +79,7 @@ public class PerfilTela extends TelaBase {
         avatar.setAlignmentX(CENTER_ALIGNMENT);
         
         JLabel lbNome = criarTextoCentral(nomeExibicao);
-        lbNome.setFont(lbNome.getFont().deriveFont(22f));
+        lbNome.setFont(lbNome.getFont().deriveFont(Font.BOLD, 22f));
         lbNome.setAlignmentX(CENTER_ALIGNMENT);
 
         JButton btnFoto = criarBotaoNeutro("Alterar Foto");
@@ -79,13 +94,13 @@ public class PerfilTela extends TelaBase {
         avatarCard.add(btnFoto);
         avatarCard.add(Box.createVerticalGlue());
 
-        // Lado Direito: Grid de Informações (Ocupando o espaço central)
+        // Lado Direito: Grid de Informações
         JPanel infoDireita = new JPanel(new GridLayout(2, 2, 20, 20));
         infoDireita.setOpaque(false);
         
         infoDireita.add(criarCapsulaInfo("Nome Completo", nomeExibicao));
         infoDireita.add(criarCapsulaInfo("E-mail Cadastrado", emailExibicao));
-        infoDireita.add(criarCapsulaInfo("Tipo de Conta", tipoUsuario));
+        infoDireita.add(criarCapsulaInfo("Tipo de Conta", tipoUsuario.toUpperCase()));
         infoDireita.add(criarCapsulaInfo("Status do Perfil", "Ativo"));
 
         corpo.add(avatarCard, BorderLayout.WEST);
@@ -104,16 +119,16 @@ public class PerfilTela extends TelaBase {
         p.setLayout(new BorderLayout());
         p.setBorder(BorderFactory.createCompoundBorder(
             p.getBorder(), 
-            BorderFactory.createEmptyBorder(15, 20, 15, 20)
+            BorderFactory.createEmptyBorder(20, 25, 20, 25) // Aumentei o respiro interno
         ));
 
-        JLabel lbTitulo = new JLabel(titulo);
+        JLabel lbTitulo = new JLabel(titulo.toUpperCase());
         lbTitulo.setForeground(COR_TEXTO_SUAVE);
-        lbTitulo.setFont(lbTitulo.getFont().deriveFont(13f));
+        lbTitulo.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         JLabel lbValor = new JLabel(valor);
-        lbValor.setFont(lbValor.getFont().deriveFont(18f));
-        lbValor.setForeground(COR_PRETO);
+        lbValor.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        lbValor.setForeground(COR_AZUL_ESCURO);
 
         p.add(lbTitulo, BorderLayout.NORTH);
         p.add(lbValor, BorderLayout.CENTER);

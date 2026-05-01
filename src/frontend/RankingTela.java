@@ -3,6 +3,8 @@ package frontend;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -12,6 +14,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import frontend.base.TelaBase;
 import frontend.mock.DadosMockados;
@@ -20,48 +23,77 @@ import frontend.util.Navegador;
 
 public class RankingTela extends TelaBase {
 
-    private final String tipoUsuario;
-
-    public RankingTela(String tipoUsuario) {
+       public RankingTela(String tipoUsuario) {
         super("QuimLab - Ranking");
         this.tipoUsuario = tipoUsuario;
         initComponents();
+
     }
+
+    private final String tipoUsuario;
 
     private void initComponents() {
         JPanel painelPrincipal = criarPainelPrincipal();
         JPanel painelExterno = new JPanel(new BorderLayout());
         painelExterno.setOpaque(false);
-        painelExterno.setBorder(BorderFactory.createEmptyBorder(28, 86, 28, 86));
+        painelExterno.setBorder(BorderFactory.createEmptyBorder(20, 60, 20, 60));
 
         JPanel canvas = criarCanvasCentral();
-        JPanel conteudo = new JPanel(new BorderLayout(18, 18));
-        conteudo.setOpaque(false);
+        JPanel conteudoCentral = new JPanel(new BorderLayout(0, 25)); // Espaçamento entre topo e cards
+        conteudoCentral.setOpaque(false);
 
-        JButton voltarButton = criarBotaoNeutro("Voltar");
-        voltarButton.setPreferredSize(new Dimension(160, 58));
+        // --- CABEÇALHO COM TÍTULO CENTRALIZADO E BOTÕES NAS PONTAS ---
+        JPanel painelCabecalho = new JPanel(new BorderLayout());
+        painelCabecalho.setOpaque(false);
+
+        // 1. Botão Geral (Lado Esquerdo - Subiu do meio da tela)
+        JButton btnFiltroGeral = criarBotaoPrincipal("Geral");
+        btnFiltroGeral.setPreferredSize(new Dimension(140, 45));
+        
+        JPanel containerEsquerdo = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        containerEsquerdo.setOpaque(false);
+        containerEsquerdo.setPreferredSize(new Dimension(200, 55));
+        containerEsquerdo.add(btnFiltroGeral);
+
+        // 2. Título (Centro com destaque maior)
+        JLabel tituloRanking = new JLabel("Ranking Geral", SwingConstants.CENTER);
+        tituloRanking.setFont(new Font("Segoe UI", Font.BOLD, 42)); 
+        tituloRanking.setForeground(COR_AZUL_ESCURO);
+
+        // 3. Botão Voltar (Lado Direito)
+        JButton voltarButton = criarBotaoLink("Voltar");
         voltarButton.addActionListener(evt -> Navegador.abrirHome(this, tipoUsuario));
-        conteudo.add(criarTopoComVoltar("Ranking Geral", voltarButton), BorderLayout.NORTH);
+        
+        JPanel containerDireito = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        containerDireito.setOpaque(false);
+        containerDireito.setPreferredSize(new Dimension(200, 55));
+        containerDireito.add(voltarButton);
 
-        JPanel filtros = criarLinhaBotoes(
-            criarBotaoPrincipal("Geral"),
-            criarBotaoNeutro("1 Ano"),
-            criarBotaoNeutro("2 Ano"),
-            criarBotaoNeutro("3 Ano")
-        );
+        // Montagem do Cabeçalho (Garante o centro absoluto)
+        painelCabecalho.add(containerEsquerdo, BorderLayout.WEST);
+        painelCabecalho.add(tituloRanking, BorderLayout.CENTER);
+        painelCabecalho.add(containerDireito, BorderLayout.EAST);
 
-        JPanel centro = new JPanel(new BorderLayout(18, 0));
-        centro.setOpaque(false);
-        centro.add(criarListaRanking(), BorderLayout.WEST);
-        centro.add(criarPodio(), BorderLayout.CENTER);
+        // --- ÁREA DOS CARDS (Recuperando seus métodos originais) ---
+        JPanel painelCards = new JPanel(new BorderLayout(24, 0));
+        painelCards.setOpaque(false);
+        
+        // Chamando seus métodos que já existem no código antigo
+        painelCards.add(criarListaRanking(), BorderLayout.WEST);
+        painelCards.add(criarPodio(), BorderLayout.CENTER);
 
-        conteudo.add(filtros, BorderLayout.CENTER);
-        conteudo.add(centro, BorderLayout.SOUTH);
-        canvas.add(conteudo, BorderLayout.CENTER);
+        // Montagem final no Conteúdo
+        conteudoCentral.add(painelCabecalho, BorderLayout.NORTH);
+        conteudoCentral.add(painelCards, BorderLayout.CENTER);
+
+        canvas.add(conteudoCentral, BorderLayout.CENTER);
         painelExterno.add(canvas, BorderLayout.CENTER);
         painelPrincipal.add(painelExterno, BorderLayout.CENTER);
+        
         setContentPane(painelPrincipal);
     }
+
+    
 
     private JPanel criarListaRanking() {
         JPanel card = criarCartaoSuave();

@@ -27,17 +27,47 @@ public class GerenciarPerguntasTela extends TelaBase {
         painelExterno.setOpaque(false);
         painelExterno.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
+        // --- TOPO ---
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-        JLabel titulo = new JLabel("Gerenciamento de Banco de Dados");
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 28));
+        topo.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+
+        // Título centralizado com 32px
+        JLabel titulo = new JLabel("Gerenciamento de Banco de Dados", SwingConstants.CENTER);
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 32));
         titulo.setForeground(new Color(44, 62, 80));
-        JButton btnVoltarHome = criarBotaoLink("← Voltar para o Painel");
+
+        // BOTÃO VOLTAR (Estilo Meu Perfil - Corrigido)
+        JButton btnVoltarHome = new JButton("← Voltar");
+        btnVoltarHome.setFont(new Font("SansSerif", Font.BOLD, 14));
+        btnVoltarHome.setForeground(new Color(44, 62, 80));
+        btnVoltarHome.setBackground(Color.WHITE);
+        btnVoltarHome.setOpaque(true);
+        btnVoltarHome.setFocusPainted(false);
+        btnVoltarHome.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Usando uma borda arredondada padrão do Swing para evitar erros de compilação
+        btnVoltarHome.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true), 
+            BorderFactory.createEmptyBorder(8, 20, 8, 20)
+        ));
         btnVoltarHome.addActionListener(e -> Navegador.abrirHome(this, Navegador.TIPO_PROFESSOR));
+
+        // Container para alinhar à esquerda
+        JPanel containerVoltar = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        containerVoltar.setOpaque(false);
+        containerVoltar.add(btnVoltarHome);
+
+        // Spacer para manter o título no centro exato
+        Dimension tamanhoBotao = btnVoltarHome.getPreferredSize();
+        Component spacer = Box.createRigidArea(tamanhoBotao);
+
+        topo.add(containerVoltar, BorderLayout.WEST);
         topo.add(titulo, BorderLayout.CENTER);
-        topo.add(btnVoltarHome, BorderLayout.WEST);
+        topo.add(spacer, BorderLayout.EAST);
         painelExterno.add(topo, BorderLayout.NORTH);
 
+        // --- TABELA ---
         modelo = new DefaultTableModel(new Object[]{"ID", "Enunciado", "Dificuldade", "Status"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -45,6 +75,7 @@ public class GerenciarPerguntasTela extends TelaBase {
         tabela.setRowHeight(35);
         painelExterno.add(new JScrollPane(tabela), BorderLayout.CENTER);
 
+        // --- AÇÕES ---
         JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0));
         acoes.setOpaque(false);
         btnNovo = criarBotaoPrincipal("NOVA PERGUNTA");
@@ -92,7 +123,6 @@ public class GerenciarPerguntasTela extends TelaBase {
         setEstadoBotoes(false, "Abrindo...");
         int id = (int) modelo.getValueAt(linha, 0);
         
-        // SwingWorker para buscar o objeto pergunta antes de abrir a tela
         SwingWorker<Pergunta, Void> worker = new SwingWorker<>() {
             @Override protected Pergunta doInBackground() throws Exception {
                 return perguntaDAO.getPergunta(id);
