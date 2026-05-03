@@ -1,5 +1,14 @@
-.env
-bin/
-*.class
+# Maven - ignorar arquivos compilados
+target/
+
+# VS Code - ignorar configurações locais
 .vscode/
-build/
+.settings/
+.classpath
+.project
+
+# Segurança - NÃO enviar suas senhas do banco
+.env
+
+# Arquivos temporários do Java
+*.class
