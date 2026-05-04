@@ -1,13 +1,14 @@
 package backend.servidor;
 //biblotecas
-import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 public class Conexao {
     // Carrega o arquivo .env
-    private static Dotenv dotenv = Dotenv.load();
+    private static final Dotenv dotenv = Dotenv.load();
 
     // Busca os valores pelas chaves definidas no arquivo
     private static final String URL = dotenv.get("DB_URL");
