@@ -1,16 +1,17 @@
 package frontend;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Color;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JOptionPane;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
@@ -66,12 +67,10 @@ public class HomeProfessorTela extends TelaBase {
         JButton gerenciarUsuariosButton = criarBotaoPrincipal("GERENCIAR USUÁRIOS");
         gerenciarUsuariosButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarUsuariosTela()));
 
-        /// --- BOTÃO MODO JOGADOR (CORRIGIDO E INTEGRADO) ---
+        // --- BOTÃO MODO JOGADOR ---
         JButton jogarButton = criarBotaoPrincipal("MODO JOGADOR (TESTAR QUESTÕES)");
         jogarButton.setBackground(new Color(0, 153, 136));
         jogarButton.addActionListener(evt -> {
-         // Abrimos o modal passando 'this' e identificando como PROFESSOR
-         // Isso garante que o fluxo de seleção de dificuldade seja idêntico ao do aluno
             new SelecaoNivelModal(this, Navegador.TIPO_PROFESSOR).setVisible(true);
         });
 
@@ -107,10 +106,16 @@ public class HomeProfessorTela extends TelaBase {
         rodape.setOpaque(false);
         rodape.add(criarTextoSuave("Painel Administrativo | ETEC Química"), BorderLayout.WEST);
         
+        // --- LÓGICA DO BOTÃO SAIR CORRIGIDA ---
         JButton sairButton = criarBotaoLink("Encerrar Sessão");
         sairButton.addActionListener(evt -> {
-            // Aqui usamos o SairModal que criamos para padronizar
-            new SairModal(this).setVisible(true);
+            SairModal modal = new SairModal(this);
+            modal.setVisible(true); // O código pausa aqui até o modal fechar
+            
+            // Verifica se o usuário confirmou a saída no modal
+            if (modal.isConfirmarSair()) {
+                Navegador.abrirTela(this, new LoginTela());
+            }
         });
         rodape.add(sairButton, BorderLayout.EAST);
 
