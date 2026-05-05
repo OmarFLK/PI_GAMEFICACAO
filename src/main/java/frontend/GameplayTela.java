@@ -10,6 +10,8 @@ import frontend.base.TelaBase;
 import frontend.util.Navegador;
 import backend.DAO.perguntaDAO.*;
 import backend.DAO.alternativasDAO.*;
+import backend.DAO.partidaDAO.PartidaDAO; // Importado para salvar resultado
+import backend.Seguranca.SessaoUsuario;
 
 public class GameplayTela extends TelaBase {
 
@@ -216,7 +218,6 @@ public class GameplayTela extends TelaBase {
                 dificuldadeLabel.setText("Dificuldade: " + formatarTexto(perguntaSendoCarregada.getDificuldade()));
                 progressoLabel.setText("Pergunta " + (indicePergunta + 1) + " de " + perguntas.size() + " | Pontos " + pontuacao);
                 
-                // Correção do texto saindo da tela (HTML width fixo)
                 perguntaLabel.setText("<html><body style='width: 850px; text-align: center;'>" + 
                                       perguntaSendoCarregada.getEnunciado() + 
                                       "</body></html>");
@@ -313,6 +314,12 @@ public class GameplayTela extends TelaBase {
         javax.swing.Timer timerFeedback = new javax.swing.Timer(800, e -> {
             indicePergunta++;
             if (indicePergunta >= perguntas.size()) {
+                // LÓGICA DE SALVAMENTO: Registra apenas se for aluno[cite: 31]
+                backend.DAO.usuarioDAO.Usuario u = SessaoUsuario.getInstancia().getUsuario();
+                if (u != null && Navegador.TIPO_ALUNO.equals(u.getTipo())) {
+                    new PartidaDAO().salvarResultadoFinal(u.getId(), pontuacao);
+                }
+                
                 Navegador.abrirTela(this, new ResultadoTela(tipoUsuario, pontuacao, acertos, perguntas.size()));
             } else {
                 carregarPergunta();
