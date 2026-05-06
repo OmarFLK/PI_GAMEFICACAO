@@ -1,12 +1,32 @@
 package frontend;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.List;
-import javax.swing.*;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
+
+import backend.DAO.perguntaDAO.Pergunta;
+import backend.DAO.perguntaDAO.PerguntaDAO;
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
-import backend.DAO.perguntaDAO.*;
 
 public class GerenciarPerguntasTela extends TelaBase {
 
@@ -109,7 +129,7 @@ public class GerenciarPerguntasTela extends TelaBase {
                     List<Pergunta> lista = get();
                     modelo.setRowCount(0);
                     lista.forEach(p -> modelo.addRow(new Object[]{p.getId(), p.getEnunciado(), p.getDificuldade(), p.getAtiva() == 1 ? "Ativa" : "Inativa"}));
-                } catch (Exception e) { JOptionPane.showMessageDialog(null, "Erro ao carregar."); }
+                } catch (InterruptedException | ExecutionException e) { JOptionPane.showMessageDialog(null, "Erro ao carregar."); }
                 finally { setEstadoBotoes(true, ""); }
             }
         };
@@ -130,7 +150,7 @@ public class GerenciarPerguntasTela extends TelaBase {
             @Override protected void done() {
                 try {
                     Navegador.abrirTela(GerenciarPerguntasTela.this, new PerguntaFormTela(get()));
-                } catch (Exception e) { 
+                } catch (InterruptedException | ExecutionException e) { 
                     JOptionPane.showMessageDialog(null, "Erro ao abrir."); 
                     setEstadoBotoes(true, "");
                 }

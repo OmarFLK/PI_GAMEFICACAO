@@ -38,6 +38,7 @@ public class PerguntaFormTela extends TelaBase {
     private JTextArea txtEnunciado;
     private JComboBox<String> cbDificuldade;
     private JTextField txtImagemPergunta;
+    private JTextField txtAjuda;
     private JTextField[] txtAlternativas;
     private JTextField[] txtImagensAlternativas;
     private JRadioButton[] rbCorretas;
@@ -63,7 +64,7 @@ public class PerguntaFormTela extends TelaBase {
         corpo.setLayout(new BoxLayout(corpo, BoxLayout.Y_AXIS));
 
         // --- ENUNCIADO ---
-        corpo.add(criarTexto("Enunciado da Questão:"));
+        corpo.add(criarTexto("Enunciado da Questão:"), BorderLayout.NORTH);
         txtEnunciado = new JTextArea(3, 20);
         txtEnunciado.setLineWrap(true);
         txtEnunciado.setWrapStyleWord(true);
@@ -73,8 +74,8 @@ public class PerguntaFormTela extends TelaBase {
 
         corpo.add(Box.createVerticalStrut(10));
 
-        // --- DIFICULDADE E IMAGEM ---
-        JPanel painelMeio = new JPanel(new GridLayout(1, 2, 20, 0));
+        // --- DIFICULDADE, IMAGEM E AJUDA ---
+        JPanel painelMeio = new JPanel(new GridLayout(1, 2, 10, 0));
         painelMeio.setOpaque(false);
 
         JPanel pDificuldade = new JPanel(new BorderLayout());
@@ -89,8 +90,15 @@ public class PerguntaFormTela extends TelaBase {
         txtImagemPergunta = new JTextField();
         pImagem.add(txtImagemPergunta, BorderLayout.CENTER);
 
+        JPanel pAjuda = new JPanel(new BorderLayout());
+        pAjuda.setOpaque(false);
+        pAjuda.add(criarTexto("Texto da Ajuda (Dica):"), BorderLayout.NORTH);
+        txtAjuda = new JTextField();
+        pAjuda.add(txtAjuda, BorderLayout.CENTER);
+
         painelMeio.add(pDificuldade);
         painelMeio.add(pImagem);
+        painelMeio.add(pAjuda);
         corpo.add(painelMeio);
 
         corpo.add(Box.createVerticalStrut(20));
@@ -162,6 +170,7 @@ public class PerguntaFormTela extends TelaBase {
                     txtEnunciado.setText(perguntaExistente.getEnunciado());
                     cbDificuldade.setSelectedItem(perguntaExistente.getDificuldade());
                     txtImagemPergunta.setText(perguntaExistente.getImagemURL());
+                    txtAjuda.setText(perguntaExistente.getAjuda());
                     
                     for (int i = 0; i < alts.size() && i < 4; i++) {
                         txtAlternativas[i].setText(alts.get(i).getTexto());
@@ -190,6 +199,7 @@ public class PerguntaFormTela extends TelaBase {
         String enunciado = txtEnunciado.getText().trim();
         String dificuldade = cbDificuldade.getSelectedItem().toString();
         String imgPergunta = tratarNull(txtImagemPergunta.getText());
+        String ajuda = tratarNull(txtAjuda.getText().trim());
         int professorId = SessaoUsuario.getInstancia().getUsuario().getId();
 
         if (enunciado.isEmpty() || !validarSelecaoCorreta()) {
@@ -203,13 +213,13 @@ public class PerguntaFormTela extends TelaBase {
             @Override
             protected Void doInBackground() throws Exception {
                 if (perguntaExistente == null) {
-                    perguntaDAO.criarPergunta(enunciado, imgPergunta, dificuldade, professorId);
+                    perguntaDAO.criarPergunta(enunciado, imgPergunta, dificuldade, professorId, ajuda);
                     int idNova = buscarUltimoIdCriado(professorId);
                     for (int i = 0; i < 4; i++) {
                         alternativasDAO.criarAlternativa(idNova, txtAlternativas[i].getText().trim(), tratarNull(txtImagensAlternativas[i].getText()), rbCorretas[i].isSelected() ? 1 : 0);
                     }
                 } else {
-                    perguntaDAO.atualizarPergunta(perguntaExistente.getId(), enunciado, imgPergunta, dificuldade, 1);
+                    perguntaDAO.atualizarPergunta(perguntaExistente.getId(), enunciado, imgPergunta, dificuldade, 1,ajuda);
                     List<Alternativa> antigas = alternativasDAO.getAlternativasPorPergunta(perguntaExistente.getId());
                     for (Alternativa a : antigas) alternativasDAO.deletarAlternativa(a.getIdAlternativa());
                     for (int i = 0; i < 4; i++) {
@@ -240,6 +250,7 @@ public class PerguntaFormTela extends TelaBase {
         txtEnunciado.setEnabled(ativo);
         cbDificuldade.setEnabled(ativo);
         txtImagemPergunta.setEnabled(ativo);
+        txtAjuda.setEnabled(ativo);
         
         for (int i = 0; i < 4; i++) {
             txtAlternativas[i].setEnabled(ativo);
