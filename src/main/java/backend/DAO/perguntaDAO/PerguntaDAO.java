@@ -1,9 +1,14 @@
 //package e imports
 package backend.DAO.perguntaDAO;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+
 import backend.servidor.Conexao;
 
 //classe
@@ -81,7 +86,7 @@ public class PerguntaDAO {
     }
 
     // Método para buscar perguntas por dificuldade (usado na Gameplay)
-    public List<Pergunta> getPerguntasPorDificuldade(String dificuldade) {
+    public List<Pergunta> getPerguntasPorDificuldade(String dificuldade, int NumeroDePerguntas) {
         List<Pergunta> lista = new ArrayList<>();
         String sql = "SELECT * FROM perguntas WHERE dificuldade = UPPER(?) AND ativa = 1 ORDER BY RAND()";
         try (Connection conn = Conexao.conectar();
@@ -90,15 +95,17 @@ public class PerguntaDAO {
             stmt.setString(1, dificuldade);
             ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                lista.add(new Pergunta(
-                    rs.getInt("idPergunta"),
-                    rs.getString("enunciado"),
-                    rs.getString("imagemURL"),
-                    rs.getString("dificuldade"),
-                    rs.getInt("criadoPor"),
-                    rs.getInt("ativa")
-                ));
+            for (int i = 0; i < NumeroDePerguntas; i++) {
+                if(rs.next()){
+                    lista.add(new Pergunta(
+                        rs.getInt("idPergunta"),
+                        rs.getString("enunciado"),
+                        rs.getString("imagemURL"),
+                        rs.getString("dificuldade"),
+                        rs.getInt("criadoPor"),
+                        rs.getInt("ativa")
+                    ));
+                }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar por dificuldade: " + e.getMessage());
