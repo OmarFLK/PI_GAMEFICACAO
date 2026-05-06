@@ -8,9 +8,8 @@ O **LabQuest** é um jogo educativo desenvolvido para auxiliar estudantes de Qu�
 
 ## 🛠️ Tecnologias Utilizadas
 * **Linguagem:** Java
-* **Interface Gráfica:** JavaFX (ou Swing)
-* **Banco de Dados:** MySQL (Obrigatório)
-* **Persistência:** JDBC / Hibernate (JPA)
+* **Interface Gráfica:** Java Swing
+* **Banco de Dados:** MySQL Obrigatório
 * **Gerenciador de Dependências:** Maven
 
 ## 📋 Requisitos Funcionais (Principais)
