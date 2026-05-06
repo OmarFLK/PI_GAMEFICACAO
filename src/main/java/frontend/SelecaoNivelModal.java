@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import frontend.util.Navegador;
 
 public class SelecaoNivelModal extends JDialog {
-    private String nivelSelecionado = null;
+    private final String nivelSelecionado = null;
     private final JFrame pai;
     private final String tipoUsuario;
 
@@ -67,10 +67,10 @@ public class SelecaoNivelModal extends JDialog {
         btnCancelar.setAlignmentX(CENTER_ALIGNMENT);
 
         // AÇÕES CORRIGIDAS: Agora elas chamam o método iniciarJogo
-        btnFacil.addActionListener(e -> iniciarJogo("FACIL"));
-        btnMedio.addActionListener(e -> iniciarJogo("MEDIO"));
-        btnDificil.addActionListener(e -> iniciarJogo("DIFICIL"));
-        btnProgressivo.addActionListener(e -> iniciarJogo("PROGRESSIVO"));
+        btnFacil.addActionListener(e -> iniciarJogo("FACIL",btnFacil));
+        btnMedio.addActionListener(e -> iniciarJogo("MEDIO",btnMedio));
+        btnDificil.addActionListener(e -> iniciarJogo("DIFICIL",btnDificil));
+        btnProgressivo.addActionListener(e -> iniciarJogo("PROGRESSIVO",btnProgressivo));
         btnCancelar.addActionListener(e -> dispose());
 
         painel.add(titulo);
@@ -90,13 +90,30 @@ public class SelecaoNivelModal extends JDialog {
     }
 
     // MÉTODO NOVO: É aqui que a mágica acontece
-    private void iniciarJogo(String nivel) {
-        this.nivelSelecionado = nivel;
-        this.dispose(); // Fecha o modal
-        
-        // Abre a tela de Gameplay passando a dificuldade E o tipo de usuário
-        // Isso garante que o banco de dados receba o filtro e as questões apareçam
-        Navegador.abrirTela(pai, new GameplayTela(tipoUsuario, nivel));
+    private void iniciarJogo(String nivel, JButton btnClicado) {
+        String textoOriginal = btnClicado.getText();
+        btnClicado.setText("CARREGANDO...");
+        btnClicado.setEnabled(false);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        new Thread(() -> {
+            try {
+                GameplayTela tela = new GameplayTela(tipoUsuario, nivel);
+                
+                java.awt.EventQueue.invokeLater(()->{
+                    this.dispose();
+                    Navegador.abrirTela(pai, tela);
+                    setCursor(Cursor.getDefaultCursor());
+                });     
+
+            } catch (Exception ex) {
+                java.awt.EventQueue.invokeLater(()->{
+                    btnClicado.setText(textoOriginal);
+                    btnClicado.setEnabled(true);
+                    setCursor(Cursor.getDefaultCursor());
+                    javax.swing.JOptionPane.showMessageDialog(this, "Erro ao carregar partida!");
+                });
+            }
+        }).start();
     }
 
     private JButton criarBotaoModal(String texto, Color cor) {
