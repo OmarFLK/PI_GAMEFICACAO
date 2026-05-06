@@ -5,10 +5,10 @@ package backend.DAO.usuarioDAO;
 public class Usuario {
 
     //atributos
-    private int id;
-    private String nome;
-    private String email;
-    private String tipo;
+    private final int id;
+    private final String nome;
+    private final String email;
+    private final String tipo;
 
     // Construtor
     public Usuario(int id, String nome, String email, String tipo) {

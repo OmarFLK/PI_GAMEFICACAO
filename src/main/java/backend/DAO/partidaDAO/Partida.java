@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 public class Partida {
 
     //atributos
-    private int id;
-    private int idUsuario;
-    private int pontuacao;
-    private LocalDateTime dataInicio;
+    private final int id;
+    private final int idUsuario;
+    private final int pontuacao;
+    private final LocalDateTime dataInicio;
 
     //construtor
     public Partida(int id, int idUsuario, int pontuacao, LocalDateTime dataInicio) {

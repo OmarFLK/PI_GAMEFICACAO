@@ -4,15 +4,15 @@ package backend.DAO.perguntaDAO;
 //classe
 public class Pergunta {
 
-    //atributos
-    private int id;
-    private String enunciado;
-    private String imagemURL;
-    private String dificuldade;
-    private int criadoPor;
-    private int ativa;
+    // atributos
+    private final int id;
+    private final String enunciado;
+    private final String imagemURL;
+    private final String dificuldade;
+    private final int criadoPor;
+    private final int ativa;
 
-    //construtor
+    // construtor
     public Pergunta(int id, String enunciado, String imagemURL, String dificuldade, int criadoPor, int ativa) {
         this.id = id;
         this.enunciado = enunciado;
@@ -22,19 +22,26 @@ public class Pergunta {
         this.ativa = ativa;
     }
 
-    //to string para printar no terminal (temporario para teste)
+    // to string para printar no terminal (temporario para teste)
     @Override
     public String toString() {
-        return "------------------------------------------\n" +
-            "ID: " + id + "\n" +
-            "Pergunta: " + enunciado + "\n" +
-            "Dificuldade: " + dificuldade + "\n" +
-            "Imagem: " + (imagemURL != null ? imagemURL : "Sem imagem") + "\n" +
-            "Ativa: " + (ativa == 1 ? "Sim" : "Não") + "\n" +
-            "------------------------------------------";
+        return """
+                ------------------------------------
+                ID: %d
+                Pergunta: %s
+                Dificuldade: %s
+                Imagem: %s
+                Ativa: %s
+                ------------------------------------
+                """.formatted(
+                id,
+                enunciado,
+                dificuldade,
+                (imagemURL != null ? imagemURL : "Sem imagem"),
+                (ativa == 1 ? "Sim" : "Não"));
     }
-    
-    //metodos getters
+
+    // metodos getters
     public String getEnunciado() {
         return enunciado;
     }
@@ -59,7 +66,4 @@ public class Pergunta {
         return ativa;
     }
 
-    
 }
-
-

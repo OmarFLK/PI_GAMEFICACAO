@@ -5,9 +5,9 @@ package backend.DAO.ajudaDAO;
 public class Ajuda {
 
     //atributos
-    private int id;
-    private String nome;
-    private String descricao;
+    private final int id;
+    private final String nome;
+    private final String descricao;
 
     //construtor
     public Ajuda(int id, String nome, String descricao) {

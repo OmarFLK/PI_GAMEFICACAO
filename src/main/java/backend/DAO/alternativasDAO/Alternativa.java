@@ -5,11 +5,11 @@ package backend.DAO.alternativasDAO;
 public class Alternativa {
     
     //atributos
-    private int idAlternativa;
-    private int idPergunta;
-    private String texto;
-    private String imagemURL;
-    private int correta;
+    private final int idAlternativa;
+    private final int idPergunta;
+    private final String texto;
+    private final String imagemURL;
+    private final int correta;
 
     //construtor
     public Alternativa(int idAlternativa, int idPergunta, String texto, String imagemURL, int correta) {
