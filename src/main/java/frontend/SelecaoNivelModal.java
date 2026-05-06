@@ -1,9 +1,20 @@
 package frontend;
 
-import java.awt.*;
-import javax.swing.*;
-import frontend.base.TelaBase;
-import frontend.util.Navegador; // Importante para abrir a tela
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font; // Importante para abrir a tela
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import frontend.util.Navegador;
 
 public class SelecaoNivelModal extends JDialog {
     private String nivelSelecionado = null;
@@ -47,6 +58,7 @@ public class SelecaoNivelModal extends JDialog {
         JButton btnFacil = criarBotaoModal("FÁCIL", new Color(40, 167, 69));
         JButton btnMedio = criarBotaoModal("MÉDIO", new Color(255, 193, 7));
         JButton btnDificil = criarBotaoModal("DIFÍCIL", new Color(220, 53, 69));
+        JButton btnProgressivo = criarBotaoModal("PROGRESSIVO", new Color(255, 165, 0));
         
         JButton btnCancelar = new JButton("Cancelar");
         btnCancelar.setBorderPainted(false);
@@ -58,6 +70,7 @@ public class SelecaoNivelModal extends JDialog {
         btnFacil.addActionListener(e -> iniciarJogo("FACIL"));
         btnMedio.addActionListener(e -> iniciarJogo("MEDIO"));
         btnDificil.addActionListener(e -> iniciarJogo("DIFICIL"));
+        btnProgressivo.addActionListener(e -> iniciarJogo("PROGRESSIVO"));
         btnCancelar.addActionListener(e -> dispose());
 
         painel.add(titulo);
@@ -68,6 +81,8 @@ public class SelecaoNivelModal extends JDialog {
         painel.add(btnMedio);
         painel.add(Box.createVerticalStrut(12));
         painel.add(btnDificil);
+        painel.add(Box.createVerticalStrut(15));
+        painel.add(btnProgressivo);
         painel.add(Box.createVerticalStrut(15));
         painel.add(btnCancelar);
 

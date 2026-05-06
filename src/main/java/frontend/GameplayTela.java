@@ -1,24 +1,46 @@
 package frontend;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.net.URL;
-import java.util.List;
-import javax.imageio.ImageIO;
-import javax.swing.*;
+import java.util.List; // Importado para salvar resultado
 
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
+
+import backend.DAO.alternativasDAO.Alternativa;
+import backend.DAO.alternativasDAO.AlternativasDAO;
+import backend.DAO.partidaDAO.PartidaDAO;
+import backend.DAO.perguntaDAO.Pergunta;
+import backend.DAO.perguntaDAO.PerguntaDAO;
+import backend.Seguranca.SessaoUsuario;
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
-import backend.DAO.perguntaDAO.*;
-import backend.DAO.alternativasDAO.*;
-import backend.DAO.partidaDAO.PartidaDAO; // Importado para salvar resultado
-import backend.Seguranca.SessaoUsuario;
 
 public class GameplayTela extends TelaBase {
 
     private final String tipoUsuario;
     private final PerguntaDAO perguntaDAO = new PerguntaDAO();
     private final AlternativasDAO alternativasDAO = new AlternativasDAO();
-    
+
     private List<Pergunta> perguntas;
     private List<Alternativa> alternativasAtuais;
     private int indicePergunta = 0;
@@ -27,10 +49,11 @@ public class GameplayTela extends TelaBase {
     private int valorPorQuestao = 100;
 
     private JLabel dificuldadeLabel;
+    private String dificuldadeSelecionada;
     private JLabel progressoLabel;
     private JLabel perguntaLabel;
     private JLabel imagemLabel;
-    private JLabel erroLabel; 
+    private JLabel erroLabel;
     private JRadioButton[] alternativasRadioButtons;
     private ButtonGroup alternativasButtonGroup;
     private JButton ajudaButton;
@@ -44,21 +67,19 @@ public class GameplayTela extends TelaBase {
         super("QuimLab - Gameplay");
         this.tipoUsuario = tipoUsuario;
 
-        String dificuldadeSelecionada = (modoTela != null) ? modoTela : "FACIL";
-        
-        if (dificuldadeSelecionada.equalsIgnoreCase("FACIL")) {
-            this.valorPorQuestao = 50;
-        } else if (dificuldadeSelecionada.equalsIgnoreCase("MEDIO")) {
-            this.valorPorQuestao = 100;
-        } else if (dificuldadeSelecionada.equalsIgnoreCase("DIFICIL")) {
-            this.valorPorQuestao = 200;
+        this.dificuldadeSelecionada = (modoTela != null) ? modoTela : "FACIL";
+
+        if (dificuldadeSelecionada.equalsIgnoreCase("PROGRESSIVO")) {
+            this.perguntas = perguntaDAO.getPerguntasPorDificuldade("FACIL", 3);
+            this.perguntas.addAll(perguntaDAO.getPerguntasPorDificuldade("MEDIO", 3));
+            this.perguntas.addAll(perguntaDAO.getPerguntasPorDificuldade("DIFICIL", 4));
+        } else {
+            this.perguntas = perguntaDAO.getPerguntasPorDificuldade(dificuldadeSelecionada, 10);
         }
 
-        this.perguntas = perguntaDAO.getPerguntasPorDificuldade(dificuldadeSelecionada);
-        
         if (this.perguntas == null || this.perguntas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Não há perguntas para esta dificuldade no banco.");
-            Navegador.abrirHome(this, tipoUsuario); 
+            Navegador.abrirHome(this, tipoUsuario);
             return;
         }
 
@@ -144,11 +165,11 @@ public class GameplayTela extends TelaBase {
         this.proximaButton.setPreferredSize(new Dimension(420, 70));
         this.proximaButton.addActionListener(evt -> avancarPergunta());
 
-        containerConfirmar.add(this.proximaButton); 
+        containerConfirmar.add(this.proximaButton);
 
-        rodape.add(ajudaButton, BorderLayout.WEST);   
-        rodape.add(containerConfirmar, BorderLayout.CENTER); 
-        rodape.add(sairButton, BorderLayout.EAST);    
+        rodape.add(ajudaButton, BorderLayout.WEST);
+        rodape.add(containerConfirmar, BorderLayout.CENTER);
+        rodape.add(sairButton, BorderLayout.EAST);
 
         conteudo.add(topo, BorderLayout.NORTH);
         conteudo.add(corpo, BorderLayout.CENTER);
@@ -187,7 +208,8 @@ public class GameplayTela extends TelaBase {
         proximaButton.setEnabled(false);
         ajudaButton.setEnabled(false);
         erroLabel.setVisible(false);
-        perguntaLabel.setText("<html><div style='text-align:center; width:850px;'>Baixando questão e imagens...</div></html>");
+        perguntaLabel.setText(
+                "<html><div style='text-align:center; width:850px;'>Baixando questão e imagens...</div></html>");
         imagemLabel.setVisible(false);
 
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
@@ -201,13 +223,13 @@ public class GameplayTela extends TelaBase {
                 alternativasAtuais = alternativasDAO.getAlternativasPorPergunta(perguntaSendoCarregada.getId());
 
                 if (perguntaSendoCarregada.getImagemURL() != null && !perguntaSendoCarregada.getImagemURL().isEmpty()) {
-                    imgPergunta = baixarEScalarImagem(perguntaSendoCarregada.getImagemURL(), 400, 250);
+                    imgPergunta = baixarEscalarImagem(perguntaSendoCarregada.getImagemURL(), 400, 250);
                 }
 
                 for (int i = 0; i < alternativasAtuais.size() && i < 4; i++) {
                     String urlAlt = alternativasAtuais.get(i).getImagemURL();
                     if (urlAlt != null && !urlAlt.isEmpty()) {
-                        imgsAlternativas[i] = baixarEScalarImagem(urlAlt, 110, 110);
+                        imgsAlternativas[i] = baixarEscalarImagem(urlAlt, 110, 110);
                     }
                 }
                 return null;
@@ -216,11 +238,12 @@ public class GameplayTela extends TelaBase {
             @Override
             protected void done() {
                 dificuldadeLabel.setText("Dificuldade: " + formatarTexto(perguntaSendoCarregada.getDificuldade()));
-                progressoLabel.setText("Pergunta " + (indicePergunta + 1) + " de " + perguntas.size() + " | Pontos " + pontuacao);
-                
-                perguntaLabel.setText("<html><body style='width: 850px; text-align: center;'>" + 
-                                      perguntaSendoCarregada.getEnunciado() + 
-                                      "</body></html>");
+                progressoLabel.setText(
+                        "Pergunta " + (indicePergunta + 1) + " de " + perguntas.size() + " | Pontos " + pontuacao);
+
+                perguntaLabel.setText("<html><body style='width: 850px; text-align: center;'>" +
+                        perguntaSendoCarregada.getEnunciado() +
+                        "</body></html>");
 
                 if (imgPergunta != null) {
                     imagemLabel.setIcon(imgPergunta);
@@ -253,23 +276,35 @@ public class GameplayTela extends TelaBase {
         worker.execute();
     }
 
-    private ImageIcon baixarEScalarImagem(String urlStr, int width, int height) {
+    private ImageIcon baixarEscalarImagem(String urlStr, int width, int height) {
         try {
-            URL url = new URL(urlStr);
-            Image img = ImageIO.read(url);
+            Image img;
+            if (urlStr.startsWith("data:image")) {
+                // Tratamento para Base64
+                String base64Image = urlStr.split(",")[1];
+                byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Image);
+                img = ImageIO.read(new java.io.ByteArrayInputStream(imageBytes));
+            } else {
+                // Tratamento para URL normal (http)
+                URL url = new URL(urlStr);
+                img = ImageIO.read(url);
+            }
+
             if (img != null) {
                 return new ImageIcon(img.getScaledInstance(width, height, Image.SCALE_SMOOTH));
             }
-        } catch (Exception e) { System.err.println("Erro imagem: " + urlStr); }
+        } catch (Exception e) {
+            System.err.println("Erro imagem: " + urlStr);
+        }
         return null;
     }
 
     private void avancarPergunta() {
         int sel = -1;
         for (int i = 0; i < alternativasRadioButtons.length; i++) {
-            if (alternativasRadioButtons[i].isSelected()) { 
-                sel = i; 
-                break; 
+            if (alternativasRadioButtons[i].isSelected()) {
+                sel = i;
+                break;
             }
         }
 
@@ -277,7 +312,7 @@ public class GameplayTela extends TelaBase {
             erroLabel.setVisible(true);
             this.revalidate();
             this.repaint();
-            
+
             Timer timerErro = new Timer(3000, e -> {
                 erroLabel.setVisible(false);
                 this.revalidate();
@@ -294,32 +329,47 @@ public class GameplayTela extends TelaBase {
         }
 
         boolean correta = alternativasAtuais.get(sel).getCorreta() == 1;
-        
+
         if (correta) {
-            pontuacao += valorPorQuestao; 
+            Pergunta pergunta = perguntas.get(indicePergunta);
+
+            if (pergunta.getDificuldade().equalsIgnoreCase("DIFICIL")) {
+                pontuacao += 200;
+            } else if (pergunta.getDificuldade().equalsIgnoreCase("MEDIO")) {
+                pontuacao += 100;
+            } else {
+                pontuacao += 50;
+            }
+
             acertos++;
             alternativasRadioButtons[sel].setBackground(new Color(200, 255, 200));
             alternativasRadioButtons[sel].setBorder(BorderFactory.createLineBorder(new Color(40, 167, 69), 4));
         } else {
             alternativasRadioButtons[sel].setBackground(new Color(255, 200, 200));
             alternativasRadioButtons[sel].setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69), 4));
-            
+
             for (int i = 0; i < alternativasAtuais.size(); i++) {
                 if (alternativasAtuais.get(i).getCorreta() == 1) {
-                    alternativasRadioButtons[i].setBorder(BorderFactory.createLineBorder(new Color(40, 167, 69), 2));
+                    alternativasRadioButtons[i]
+                            .setBorder(BorderFactory.createLineBorder(new Color(40, 167, 69), 2));
                 }
             }
+            if (dificuldadeSelecionada.equalsIgnoreCase("PROGRESSIVO")) {
+                new PerdeuModal(this, Navegador.TIPO_PROFESSOR).setVisible(true);
+                Navegador.abrirHome(this, tipoUsuario);
+            }
+
         }
 
         javax.swing.Timer timerFeedback = new javax.swing.Timer(800, e -> {
             indicePergunta++;
             if (indicePergunta >= perguntas.size()) {
-                // LÓGICA DE SALVAMENTO: Registra apenas se for aluno[cite: 31]
+                // LÓGICA DE SALVAMENTO: Registra apenas se for aluno
                 backend.DAO.usuarioDAO.Usuario u = SessaoUsuario.getInstancia().getUsuario();
                 if (u != null && Navegador.TIPO_ALUNO.equals(u.getTipo())) {
                     new PartidaDAO().salvarResultadoFinal(u.getId(), pontuacao);
                 }
-                
+
                 Navegador.abrirTela(this, new ResultadoTela(tipoUsuario, pontuacao, acertos, perguntas.size()));
             } else {
                 carregarPergunta();
@@ -342,7 +392,8 @@ public class GameplayTela extends TelaBase {
     }
 
     private String formatarTexto(String t) {
-        if (t == null) return "";
+        if (t == null)
+            return "";
         return t.substring(0, 1).toUpperCase() + t.substring(1).toLowerCase();
     }
 }
