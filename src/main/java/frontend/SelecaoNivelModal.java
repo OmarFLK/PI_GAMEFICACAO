@@ -18,8 +18,8 @@ import frontend.util.Navegador;
 
 public class SelecaoNivelModal extends JDialog {
     private String nivelSelecionado = null;
-    private JFrame pai;
-    private String tipoUsuario;
+    private final JFrame pai;
+    private final String tipoUsuario;
 
     // Atualizei o construtor para aceitar o tipo de usuário (ALUNO ou PROFESSOR)
     public SelecaoNivelModal(JFrame pai, String tipoUsuario) {

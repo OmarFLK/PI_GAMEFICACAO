@@ -15,14 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class PerdeuModal extends JDialog {
-    private JFrame pai;
-    private String tipoUsuario;
 
-    public PerdeuModal(JFrame pai, String tipoUsuario) {
+    public PerdeuModal(JFrame pai) {
         super(pai, true);
-        this.pai = pai;
-        this.tipoUsuario = tipoUsuario;
-
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
 

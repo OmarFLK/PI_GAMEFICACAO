@@ -1,14 +1,33 @@
 package frontend;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.HeadlessException;
 import java.util.List;
-import javax.swing.*;
+import java.util.concurrent.ExecutionException;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
+
+import backend.DAO.alternativasDAO.Alternativa;
+import backend.DAO.alternativasDAO.AlternativasDAO;
+import backend.DAO.perguntaDAO.Pergunta;
+import backend.DAO.perguntaDAO.PerguntaDAO;
+import backend.Seguranca.SessaoUsuario;
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
-import backend.DAO.perguntaDAO.*;
-import backend.DAO.alternativasDAO.*;
-import backend.Seguranca.SessaoUsuario;
 
 public class PerguntaFormTela extends TelaBase {
 
@@ -150,7 +169,7 @@ public class PerguntaFormTela extends TelaBase {
                         if (alts.get(i).getCorreta() == 1) rbCorretas[i].setSelected(true);
                     }
                     setEstadoInterface(true, "");
-                } catch (Exception e) {
+                } catch (InterruptedException | ExecutionException e) {
                     JOptionPane.showMessageDialog(PerguntaFormTela.this, "Erro ao carregar: " + e.getMessage());
                     Navegador.abrirTela(PerguntaFormTela.this, new GerenciarPerguntasTela());
                 }
@@ -206,7 +225,7 @@ public class PerguntaFormTela extends TelaBase {
                     get();
                     JOptionPane.showMessageDialog(PerguntaFormTela.this, "Pergunta salva com sucesso!");
                     Navegador.abrirTela(PerguntaFormTela.this, new GerenciarPerguntasTela());
-                } catch (Exception e) {
+                } catch (HeadlessException | InterruptedException | ExecutionException e) {
                     JOptionPane.showMessageDialog(PerguntaFormTela.this, "Erro ao salvar: " + e.getMessage());
                     setEstadoInterface(true, "");
                 }

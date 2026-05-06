@@ -330,16 +330,16 @@ public class TelaBase extends JFrame {
 
     protected static class RoundedButton extends JButton {
         private final Color fundo;
-        private final Color texto;
+        // private final Color texto;
         private final int raio;
-        private final int tamanhoFonte;
+        // private final int tamanhoFonte;
 
         RoundedButton(String textoBotao, Color fundo, Color texto, int raio, int tamanhoFonte) {
             super(textoBotao);
             this.fundo = fundo;
-            this.texto = texto;
+            // this.texto = texto;
             this.raio = raio;
-            this.tamanhoFonte = tamanhoFonte;
+            // this.tamanhoFonte = tamanhoFonte;
             setFocusPainted(false);
             setContentAreaFilled(false);
             setBorderPainted(false);

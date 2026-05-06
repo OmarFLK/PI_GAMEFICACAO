@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List; // Importado para salvar resultado
 
@@ -23,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
@@ -41,15 +43,14 @@ public class GameplayTela extends TelaBase {
     private final PerguntaDAO perguntaDAO = new PerguntaDAO();
     private final AlternativasDAO alternativasDAO = new AlternativasDAO();
 
-    private List<Pergunta> perguntas;
+    private final List<Pergunta> perguntas;
     private List<Alternativa> alternativasAtuais;
     private int indicePergunta = 0;
     private int pontuacao = 0;
     private int acertos = 0;
-    private int valorPorQuestao = 100;
 
     private JLabel dificuldadeLabel;
-    private String dificuldadeSelecionada;
+    private final String dificuldadeSelecionada;
     private JLabel progressoLabel;
     private JLabel perguntaLabel;
     private JLabel imagemLabel;
@@ -79,7 +80,9 @@ public class GameplayTela extends TelaBase {
 
         if (this.perguntas == null || this.perguntas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Não há perguntas para esta dificuldade no banco.");
-            Navegador.abrirHome(this, tipoUsuario);
+            SwingUtilities.invokeLater(() -> {
+                Navegador.abrirHome(this, tipoUsuario);
+            });
             return;
         }
 
@@ -286,14 +289,14 @@ public class GameplayTela extends TelaBase {
                 img = ImageIO.read(new java.io.ByteArrayInputStream(imageBytes));
             } else {
                 // Tratamento para URL normal (http)
-                URL url = new URL(urlStr);
+                URL url = java.net.URI.create(urlStr).toURL();
                 img = ImageIO.read(url);
             }
 
             if (img != null) {
                 return new ImageIcon(img.getScaledInstance(width, height, Image.SCALE_SMOOTH));
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Erro imagem: " + urlStr);
         }
         return null;
@@ -355,7 +358,7 @@ public class GameplayTela extends TelaBase {
                 }
             }
             if (dificuldadeSelecionada.equalsIgnoreCase("PROGRESSIVO")) {
-                new PerdeuModal(this, Navegador.TIPO_PROFESSOR).setVisible(true);
+                new PerdeuModal(this).setVisible(true);
                 Navegador.abrirHome(this, tipoUsuario);
             }
 
