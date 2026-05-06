@@ -15,8 +15,8 @@ import backend.servidor.Conexao;
 public class PerguntaDAO {
 
     // Método para criar e adicionar uma pergunta no banco de dados
-    public void criarPergunta(String enunciado, String imagemURL, String dificuldade, int criadoPor) {
-        String sql = "INSERT INTO perguntas(enunciado, imagemURL, dificuldade, criadoPor) VALUES(?,?,?,?)";
+    public void criarPergunta(String enunciado, String imagemURL, String dificuldade, int criadoPor, String ajuda) {
+        String sql = "INSERT INTO perguntas(enunciado, imagemURL, dificuldade, criadoPor, ajuda) VALUES(?,?,?,?,?)";
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -29,7 +29,12 @@ public class PerguntaDAO {
             }
             stmt.setString(3, dificuldade);
             stmt.setInt(4, criadoPor);
-
+            
+            if (ajuda == null || ajuda.trim().isEmpty()) {
+                stmt.setNull(5, Types.VARCHAR);
+            } else {
+                stmt.setString(5, ajuda);
+            }
             stmt.executeUpdate();
             
         } catch (SQLException e) {
@@ -38,8 +43,8 @@ public class PerguntaDAO {
     }
 
     // Método para atualizar uma pergunta existente
-    public void atualizarPergunta(int id, String enunciado, String imagemURL, String dificuldade, int ativa) {
-        String sql = "UPDATE perguntas SET enunciado = ?, imagemURL = ?, dificuldade = ?, ativa = ? WHERE idPergunta = ?";
+    public void atualizarPergunta(int id, String enunciado, String imagemURL, String dificuldade, int ativa, String ajuda) {
+        String sql = "UPDATE perguntas SET enunciado = ?, imagemURL = ?, dificuldade = ?, ativa = ?, ajuda = ? WHERE idPergunta = ?";
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -52,7 +57,14 @@ public class PerguntaDAO {
             }
             stmt.setString(3, dificuldade);
             stmt.setInt(4, ativa);
-            stmt.setInt(5, id);
+
+            if (ajuda == null || ajuda.trim().isEmpty()) {
+                stmt.setNull(5, Types.VARCHAR);
+            } else {
+                stmt.setString(5, ajuda);
+            }
+
+            stmt.setInt(6, id);
 
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -76,7 +88,8 @@ public class PerguntaDAO {
                     rs.getString("imagemURL"),
                     rs.getString("dificuldade"),
                     rs.getInt("criadoPor"),
-                    rs.getInt("ativa")
+                    rs.getInt("ativa"),
+                    rs.getString("ajuda")
                 );
             }
         } catch (SQLException e) {
@@ -103,7 +116,8 @@ public class PerguntaDAO {
                         rs.getString("imagemURL"),
                         rs.getString("dificuldade"),
                         rs.getInt("criadoPor"),
-                        rs.getInt("ativa")
+                        rs.getInt("ativa"),
+                        rs.getString("ajuda")
                     ));
                 }
             }
@@ -128,7 +142,8 @@ public class PerguntaDAO {
                     rs.getString("imagemURL"),
                     rs.getString("dificuldade"),
                     rs.getInt("criadoPor"),
-                    rs.getInt("ativa")
+                    rs.getInt("ativa"),
+                    rs.getString("ajuda")
                 ));
             }
         } catch (SQLException e) {

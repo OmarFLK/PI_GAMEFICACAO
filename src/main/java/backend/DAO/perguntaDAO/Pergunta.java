@@ -10,15 +10,17 @@ public class Pergunta {
     private final String imagemURL;
     private final String dificuldade;
     private final int criadoPor;
+    private final String ajuda;
     private final int ativa;
 
     // construtor
-    public Pergunta(int id, String enunciado, String imagemURL, String dificuldade, int criadoPor, int ativa) {
+    public Pergunta(int id, String enunciado, String imagemURL, String dificuldade, int criadoPor, int ativa, String ajuda) {
         this.id = id;
         this.enunciado = enunciado;
         this.imagemURL = imagemURL;
         this.dificuldade = dificuldade;
         this.criadoPor = criadoPor;
+        this.ajuda = ajuda;
         this.ativa = ativa;
     }
 
@@ -64,6 +66,10 @@ public class Pergunta {
 
     public int getAtiva() {
         return ativa;
+    }
+
+    public String getAjuda() {
+        return ajuda;
     }
 
 }
