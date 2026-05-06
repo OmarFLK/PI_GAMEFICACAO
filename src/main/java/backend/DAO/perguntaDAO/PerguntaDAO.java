@@ -29,7 +29,7 @@ public class PerguntaDAO {
             }
             stmt.setString(3, dificuldade);
             stmt.setInt(4, criadoPor);
-            
+
             if (ajuda == null || ajuda.trim().isEmpty()) {
                 stmt.setNull(5, Types.VARCHAR);
             } else {
@@ -74,7 +74,7 @@ public class PerguntaDAO {
 
     // Método para buscar uma pergunta específica pelo ID
     public Pergunta getPergunta(int idPergunta) {
-        String sql = "SELECT idPergunta, enunciado, imagemURL, dificuldade, criadoPor, ativa FROM perguntas WHERE idPergunta = ?";
+        String sql = "SELECT idPergunta, enunciado, imagemURL, dificuldade, criadoPor, ativa, ajuda FROM perguntas WHERE idPergunta = ?";
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
