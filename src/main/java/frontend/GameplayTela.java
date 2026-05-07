@@ -59,6 +59,7 @@ public class GameplayTela extends TelaBase {
     private ButtonGroup alternativasButtonGroup;
     private JButton ajudaButton;
     private JButton proximaButton;
+    private AjudaModal ajudaModal = new AjudaModal(this);
 
     private final Color COR_BORDA_PADRAO = new Color(200, 210, 220);
     private final Color COR_FUNDO_PADRAO = new Color(241, 246, 250);
@@ -383,6 +384,10 @@ public class GameplayTela extends TelaBase {
     }
 
     private void usarAjuda() {
+        ajudaModal.setVisible(true);
+    }
+
+    public void tirarDuasAlternativas() {
         int r = 0;
         for (int i = 0; i < alternativasRadioButtons.length; i++) {
             if (alternativasAtuais.get(i).getCorreta() == 0 && r < 2) {
@@ -391,6 +396,7 @@ public class GameplayTela extends TelaBase {
                 r++;
             }
         }
+        ajudaModal.setVisible(false);
         ajudaButton.setEnabled(false);
     }
 
