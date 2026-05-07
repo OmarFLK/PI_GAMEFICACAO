@@ -110,7 +110,7 @@ public class SelecaoNivelModal extends JDialog {
                     btnClicado.setText(textoOriginal);
                     btnClicado.setEnabled(true);
                     setCursor(Cursor.getDefaultCursor());
-                    javax.swing.JOptionPane.showMessageDialog(this, "Erro ao carregar partida!");
+                    javax.swing.JOptionPane.showMessageDialog(this, "Erro ao carregar partida!" + ex.getMessage());
                 });
             }
         }).start();
