@@ -53,11 +53,12 @@ public class GameplayTela extends TelaBase {
     private final String dificuldadeSelecionada;
     private JLabel progressoLabel;
     private JLabel perguntaLabel;
+    private JLabel dicaLabel;
     private JLabel imagemLabel;
     private JLabel erroLabel;
     private JRadioButton[] alternativasRadioButtons;
     private ButtonGroup alternativasButtonGroup;
-    private JButton ajudaButton;
+    public JButton ajudaButton;
     private JButton proximaButton;
     private AjudaModal ajudaModal = new AjudaModal(this);
 
@@ -119,6 +120,8 @@ public class GameplayTela extends TelaBase {
         perguntaLabel.setFont(perguntaLabel.getFont().deriveFont(28f));
         perguntaLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        dicaLabel = criarTextoCentral(" ");
+
         imagemLabel = new JLabel();
         imagemLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         imagemLabel.setVisible(false);
@@ -140,6 +143,8 @@ public class GameplayTela extends TelaBase {
         erroLabel.setVisible(false);
 
         corpo.add(perguntaLabel);
+        corpo.add(Box.createVerticalStrut(16));
+        corpo.add(dicaLabel);
         corpo.add(Box.createVerticalStrut(16));
         corpo.add(imagemLabel);
         corpo.add(Box.createVerticalStrut(28));
@@ -253,6 +258,10 @@ public class GameplayTela extends TelaBase {
                     imagemLabel.setIcon(imgPergunta);
                     imagemLabel.setVisible(true);
                 }
+                dicaLabel.setVisible(false);
+                dicaLabel.setText("<html><body style='width: 850px; text-align: center;'>" +
+                        perguntaSendoCarregada.getAjuda() +
+                        "</body></html>");
 
                 for (int i = 0; i < alternativasRadioButtons.length; i++) {
                     if (i < alternativasAtuais.size()) {
@@ -398,6 +407,10 @@ public class GameplayTela extends TelaBase {
         }
         ajudaModal.setVisible(false);
         ajudaButton.setEnabled(false);
+    }
+
+    public void mostrarDica() {
+        dicaLabel.setVisible(true);
     }
 
     private String formatarTexto(String t) {

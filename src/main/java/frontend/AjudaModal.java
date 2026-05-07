@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 
 public class AjudaModal extends JDialog {
     private GameplayTela telaJogo;
+    private int tirarMetadeTentativas = 2;
+    private int mostrarDicaTentativas = 2;
 
     public AjudaModal(GameplayTela pai) {
         super(pai, true);
@@ -29,6 +31,7 @@ public class AjudaModal extends JDialog {
     }
 
     private void initComponents() {
+
         JPanel painel = new JPanel();
         painel.setBackground(Color.WHITE);
         painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
@@ -47,24 +50,26 @@ public class AjudaModal extends JDialog {
         sub.setForeground(Color.GRAY);
 
         JButton btn50 = criarBotaoModal("Tirar metade das alternativas", new Color(220, 53, 69));
-        btn50.addActionListener(e -> telaJogo.tirarDuasAlternativas());
+        btn50.addActionListener(e -> {
+            telaJogo.tirarDuasAlternativas();
+            tirarMetadeTentativas--;
+            if (tirarMetadeTentativas == 0){
+                btn50.setEnabled(false);
+            }
+        });
 
         JButton btnDica = criarBotaoModal("Dica do professor", new Color(120, 53, 69));
         btnDica.addActionListener(e -> {
-            JLabel labelDica = new JLabel("<html><body style='width: 200px;'>" +
-                    "Sua dica aqui!" + "</body></html>");
-            labelDica.setAlignmentX(CENTER_ALIGNMENT);
-            labelDica.setForeground(new Color(120, 53, 69));
-
-            painel.add(Box.createVerticalStrut(10)); // Espaçamento
-            painel.add(labelDica);
-
-            btnDica.setEnabled(false);
-
-            painel.revalidate(); 
-            painel.repaint();
-            this.pack(); 
+            telaJogo.mostrarDica();
+            telaJogo.ajudaButton.setEnabled(false);
+            mostrarDicaTentativas--;
+            if(mostrarDicaTentativas==0){
+                btnDica.setEnabled(false);
+            }
+            
         });
+        JButton btnFechar = criarBotaoModal("Voltar ao Jogo", new Color(108, 117, 125));
+        btnFechar.addActionListener(e -> dispose());
 
         painel.add(titulo);
         painel.add(sub);
@@ -72,20 +77,10 @@ public class AjudaModal extends JDialog {
         painel.add(btn50);
         painel.add(Box.createVerticalStrut(15));
         painel.add(btnDica);
+        painel.add(Box.createVerticalStrut(15));
+        painel.add(btnFechar); 
 
         add(painel);
-    }
-
-    private JLabel mostrarDica() {
-
-        JLabel dica = new JLabel("hamudi habibi");
-        dica.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        dica.setAlignmentX(CENTER_ALIGNMENT);
-        dica.setForeground(new Color(33, 37, 41));
-
-        return dica;
-        // dispose();
-
     }
 
     private JButton criarBotaoModal(String texto, Color cor) {
