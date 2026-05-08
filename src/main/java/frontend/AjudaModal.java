@@ -14,11 +14,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class AjudaModal extends JDialog {
-    private GameplayTela telaJogo;
+
+    private final GameplayTela telaJogo;
+    private JButton btnDica;
+    private JLabel dicaFalseLabel;
     private int tirarMetadeTentativas = 2;
     private int mostrarDicaTentativas = 2;
 
-    public AjudaModal(GameplayTela pai) {
+    public AjudaModal(GameplayTela pai, boolean dicaExiste) {
         super(pai, true);
         this.telaJogo = pai;
         setUndecorated(true);
@@ -58,7 +61,7 @@ public class AjudaModal extends JDialog {
             }
         });
 
-        JButton btnDica = criarBotaoModal("Dica do professor", new Color(120, 53, 69));
+        btnDica = criarBotaoModal("Dica do professor", new Color(120, 53, 69));
         btnDica.addActionListener(e -> {
             telaJogo.mostrarDica();
             telaJogo.ajudaButton.setEnabled(false);
@@ -66,8 +69,14 @@ public class AjudaModal extends JDialog {
             if(mostrarDicaTentativas==0){
                 btnDica.setEnabled(false);
             }
-            
+            dispose();  
         });
+
+        dicaFalseLabel = new JLabel("Essa questão não tem dica");
+        dicaFalseLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        dicaFalseLabel.setAlignmentX(CENTER_ALIGNMENT);
+        dicaFalseLabel.setForeground(Color.GRAY);
+        
         JButton btnFechar = criarBotaoModal("Voltar ao Jogo", new Color(108, 117, 125));
         btnFechar.addActionListener(e -> dispose());
 
@@ -78,10 +87,29 @@ public class AjudaModal extends JDialog {
         painel.add(Box.createVerticalStrut(15));
         painel.add(btnDica);
         painel.add(Box.createVerticalStrut(15));
-        painel.add(btnFechar); 
+        painel.add(dicaFalseLabel);   
+        painel.add(Box.createVerticalStrut(15));
+        painel.add(btnFechar);
+        painel.add(Box.createVerticalStrut(15));
 
         add(painel);
     }
+
+    public void atualizarVisibilidadeDica(boolean existe) {
+    if (btnDica != null && dicaFalseLabel != null) {
+        btnDica.setVisible(existe);
+        dicaFalseLabel.setVisible(!existe);
+        
+        // Se a dica existe, mas as tentativas acabaram, o botão continua desabilitado
+        if (existe && mostrarDicaTentativas <= 0) {
+            btnDica.setEnabled(false);
+        } else if (existe) {
+            btnDica.setEnabled(true);
+        }
+        
+        this.pack(); // Ajusta o tamanho do modal ao novo conteúdo
+    }
+}
 
     private JButton criarBotaoModal(String texto, Color cor) {
         JButton btn = new JButton(texto);

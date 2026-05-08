@@ -58,7 +58,7 @@ public class SelecaoNivelModal extends JDialog {
         JButton btnFacil = criarBotaoModal("FÁCIL", new Color(40, 167, 69));
         JButton btnMedio = criarBotaoModal("MÉDIO", new Color(255, 193, 7));
         JButton btnDificil = criarBotaoModal("DIFÍCIL", new Color(220, 53, 69));
-        JButton btnProgressivo = criarBotaoModal("PROGRESSIVO", new Color(255, 165, 0));
+        JButton btnProgressivo = criarBotaoModal("PROGRESSIVO", new Color(100, 30, 255));
         
         JButton btnCancelar = new JButton("Cancelar");
         btnCancelar.setBorderPainted(false);

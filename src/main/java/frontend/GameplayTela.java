@@ -48,6 +48,7 @@ public class GameplayTela extends TelaBase {
     private int indicePergunta = 0;
     private int pontuacao = 0;
     private int acertos = 0;
+    private boolean dicaExiste;
 
     private JLabel dificuldadeLabel;
     private final String dificuldadeSelecionada;
@@ -60,7 +61,7 @@ public class GameplayTela extends TelaBase {
     private ButtonGroup alternativasButtonGroup;
     public JButton ajudaButton;
     private JButton proximaButton;
-    private AjudaModal ajudaModal = new AjudaModal(this);
+    private AjudaModal ajudaModal = new AjudaModal(this,dicaExiste);
 
     private final Color COR_BORDA_PADRAO = new Color(200, 210, 220);
     private final Color COR_FUNDO_PADRAO = new Color(241, 246, 250);
@@ -225,7 +226,6 @@ public class GameplayTela extends TelaBase {
             Pergunta perguntaSendoCarregada;
             ImageIcon imgPergunta = null;
             ImageIcon[] imgsAlternativas = new ImageIcon[4];
-
             @Override
             protected Void doInBackground() throws Exception {
                 perguntaSendoCarregada = perguntas.get(indicePergunta);
@@ -258,11 +258,16 @@ public class GameplayTela extends TelaBase {
                     imagemLabel.setIcon(imgPergunta);
                     imagemLabel.setVisible(true);
                 }
+                
+                Pergunta perguntaAtual = perguntas.get(indicePergunta);
+                dicaExiste = (perguntaAtual.getAjuda() != null && !perguntaAtual.getAjuda().trim().isEmpty());
+                if (ajudaModal != null){
+                    ajudaModal.atualizarVisibilidadeDica(dicaExiste);
+                }
                 dicaLabel.setVisible(false);
-                dicaLabel.setText("<html><body style='width: 850px; text-align: center;'>" +
-                        perguntaSendoCarregada.getAjuda() +
-                        "</body></html>");
-
+                dicaLabel.setText("<html><body style='width: 850px; text-align: center; color: red;'>" +
+                            perguntaSendoCarregada.getAjuda() +
+                            "</body></html>");
                 for (int i = 0; i < alternativasRadioButtons.length; i++) {
                     if (i < alternativasAtuais.size()) {
                         JRadioButton rb = alternativasRadioButtons[i];
@@ -412,10 +417,15 @@ public class GameplayTela extends TelaBase {
     public void mostrarDica() {
         dicaLabel.setVisible(true);
     }
+    
+    public boolean isDicaExiste() {
+        return dicaExiste;
+    }
 
     private String formatarTexto(String t) {
         if (t == null)
             return "";
         return t.substring(0, 1).toUpperCase() + t.substring(1).toLowerCase();
     }
+
 }
