@@ -10,7 +10,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import frontend.base.TelaBase;
@@ -33,7 +32,6 @@ public class HomeProfessorTela extends TelaBase {
         JPanel conteudo = new JPanel(new BorderLayout(0, 18));
         conteudo.setOpaque(false);
 
-        // Botão de Perfil do Professor
         JButton perfilButton = criarBotaoNeutro("Meu perfil");
         perfilButton.setPreferredSize(new Dimension(170, 58));
         perfilButton.addActionListener(evt -> Navegador.abrirTela(this, new PerfilTela(Navegador.TIPO_PROFESSOR)));
@@ -56,34 +54,22 @@ public class HomeProfessorTela extends TelaBase {
         marcaPanel.add(criarIconeLaboratorio());
 
         JLabel subtitulo = criarSubtituloHero("Gestão de conteúdos e análise de turmas");
-        JLabel apoio = criarTextoCentral("Gerencie o banco de questões, usuários ou teste o simulador.");
+        JLabel apoio = criarTextoCentral("Gerencie o banco de questões, usuários e acompanhe o desempenho das turmas.");
         apoio.setForeground(COR_TEXTO_SUAVE);
 
-        // --- BOTÕES DE GERENCIAMENTO ---
-        
         JButton gerenciarPerguntasButton = criarBotaoPrincipal("GERENCIAR PERGUNTAS");
         gerenciarPerguntasButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarPerguntasTela()));
 
         JButton gerenciarUsuariosButton = criarBotaoPrincipal("GERENCIAR USUÁRIOS");
         gerenciarUsuariosButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarUsuariosTela()));
 
-        // --- BOTÃO MODO JOGADOR ---
         JButton jogarButton = criarBotaoPrincipal("MODO JOGADOR (TESTAR QUESTÕES)");
         jogarButton.setBackground(new Color(0, 153, 136));
-        jogarButton.addActionListener(evt -> {
-            new SelecaoNivelModal(this, Navegador.TIPO_PROFESSOR).setVisible(true);
-        });
+        jogarButton.addActionListener(evt -> new SelecaoNivelModal(this, Navegador.TIPO_PROFESSOR).setVisible(true));
 
-        JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DAS TURMAS");
-        estatisticasButton.addActionListener(evt -> {
-            JOptionPane.showMessageDialog(this, "Painel de Análise em Desenvolvimento...", "QuimLab", JOptionPane.INFORMATION_MESSAGE);
-        });
+        JButton estatisticasButton = criarBotaoSecundario("Estatísticas das Turmas");
+        estatisticasButton.addActionListener(evt -> Navegador.abrirTela(this, new TurmasEstatisticasTela()));
 
-        JButton rankingButton = criarBotaoNeutro("RANKING GLOBAL DE ALUNOS");
-        rankingButton.setPreferredSize(new Dimension(0, 70));
-        rankingButton.addActionListener(evt -> Navegador.abrirTela(this, new RankingTela(Navegador.TIPO_PROFESSOR)));
-
-        // Organização na coluna central
         centro.add(Box.createVerticalStrut(18));
         centro.add(marcaPanel);
         centro.add(Box.createVerticalStrut(8));
@@ -91,28 +77,24 @@ public class HomeProfessorTela extends TelaBase {
         centro.add(Box.createVerticalStrut(8));
         centro.add(apoio);
         centro.add(Box.createVerticalStrut(30));
-        
-        centro.add(jogarButton); 
+
+        centro.add(jogarButton);
         centro.add(Box.createVerticalStrut(12));
         centro.add(gerenciarPerguntasButton);
         centro.add(Box.createVerticalStrut(12));
         centro.add(gerenciarUsuariosButton);
         centro.add(Box.createVerticalStrut(12));
         centro.add(estatisticasButton);
-        centro.add(Box.createVerticalStrut(12));
-        centro.add(rankingButton);
 
         JPanel rodape = new JPanel(new BorderLayout());
         rodape.setOpaque(false);
         rodape.add(criarTextoSuave("Painel Administrativo | ETEC Química"), BorderLayout.WEST);
-        
-        // --- LÓGICA DO BOTÃO SAIR CORRIGIDA ---
+
         JButton sairButton = criarBotaoLink("Encerrar Sessão");
         sairButton.addActionListener(evt -> {
             SairModal modal = new SairModal(this);
-            modal.setVisible(true); // O código pausa aqui até o modal fechar
-            
-            // Verifica se o usuário confirmou a saída no modal
+            modal.setVisible(true);
+
             if (modal.isConfirmarSair()) {
                 Navegador.abrirTela(this, new LoginTela());
             }

@@ -122,6 +122,104 @@ public class DadosMockados {
         }
     }
 
+    public static class EstatisticasAlunoMock {
+        private int pontuacaoTotal;
+        private int questoesRespondidas;
+        private int acertos;
+        private int erros;
+        private int aproveitamento;
+        private String rankingGeral;
+
+        public EstatisticasAlunoMock(int pontuacaoTotal, int questoesRespondidas, int acertos, int erros,
+                                     int aproveitamento, String rankingGeral) {
+            this.pontuacaoTotal = pontuacaoTotal;
+            this.questoesRespondidas = questoesRespondidas;
+            this.acertos = acertos;
+            this.erros = erros;
+            this.aproveitamento = aproveitamento;
+            this.rankingGeral = rankingGeral;
+        }
+
+        public int getPontuacaoTotal() {
+            return pontuacaoTotal;
+        }
+
+        public int getQuestoesRespondidas() {
+            return questoesRespondidas;
+        }
+
+        public int getAcertos() {
+            return acertos;
+        }
+
+        public int getErros() {
+            return erros;
+        }
+
+        public int getAproveitamento() {
+            return aproveitamento;
+        }
+
+        public String getRankingGeral() {
+            return rankingGeral;
+        }
+    }
+
+    public static class TurmaEstatisticaMock {
+        private String nome;
+        private int alunos;
+        private int media;
+        private int maiorPontuacao;
+        private int menorPontuacao;
+        private int aproveitamentoMedio;
+        private String melhorAluno;
+        private List<RankingMock> ranking;
+
+        public TurmaEstatisticaMock(String nome, int alunos, int media, int maiorPontuacao, int menorPontuacao,
+                                    int aproveitamentoMedio, String melhorAluno, List<RankingMock> ranking) {
+            this.nome = nome;
+            this.alunos = alunos;
+            this.media = media;
+            this.maiorPontuacao = maiorPontuacao;
+            this.menorPontuacao = menorPontuacao;
+            this.aproveitamentoMedio = aproveitamentoMedio;
+            this.melhorAluno = melhorAluno;
+            this.ranking = ranking;
+        }
+
+        public String getNome() {
+            return nome;
+        }
+
+        public int getAlunos() {
+            return alunos;
+        }
+
+        public int getMedia() {
+            return media;
+        }
+
+        public int getMaiorPontuacao() {
+            return maiorPontuacao;
+        }
+
+        public int getMenorPontuacao() {
+            return menorPontuacao;
+        }
+
+        public int getAproveitamentoMedio() {
+            return aproveitamentoMedio;
+        }
+
+        public String getMelhorAluno() {
+            return melhorAluno;
+        }
+
+        public List<RankingMock> getRanking() {
+            return ranking;
+        }
+    }
+
     public static class PerguntaCadastroMock {
         private String enunciado;
         private String dificuldade;
@@ -197,6 +295,100 @@ public class DadosMockados {
             new RankingMock("Aluno Z", "2º ano A", 910),
             new RankingMock("Aluno W", "3º ano A", 885),
             new RankingMock("Aluno H", "1º ano C", 860)
+        );
+    }
+
+    public static List<RankingMock> getRankingPorFiltro(String filtro) {
+        if ("Minha Turma".equals(filtro)) {
+            return getRankingMinhaTurmaAluno();
+        }
+        if ("1º Ano".equals(filtro)) {
+            return Arrays.asList(
+                new RankingMock("Aluno Y", "1º ano B", 930),
+                new RankingMock("Aluno X", "1º ano A", 910),
+                new RankingMock("Aluno H", "1º ano C", 860),
+                new RankingMock("Aluno K", "1º ano D", 820)
+            );
+        }
+        if ("2º Ano".equals(filtro)) {
+            return Arrays.asList(
+                new RankingMock("Aluno Z", "2º ano A", 910),
+                new RankingMock("Aluno P", "2º ano B", 880),
+                new RankingMock("Aluno R", "2º ano C", 845),
+                new RankingMock("Aluno T", "2º ano D", 810)
+            );
+        }
+        if ("3º Ano".equals(filtro)) {
+            return Arrays.asList(
+                new RankingMock("Aluno W", "3º ano A", 885),
+                new RankingMock("Aluno M", "3º ano B", 870),
+                new RankingMock("Aluno N", "3º ano C", 840),
+                new RankingMock("Aluno O", "3º ano D", 800)
+            );
+        }
+        return getRankingGeral();
+    }
+
+    public static List<RankingMock> getRankingMinhaTurmaAluno() {
+        return Arrays.asList(
+            new RankingMock("Guilherme Aluno", "1º ano B", 930),
+            new RankingMock("Aluno Y", "1º ano B", 910),
+            new RankingMock("Aluno H", "1º ano B", 860),
+            new RankingMock("Aluno K", "1º ano B", 820)
+        );
+    }
+
+    public static EstatisticasAlunoMock getEstatisticasAlunoMock() {
+        return new EstatisticasAlunoMock(930, 50, 42, 8, 84, "2º lugar");
+    }
+
+    public static List<TurmaEstatisticaMock> getTurmasEstatisticas() {
+        return Arrays.asList(
+            new TurmaEstatisticaMock(
+                "Primeiro Ano",
+                28,
+                860,
+                930,
+                780,
+                86,
+                "Aluno Y",
+                Arrays.asList(
+                    new RankingMock("Aluno Y", "1º ano B", 930),
+                    new RankingMock("Aluno X", "1º ano A", 910),
+                    new RankingMock("Aluno H", "1º ano C", 860),
+                    new RankingMock("Aluno K", "1º ano D", 820)
+                )
+            ),
+            new TurmaEstatisticaMock(
+                "Segundo Ano",
+                25,
+                840,
+                970,
+                760,
+                82,
+                "Aluno A",
+                Arrays.asList(
+                    new RankingMock("Aluno A", "2º ano A", 970),
+                    new RankingMock("Aluno B", "2º ano B", 920),
+                    new RankingMock("Aluno C", "2º ano C", 875),
+                    new RankingMock("Aluno D", "2º ano D", 830)
+                )
+            ),
+            new TurmaEstatisticaMock(
+                "Terceiro Ano",
+                25,
+                890,
+                990,
+                800,
+                89,
+                "Aluno M",
+                Arrays.asList(
+                    new RankingMock("Aluno M", "3º ano A", 990),
+                    new RankingMock("Aluno N", "3º ano B", 945),
+                    new RankingMock("Aluno O", "3º ano C", 900),
+                    new RankingMock("Aluno P", "3º ano D", 850)
+                )
+            )
         );
     }
 

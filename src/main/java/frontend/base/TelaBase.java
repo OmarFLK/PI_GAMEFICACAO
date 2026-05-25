@@ -388,30 +388,46 @@ public class TelaBase extends JFrame {
 
     private static class AvatarLabel extends JLabel {
         AvatarLabel(String texto) {
-            super(texto, SwingConstants.CENTER);
+            super("", SwingConstants.CENTER);
+            setText("");
             setHorizontalTextPosition(SwingConstants.CENTER);
             setVerticalTextPosition(SwingConstants.BOTTOM);
             setForeground(COR_TEXTO);
             setFont(new Font("SansSerif", Font.BOLD, 18));
             setPreferredSize(new Dimension(210, 210));
+            setMinimumSize(new Dimension(210, 210));
+            setMaximumSize(new Dimension(210, 210));
+            setOpaque(false);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            int diametro = 144;
+            int diametro = Math.min(getWidth(), getHeight()) - 36;
             int x = (getWidth() - diametro) / 2;
-            int y = 18;
-            g2.setColor(new Color(242, 242, 242));
+            int y = (getHeight() - diametro) / 2;
+
+            g2.setColor(new Color(230, 235, 240));
             g2.fillOval(x, y, diametro, diametro);
-            g2.setColor(COR_PRETO);
-            g2.setStroke(new BasicStroke(5f));
+            g2.setColor(new Color(150, 160, 170));
+            g2.setStroke(new BasicStroke(4f));
             g2.drawOval(x, y, diametro, diametro);
-            g2.fillOval(x + 48, y + 30, 48, 48);
-            g2.fillRoundRect(x + 28, y + 88, 88, 46, 46, 46);
+
+            g2.setColor(new Color(166, 176, 186));
+            int cabeca = Math.round(diametro * 0.30f);
+            int cabecaX = x + (diametro - cabeca) / 2;
+            int cabecaY = y + Math.round(diametro * 0.22f);
+            g2.fillOval(cabecaX, cabecaY, cabeca, cabeca);
+
+            int corpoLargura = Math.round(diametro * 0.62f);
+            int corpoAltura = Math.round(diametro * 0.30f);
+            int corpoX = x + (diametro - corpoLargura) / 2;
+            int corpoY = y + Math.round(diametro * 0.58f);
+            g2.fillRoundRect(corpoX, corpoY, corpoLargura, corpoAltura, corpoAltura, corpoAltura);
+
             g2.dispose();
-            super.paintComponent(g);
         }
     }
 }

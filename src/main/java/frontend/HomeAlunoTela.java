@@ -9,7 +9,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JOptionPane;
 
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
@@ -53,34 +52,20 @@ public class HomeAlunoTela extends TelaBase {
         marcaPanel.add(criarIconeLaboratorio());
 
         javax.swing.JLabel subtitulo = criarSubtituloHero("Treine vidrarias, conceitos e pratique com rapidez");
-        javax.swing.JLabel apoio = criarTextoCentral("Escolha uma area principal e siga direto para a atividade.");
+        javax.swing.JLabel apoio = criarTextoCentral("Escolha uma área principal e siga direto para a atividade.");
         apoio.setForeground(COR_TEXTO_SUAVE);
 
         JButton iniciarJogoButton = criarBotaoPrincipal("INICIAR JOGO");
         iniciarJogoButton.setMaximumSize(new Dimension(428, 70));
         iniciarJogoButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        iniciarJogoButton.addActionListener(evt -> {
-            new SelecaoNivelModal(this, Navegador.TIPO_ALUNO).setVisible(true);
-        });
-        
+        iniciarJogoButton.addActionListener(evt -> new SelecaoNivelModal(this, Navegador.TIPO_ALUNO).setVisible(true));
 
-        // BOTÃO AJUSTADO: Agora exibe aviso de desenvolvimento
-        JButton estatisticasButton = criarBotaoSecundario("ESTATISTICAS DO ALUNO");
+        JButton estatisticasButton = criarBotaoSecundario("Estatísticas do Aluno");
         estatisticasButton.setMaximumSize(new Dimension(420, 70));
         estatisticasButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        estatisticasButton.addActionListener(evt -> {
-            JOptionPane.showMessageDialog(
-                this, 
-                "<html><div style='text-align: center;'><b>Página em Desenvolvimento</b><br>" +
-                "Estamos preparando gráficos incríveis para você acompanhar seu progresso!<br>" +
-                "<font size='5'>🧪🏗️</font></div></html>", 
-                "QuimLab - Em Breve", 
-                JOptionPane.INFORMATION_MESSAGE
-            );
-        });
+        estatisticasButton.addActionListener(evt -> Navegador.abrirTela(this, new EstatisticasTela(Navegador.TIPO_ALUNO)));
 
-        JButton rankingButton = criarBotaoNeutro("RANKING GERAL");
+        JButton rankingButton = criarBotaoNeutro("Ranking Geral");
         rankingButton.setMaximumSize(new Dimension(420, 70));
         rankingButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         rankingButton.addActionListener(evt -> Navegador.abrirTela(this, new RankingTela(Navegador.TIPO_ALUNO)));
@@ -100,18 +85,15 @@ public class HomeAlunoTela extends TelaBase {
 
         JPanel rodape = new JPanel(new BorderLayout());
         rodape.setOpaque(false);
-        rodape.add(criarTextoSuave("ETEC | Ambiente academico gamificado"), BorderLayout.WEST);
+        rodape.add(criarTextoSuave("ETEC | Ambiente acadêmico gamificado"), BorderLayout.WEST);
         JButton sairButton = criarBotaoLink("Sair");
         sairButton.addActionListener(evt -> {
-         // 1. Instancia o modal customizado
-        
-         SairModal modal = new SairModal(this);
-         modal.setVisible(true);
+            SairModal modal = new SairModal(this);
+            modal.setVisible(true);
 
-               // 2. Só sai se o usuário clicou no botão vermelho de SAIR
-             if (modal.isConfirmarSair()) {
-               Navegador.abrirTela(this, new LoginTela());
-             }
+            if (modal.isConfirmarSair()) {
+                Navegador.abrirTela(this, new LoginTela());
+            }
         });
         rodape.add(sairButton, BorderLayout.EAST);
 
