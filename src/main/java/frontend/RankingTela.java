@@ -171,7 +171,7 @@ public class RankingTela extends TelaBase {
         cards.setOpaque(false);
 
         if (ranking.size() >= 3) {
-            cards.add(criarCardTop(ranking.get(0), "1\u00ba", COR_AZUL_ESCURO));
+            cards.add(criarCardTop(ranking.get(0), "1\u00ba", COR_VERMELHO_ETEC));
             cards.add(criarCardTop(ranking.get(1), "2\u00ba", new Color(118, 148, 184)));
             cards.add(criarCardTop(ranking.get(2), "3\u00ba", COR_VERDE.darker()));
         }

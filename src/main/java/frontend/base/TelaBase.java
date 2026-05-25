@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -25,31 +26,33 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import frontend.util.AppTheme;
+
 public class TelaBase extends JFrame {
 
-    protected static final Color COR_FUNDO_ESCURO = new Color(10, 10, 10);
-    protected static final Color COR_FUNDO_CLARO = new Color(232, 232, 232);
-    protected static final Color COR_AZUL = new Color(36, 36, 36);
-    protected static final Color COR_AZUL_ESCURO = new Color(8, 8, 8);
+    protected static final Color COR_FUNDO_ESCURO = AppTheme.BACKGROUND;
+    protected static final Color COR_FUNDO_CLARO = AppTheme.BACKGROUND;
+    protected static final Color COR_AZUL = AppTheme.SECONDARY_DARK;
+    protected static final Color COR_AZUL_ESCURO = AppTheme.PRIMARY_DARK;
     protected static final Color COR_VERDE = new Color(90, 90, 90);
-    protected static final Color COR_BRANCO = new Color(252, 252, 249);
-    protected static final Color COR_CARTAO = new Color(255, 255, 255);
-    protected static final Color COR_BORDA = new Color(217, 225, 232);
-    protected static final Color COR_TEXTO = new Color(33, 43, 54);
-    protected static final Color COR_TEXTO_SUAVE = new Color(100, 113, 126);
-    protected static final Color COR_PRETO = new Color(16, 21, 28);
+    protected static final Color COR_BRANCO = AppTheme.SURFACE;
+    protected static final Color COR_CARTAO = AppTheme.SURFACE;
+    protected static final Color COR_BORDA = AppTheme.BORDER;
+    protected static final Color COR_TEXTO = AppTheme.TEXT;
+    protected static final Color COR_TEXTO_SUAVE = AppTheme.TEXT_MUTED;
+    protected static final Color COR_PRETO = AppTheme.PRIMARY_DARK;
     protected static final Color COR_CINZA = new Color(133, 145, 157);
-    protected static final Color COR_CINZA_CLARO = new Color(231, 236, 240);
-    protected static final Color COR_VERMELHO_ETEC = new Color(190, 0, 0); 
-    protected static final Color COR_FUNDO_CLARO_C = new Color(245, 245, 245); 
-    protected static final Color COR_TEXTO_TITULO = new Color(190, 0, 0);
+    protected static final Color COR_CINZA_CLARO = AppTheme.SOFT_GRAY;
+    protected static final Color COR_VERMELHO_ETEC = AppTheme.RED;
+    protected static final Color COR_FUNDO_CLARO_C = AppTheme.BACKGROUND;
+    protected static final Color COR_TEXTO_TITULO = AppTheme.RED;
 
     public TelaBase(String titulo) {
         super(titulo);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(1180, 760));
         setSize(1440, 810);
-        getContentPane().setBackground(COR_FUNDO_ESCURO);
+        getContentPane().setBackground(COR_FUNDO_CLARO);
         setLocationRelativeTo(null);
     }
 
@@ -147,7 +150,7 @@ public class TelaBase extends JFrame {
         campo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         campo.setForeground(COR_CINZA);
         campo.setBackground(COR_CARTAO);
-        campo.setBorder(new RoundedLineBorder(COR_PRETO, 2, 30, 18));
+        campo.setBorder(new RoundedLineBorder(COR_BORDA, 2, 30, 18));
         campo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 68));
         campo.setPreferredSize(new Dimension(0, 68));
         return campo;
@@ -161,7 +164,7 @@ public class TelaBase extends JFrame {
     }
 
     protected JButton criarBotaoSecundario(String texto) {
-        RoundedButton botao = new RoundedButton(texto, new Color(46, 46, 46), COR_BRANCO, 30, 18);
+        RoundedButton botao = new RoundedButton(texto, AppTheme.SECONDARY_DARK, COR_BRANCO, 30, 18);
         botao.setMaximumSize(new Dimension(Integer.MAX_VALUE, 82));
         botao.setPreferredSize(new Dimension(0, 82));
         return botao;
@@ -184,19 +187,33 @@ public class TelaBase extends JFrame {
         botao.setBorderPainted(false);
         botao.setContentAreaFilled(false);
         botao.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        botao.setForeground(COR_PRETO);
+        botao.setForeground(isTextoSaida(texto) ? COR_VERMELHO_ETEC : COR_PRETO);
         botao.setAlignmentX(Component.CENTER_ALIGNMENT);
+        botao.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return botao;
     }
 
     protected JPanel criarCartaoSuave() {
-        RoundedPanel painel = new RoundedPanel(28, COR_CARTAO, new Color(0, 0, 0, 16), 8, 10);
+        RoundedPanel painel = new RoundedPanel(28, COR_CARTAO, new Color(0, 0, 0, 12), 6, 8, true);
         painel.setLayout(new BorderLayout());
         painel.setBorder(BorderFactory.createCompoundBorder(
             new RoundedLineBorder(new Color(224, 224, 224), 1, 28, 0),
             new EmptyBorder(20, 22, 20, 22)
         ));
         return painel;
+    }
+
+    protected JPanel criarLinhaDestaque() {
+        RoundedPanel linha = new RoundedPanel(4, COR_VERMELHO_ETEC, new Color(0, 0, 0, 0), 0, 0);
+        linha.setPreferredSize(new Dimension(82, 4));
+        linha.setMaximumSize(new Dimension(82, 4));
+        linha.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return linha;
+    }
+
+    private boolean isTextoSaida(String texto) {
+        String normalizado = texto.toLowerCase();
+        return normalizado.contains("sair") || normalizado.contains("encerrar");
     }
 
     protected JPanel criarLinhaBotoes(JButton... botoes) {
@@ -257,9 +274,19 @@ public class TelaBase extends JFrame {
     protected JPanel criarTopoComVoltar(String titulo, JButton voltarButton) {
         JPanel painel = new JPanel(new BorderLayout(16, 0));
         painel.setOpaque(false);
+
+        JPanel tituloPanel = new JPanel();
+        tituloPanel.setOpaque(false);
+        tituloPanel.setLayout(new BoxLayout(tituloPanel, BoxLayout.Y_AXIS));
+
         JLabel tituloLabel = criarTituloSecao(titulo);
         tituloLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        painel.add(tituloLabel, BorderLayout.CENTER);
+        tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tituloPanel.add(tituloLabel);
+        tituloPanel.add(Box.createVerticalStrut(8));
+        tituloPanel.add(criarLinhaDestaque());
+
+        painel.add(tituloPanel, BorderLayout.CENTER);
         painel.add(voltarButton, BorderLayout.EAST);
         return painel;
     }
@@ -303,13 +330,19 @@ public class TelaBase extends JFrame {
         private final Color sombra;
         private final int offsetX;
         private final int offsetY;
+        private final boolean destaque;
 
         RoundedPanel(int raio, Color fundo, Color sombra, int offsetX, int offsetY) {
+            this(raio, fundo, sombra, offsetX, offsetY, false);
+        }
+
+        RoundedPanel(int raio, Color fundo, Color sombra, int offsetX, int offsetY, boolean destaque) {
             this.raio = raio;
             this.fundo = fundo;
             this.sombra = sombra;
             this.offsetX = offsetX;
             this.offsetY = offsetY;
+            this.destaque = destaque;
             setOpaque(false);
         }
 
@@ -323,6 +356,10 @@ public class TelaBase extends JFrame {
             }
             g2.setColor(fundo);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), raio, raio);
+            if (destaque) {
+                g2.setColor(new Color(COR_VERMELHO_ETEC.getRed(), COR_VERMELHO_ETEC.getGreen(), COR_VERMELHO_ETEC.getBlue(), 190));
+                g2.fillRoundRect(0, 0, getWidth(), 4, raio, raio);
+            }
             g2.dispose();
             super.paintComponent(g);
         }
@@ -347,19 +384,30 @@ public class TelaBase extends JFrame {
             setFont(new Font("SansSerif", Font.BOLD, tamanhoFonte));
             setForeground(texto);
             setAlignmentX(Component.CENTER_ALIGNMENT);
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            boolean hover = getModel().isRollover();
             Color corAtual = getModel().isArmed() ? fundo.darker() : fundo;
+            if (hover && isDark(fundo)) {
+                corAtual = AppTheme.RED_HOVER;
+            } else if (hover) {
+                corAtual = AppTheme.RED_SOFT;
+            }
             g2.setColor(new Color(0, 0, 0, 22));
             g2.fillRoundRect(0, 4, getWidth(), getHeight() - 4, raio, raio);
             g2.setColor(corAtual);
             g2.fillRoundRect(0, 0, getWidth(), getHeight() - 4, raio, raio);
             g2.dispose();
             super.paintComponent(g);
+        }
+
+        private boolean isDark(Color cor) {
+            return (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3 < 130;
         }
     }
 
@@ -411,8 +459,8 @@ public class TelaBase extends JFrame {
 
             g2.setColor(new Color(230, 235, 240));
             g2.fillOval(x, y, diametro, diametro);
-            g2.setColor(new Color(150, 160, 170));
-            g2.setStroke(new BasicStroke(4f));
+            g2.setColor(COR_VERMELHO_ETEC);
+            g2.setStroke(new BasicStroke(3f));
             g2.drawOval(x, y, diametro, diametro);
 
             g2.setColor(new Color(166, 176, 186));

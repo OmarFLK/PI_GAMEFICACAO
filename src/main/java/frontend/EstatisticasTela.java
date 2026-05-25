@@ -247,7 +247,7 @@ public class EstatisticasTela extends TelaBase {
             int iy = y + 29;
             g2.setColor(new Color(235, 238, 242));
             g2.fillOval(ix, iy, inner, inner);
-            g2.setColor(COR_AZUL_ESCURO);
+            g2.setColor(COR_VERMELHO_ETEC);
             g2.fillArc(ix, iy, inner, inner, 90, -Math.round(360f * principal / 100f));
             g2.setColor(COR_BRANCO);
             g2.fillOval(ix + 20, iy + 20, inner - 40, inner - 40);
@@ -258,7 +258,7 @@ public class EstatisticasTela extends TelaBase {
             g2.drawString(centro, textoX, y + size / 2 + 9);
 
             int legendaX = x + size + 56;
-            desenharLegenda(g2, legendaX, y + 48, COR_AZUL_ESCURO, rotuloPrincipal + ": " + principal + "%");
+            desenharLegenda(g2, legendaX, y + 48, COR_VERMELHO_ETEC, rotuloPrincipal + ": " + principal + "%");
             desenharLegenda(g2, legendaX, y + 88, new Color(150, 160, 170), rotuloComparacao + ": " + comparacao + "%");
             g2.dispose();
         }
@@ -304,7 +304,7 @@ public class EstatisticasTela extends TelaBase {
                 int height = Math.max(18, Math.round(chartHeight * (valores[i] / (float) max)));
                 int x = startX + i * (barWidth + gap);
                 int y = baseY - height;
-                Color cor = i == 0 ? COR_AZUL_ESCURO : (i == 1 ? new Color(118, 148, 184) : COR_VERDE.darker());
+                Color cor = i == 0 ? COR_VERMELHO_ETEC : (i == 1 ? new Color(118, 148, 184) : COR_AZUL_ESCURO);
 
                 g2.setColor(cor);
                 g2.fillRoundRect(x, y, barWidth, height, 14, 14);

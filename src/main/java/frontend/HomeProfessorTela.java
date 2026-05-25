@@ -64,7 +64,6 @@ public class HomeProfessorTela extends TelaBase {
         gerenciarUsuariosButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarUsuariosTela()));
 
         JButton jogarButton = criarBotaoPrincipal("MODO JOGADOR (TESTAR QUESTÕES)");
-        jogarButton.setBackground(new Color(0, 153, 136));
         jogarButton.addActionListener(evt -> new SelecaoNivelModal(this, Navegador.TIPO_PROFESSOR).setVisible(true));
 
         JButton estatisticasButton = criarBotaoSecundario("Estatísticas das Turmas");
@@ -73,6 +72,8 @@ public class HomeProfessorTela extends TelaBase {
         centro.add(Box.createVerticalStrut(18));
         centro.add(marcaPanel);
         centro.add(Box.createVerticalStrut(8));
+        centro.add(criarLinhaDestaque());
+        centro.add(Box.createVerticalStrut(10));
         centro.add(subtitulo);
         centro.add(Box.createVerticalStrut(8));
         centro.add(apoio);

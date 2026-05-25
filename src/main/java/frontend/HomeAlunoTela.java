@@ -73,6 +73,8 @@ public class HomeAlunoTela extends TelaBase {
         centro.add(Box.createVerticalStrut(18));
         centro.add(marcaPanel);
         centro.add(Box.createVerticalStrut(8));
+        centro.add(criarLinhaDestaque());
+        centro.add(Box.createVerticalStrut(10));
         centro.add(subtitulo);
         centro.add(Box.createVerticalStrut(8));
         centro.add(apoio);

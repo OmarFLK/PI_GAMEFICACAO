@@ -93,6 +93,12 @@ public class GerenciarPerguntasTela extends TelaBase {
         };
         tabela = new JTable(modelo);
         tabela.setRowHeight(35);
+        tabela.setGridColor(COR_BORDA);
+        tabela.setSelectionBackground(new Color(255, 241, 243));
+        tabela.setSelectionForeground(COR_PRETO);
+        tabela.getTableHeader().setBackground(COR_PRETO);
+        tabela.getTableHeader().setForeground(COR_BRANCO);
+        tabela.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
         painelExterno.add(new JScrollPane(tabela), BorderLayout.CENTER);
 
         // --- AÇÕES ---

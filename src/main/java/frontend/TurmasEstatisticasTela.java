@@ -319,7 +319,7 @@ public class TurmasEstatisticasTela extends TelaBase {
 
             g2.setColor(new Color(232, 236, 240));
             g2.fillOval(x, y, size, size);
-            g2.setColor(COR_AZUL_ESCURO);
+            g2.setColor(COR_VERMELHO_ETEC);
             g2.fillArc(x, y, size, size, 90, -Math.round(360f * percentual / 100f));
             g2.setColor(COR_BRANCO);
             g2.fillOval(x + 34, y + 34, size - 68, size - 68);
@@ -371,7 +371,7 @@ public class TurmasEstatisticasTela extends TelaBase {
                 int height = Math.max(18, Math.round(chartHeight * (valores[i] / (float) max)));
                 int x = startX + i * (barWidth + gap);
                 int y = baseY - height;
-                Color cor = i == 0 ? COR_AZUL_ESCURO : (i == 1 ? new Color(118, 148, 184) : COR_VERDE.darker());
+                Color cor = i == 0 ? COR_VERMELHO_ETEC : (i == 1 ? new Color(118, 148, 184) : COR_AZUL_ESCURO);
 
                 g2.setColor(cor);
                 g2.fillRoundRect(x, y, barWidth, height, 14, 14);

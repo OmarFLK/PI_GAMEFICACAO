@@ -114,6 +114,8 @@ public class LoginTela extends TelaBase {
         coluna.add(titulo);
         coluna.add(Box.createVerticalStrut(5));
         coluna.add(subtitulo);
+        coluna.add(Box.createVerticalStrut(10));
+        coluna.add(criarLinhaDestaque());
         coluna.add(Box.createVerticalStrut(40));
         
         coluna.add(labelLogin);
@@ -149,7 +151,7 @@ public class LoginTela extends TelaBase {
         campo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         campo.setForeground(COR_PRETO);
         campo.setBackground(COR_BRANCO);
-        campo.setBorder(new RoundedLineBorder(COR_PRETO, 2, 30, 18));
+        campo.setBorder(new RoundedLineBorder(COR_BORDA, 2, 30, 18));
         return campo;
     }
 

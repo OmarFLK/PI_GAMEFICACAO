@@ -74,6 +74,8 @@ public class RegistroTela extends TelaBase {
         coluna.add(titulo);
         coluna.add(Box.createVerticalStrut(6));
         coluna.add(subtitulo);
+        coluna.add(Box.createVerticalStrut(10));
+        coluna.add(criarLinhaDestaque());
         coluna.add(Box.createVerticalStrut(14));
         coluna.add(aviso);
         coluna.add(Box.createVerticalStrut(28));
@@ -108,7 +110,7 @@ public class RegistroTela extends TelaBase {
         campo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         campo.setForeground(COR_CINZA);
         campo.setBackground(COR_BRANCO);
-        campo.setBorder(new RoundedLineBorder(COR_PRETO, 2, 30, 18));
+        campo.setBorder(new RoundedLineBorder(COR_BORDA, 2, 30, 18));
         campo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 68));
         campo.setPreferredSize(new Dimension(0, 68));
         return campo;
