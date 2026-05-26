@@ -10,7 +10,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List; // Importado para salvar resultado
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -61,7 +61,7 @@ public class GameplayTela extends TelaBase {
     private ButtonGroup alternativasButtonGroup;
     public JButton ajudaButton;
     private JButton proximaButton;
-    private AjudaModal ajudaModal = new AjudaModal(this,dicaExiste);
+    private AjudaModal ajudaModal = new AjudaModal(this, dicaExiste);
 
     private final Color COR_BORDA_PADRAO = new Color(200, 210, 220);
     private final Color COR_FUNDO_PADRAO = new Color(241, 246, 250);
@@ -298,12 +298,10 @@ public class GameplayTela extends TelaBase {
         try {
             Image img;
             if (urlStr.startsWith("data:image")) {
-                // Tratamento para Base64
                 String base64Image = urlStr.split(",")[1];
                 byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Image);
                 img = ImageIO.read(new java.io.ByteArrayInputStream(imageBytes));
             } else {
-                // Tratamento para URL normal (http)
                 URL url = java.net.URI.create(urlStr).toURL();
                 img = ImageIO.read(url);
             }
@@ -376,16 +374,16 @@ public class GameplayTela extends TelaBase {
                 new PerdeuModal(this).setVisible(true);
                 Navegador.abrirHome(this, tipoUsuario);
             }
-
         }
 
         javax.swing.Timer timerFeedback = new javax.swing.Timer(800, e -> {
             indicePergunta++;
             if (indicePergunta >= perguntas.size()) {
-                // LÓGICA DE SALVAMENTO: Registra apenas se for aluno
+                // LOGICA DE SALVAMENTO ATUALIZADA COM OS NOVOS PARAMETROS DO BANCO MySQL
                 backend.DAO.usuarioDAO.Usuario u = SessaoUsuario.getInstancia().getUsuario();
                 if (u != null && Navegador.TIPO_ALUNO.equals(u.getTipo())) {
-                    new PartidaDAO().salvarResultadoFinal(u.getId(), pontuacao);
+                    int totalErros = perguntas.size() - acertos;
+                    new PartidaDAO().salvarResultadoFinal(u.getId(), pontuacao, acertos, totalErros);
                 }
 
                 Navegador.abrirTela(this, new ResultadoTela(tipoUsuario, pontuacao, acertos, perguntas.size()));
@@ -427,5 +425,4 @@ public class GameplayTela extends TelaBase {
             return "";
         return t.substring(0, 1).toUpperCase() + t.substring(1).toLowerCase();
     }
-
 }
