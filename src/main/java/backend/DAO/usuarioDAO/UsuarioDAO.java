@@ -1,6 +1,9 @@
 package backend.DAO.usuarioDAO;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,16 +32,16 @@ public class UsuarioDAO {
                                 rs.getString("tipo"));
                     }
                 } catch (IllegalArgumentException e) {
-                    System.err.println("Senha no banco não está em formato BCrypt: " + e.getMessage());
+                    System.err.println("Senha no banco nao esta em formato BCrypt: " + e.getMessage());
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao efetuar login: " + e.getMessage());
         }
-        return null; 
+        return null;
     }
 
-    public void cadastrarUsuario(String nome, String email, String senha, String tipo) {
+    public boolean cadastrarUsuario(String nome, String email, String senha, String tipo) {
         String sql = "INSERT INTO usuario(nomeUsuario, emailUsuario, senha, tipo) VALUES(?,?,?,?)";
         String senhaCriptografada = SenhaService.hashSenha(senha);
 
@@ -50,20 +53,21 @@ public class UsuarioDAO {
             stmt.setString(3, senhaCriptografada);
             stmt.setString(4, tipo);
 
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
             System.err.println("Erro ao cadastrar: " + e.getMessage());
         }
+        return false;
     }
 
     /**
-     * Atualiza os dados de um usuário existente.
-     * Se a senhaNova for null ou vazia, a senha atual é mantida no banco.
+     * Atualiza os dados de um usuario existente.
+     * Se a senhaNova for null ou vazia, a senha atual e mantida no banco.
      */
     public void atualizarUsuario(int id, String nome, String email, String senhaNova, String tipo) {
         boolean alterarSenha = (senhaNova != null && !senhaNova.trim().isEmpty());
-        String sql = alterarSenha 
+        String sql = alterarSenha
             ? "UPDATE usuario SET nomeUsuario = ?, emailUsuario = ?, senha = ?, tipo = ? WHERE idUsuario = ?"
             : "UPDATE usuario SET nomeUsuario = ?, emailUsuario = ?, tipo = ? WHERE idUsuario = ?";
 
@@ -72,7 +76,7 @@ public class UsuarioDAO {
 
             stmt.setString(1, nome);
             stmt.setString(2, email);
-            
+
             if (alterarSenha) {
                 stmt.setString(3, SenhaService.hashSenha(senhaNova));
                 stmt.setString(4, tipo);
@@ -85,7 +89,7 @@ public class UsuarioDAO {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.err.println("Erro ao atualizar usuário: " + e.getMessage());
+            System.err.println("Erro ao atualizar usuario: " + e.getMessage());
         }
     }
 
@@ -118,7 +122,7 @@ public class UsuarioDAO {
                         rs.getString("tipo")));
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao listar usuários: " + e.getMessage());
+            System.err.println("Erro ao listar usuarios: " + e.getMessage());
         }
         return usuarios;
     }
@@ -133,7 +137,7 @@ public class UsuarioDAO {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.err.println("Erro ao atualizar tipo de usuário: " + e.getMessage());
+            System.err.println("Erro ao atualizar tipo de usuario: " + e.getMessage());
         }
     }
 }

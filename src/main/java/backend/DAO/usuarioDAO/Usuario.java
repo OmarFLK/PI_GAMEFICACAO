@@ -19,12 +19,12 @@ public class Usuario {
     }
 
     // Getters para usar depois no sistema
-    public String getNome() { 
-        return nome; 
+    public String getNome() {
+        return nome;
     }
-    
-    public String getTipo() { 
-        return tipo; 
+
+    public String getTipo() {
+        return tipo;
     }
 
     public int getId() {

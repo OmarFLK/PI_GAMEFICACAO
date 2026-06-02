@@ -12,15 +12,16 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.SwingWorker;
 import javax.swing.JTextField;
 
+import backend.DAO.usuarioDAO.UsuarioDAO;
 import frontend.base.TelaBase;
 import frontend.util.Navegador;
 
 public class RegistroTela extends TelaBase {
 
-    private JTextField anoTextField;
-    private JTextField turmaTextField;
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private JTextField nomeTextField;
     private JTextField emailTextField;
     private JPasswordField senhaPasswordField;
@@ -50,8 +51,6 @@ public class RegistroTela extends TelaBase {
         JLabel aviso = criarTextoCentral("Apenas alunos. Cadastro de professor e feito pelo administrador.");
         aviso.setForeground(new Color(110, 110, 110));
 
-        anoTextField = criarCampoTexto("Ano");
-        turmaTextField = criarCampoTexto("Turma");
         nomeTextField = criarCampoTexto("Nome e primeiro sobrenome");
         emailTextField = criarCampoTexto("Login");
         senhaPasswordField = criarCampoSenha("Senha");
@@ -79,10 +78,6 @@ public class RegistroTela extends TelaBase {
         coluna.add(Box.createVerticalStrut(14));
         coluna.add(aviso);
         coluna.add(Box.createVerticalStrut(28));
-        coluna.add(anoTextField);
-        coluna.add(Box.createVerticalStrut(12));
-        coluna.add(turmaTextField);
-        coluna.add(Box.createVerticalStrut(12));
         coluna.add(nomeTextField);
         coluna.add(Box.createVerticalStrut(12));
         coluna.add(emailTextField);
@@ -117,7 +112,7 @@ public class RegistroTela extends TelaBase {
     }
 
     private void cadastrarAluno() {
-        if (isVazio(anoTextField, "Ano") || isVazio(turmaTextField, "Turma") || isVazio(nomeTextField, "Nome e primeiro sobrenome")
+        if (isVazio(nomeTextField, "Nome e primeiro sobrenome")
             || isVazio(emailTextField, "Login") || isSenhaVazia(senhaPasswordField, "Senha")
             || isSenhaVazia(confirmarSenhaPasswordField, "Repita a senha")) {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos do registro.", "QuimLab", JOptionPane.ERROR_MESSAGE);
@@ -131,8 +126,34 @@ public class RegistroTela extends TelaBase {
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "Cadastro visual concluido.", "QuimLab", JOptionPane.INFORMATION_MESSAGE);
-        Navegador.abrirLogin(this);
+        String nome = nomeTextField.getText().trim();
+        String email = emailTextField.getText().trim();
+
+        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Boolean doInBackground() {
+                return usuarioDAO.cadastrarUsuario(nome, email, senha, Navegador.TIPO_ALUNO);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    if (get()) {
+                        JOptionPane.showMessageDialog(RegistroTela.this, "Cadastro concluido.", "QuimLab", JOptionPane.INFORMATION_MESSAGE);
+                        Navegador.abrirLogin(RegistroTela.this);
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                RegistroTela.this,
+                                "Nao foi possivel cadastrar. Confira se o e-mail ja existe.",
+                                "QuimLab",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(RegistroTela.this, "Erro ao cadastrar: " + e.getMessage(), "QuimLab", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
     }
 
     private boolean isVazio(JTextField campo, String placeholder) {

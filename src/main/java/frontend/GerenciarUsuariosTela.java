@@ -1,14 +1,30 @@
 package frontend;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.List;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-import frontend.base.TelaBase;
-import frontend.util.Navegador;
 import backend.DAO.usuarioDAO.Usuario;
 import backend.DAO.usuarioDAO.UsuarioDAO;
+import frontend.base.TelaBase;
+import frontend.util.Navegador;
 
 public class GerenciarUsuariosTela extends TelaBase {
 
@@ -18,7 +34,7 @@ public class GerenciarUsuariosTela extends TelaBase {
     private JButton btnNovo, btnEditar, btnExcluir;
 
     public GerenciarUsuariosTela() {
-        super("QuimLab Pro - Gerenciar Usuários");
+        super("QuimLab Pro - Gerenciar Usuarios");
         initComponents();
         atualizarTabela();
     }
@@ -29,38 +45,31 @@ public class GerenciarUsuariosTela extends TelaBase {
         painelExterno.setOpaque(false);
         painelExterno.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
-        // --- TOPO ---
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
         topo.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
-        // Título centralizado e com destaque
-        JLabel titulo = new JLabel("Gestão de Alunos e Professores", SwingConstants.CENTER);
+        JLabel titulo = new JLabel("Gestao de Alunos e Professores", SwingConstants.CENTER);
         titulo.setFont(new Font("SansSerif", Font.BOLD, 32));
         titulo.setForeground(new Color(44, 62, 80));
-        
-        // BOTÃO VOLTAR: Agora usando criarBotaoSecundario para seguir o estilo dos botões de baixo
-        JButton btnVoltar = criarBotaoSecundario("← Voltar");
+
+        JButton btnVoltar = criarBotaoSecundario("<- Voltar");
         btnVoltar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnVoltar.setPreferredSize(new Dimension(150, 40)); // Tamanho menor para o topo
+        btnVoltar.setPreferredSize(new Dimension(150, 40));
         btnVoltar.addActionListener(e -> Navegador.abrirHome(this, Navegador.TIPO_PROFESSOR));
 
-        // Container para alinhar o botão à esquerda sem esticar
         JPanel containerVoltar = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         containerVoltar.setOpaque(false);
         containerVoltar.add(btnVoltar);
 
-        // Placeholder à direita para garantir centralização perfeita do título
         Dimension tamanhoBotao = btnVoltar.getPreferredSize();
         Component spacer = Box.createRigidArea(tamanhoBotao);
 
         topo.add(containerVoltar, BorderLayout.WEST);
         topo.add(titulo, BorderLayout.CENTER);
         topo.add(spacer, BorderLayout.EAST);
-
         painelExterno.add(topo, BorderLayout.NORTH);
 
-        // --- TABELA ---
         modelo = new DefaultTableModel(new Object[]{"ID", "Nome", "E-mail", "Tipo"}, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
         };
@@ -74,11 +83,10 @@ public class GerenciarUsuariosTela extends TelaBase {
         tabela.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
         painelExterno.add(new JScrollPane(tabela), BorderLayout.CENTER);
 
-        // --- AÇÕES (ESTILO REFERÊNCIA) ---
-        JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0)); 
+        JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0));
         acoes.setOpaque(false);
 
-        btnNovo = criarBotaoPrincipal("NOVO USUÁRIO");
+        btnNovo = criarBotaoPrincipal("NOVO USUARIO");
         btnNovo.addActionListener(e -> Navegador.abrirTela(this, new UsuariosFormsTela(null)));
 
         btnEditar = criarBotaoSecundario("EDITAR DADOS");
@@ -100,13 +108,14 @@ public class GerenciarUsuariosTela extends TelaBase {
     private void atualizarTabela() {
         setEstadoBotoes(false, "Carregando...");
         modelo.setRowCount(0);
-        modelo.addRow(new Object[]{"...", "Buscando usuários...", "...", "..."});
+        modelo.addRow(new Object[]{"...", "Buscando usuarios...", "...", "..."});
 
         SwingWorker<List<Usuario>, Void> worker = new SwingWorker<>() {
             @Override
-            protected List<Usuario> doInBackground() throws Exception {
+            protected List<Usuario> doInBackground() {
                 return usuarioDAO.listarTodos();
             }
+
             @Override
             protected void done() {
                 try {
@@ -128,14 +137,14 @@ public class GerenciarUsuariosTela extends TelaBase {
     private void prepararEdicao() {
         int linha = tabela.getSelectedRow();
         if (linha == -1) {
-            JOptionPane.showMessageDialog(this, "Selecione um usuário para editar.");
+            JOptionPane.showMessageDialog(this, "Selecione um usuario para editar.");
             return;
         }
 
         int id = (int) modelo.getValueAt(linha, 0);
-        String nome = (String) modelo.getValueAt(linha, 1);
-        String email = (String) modelo.getValueAt(linha, 2);
-        String tipo = (String) modelo.getValueAt(linha, 3);
+        String nome = valorTabela(linha, 1);
+        String email = valorTabela(linha, 2);
+        String tipo = valorTabela(linha, 3);
 
         Usuario selecionado = new Usuario(id, nome, email, tipo);
         Navegador.abrirTela(this, new UsuariosFormsTela(selecionado));
@@ -143,17 +152,19 @@ public class GerenciarUsuariosTela extends TelaBase {
 
     private void excluirUsuario() {
         int linha = tabela.getSelectedRow();
-        if (linha == -1) return;
+        if (linha == -1) {
+            return;
+        }
 
         int id = (int) modelo.getValueAt(linha, 0);
-        String nome = (String) modelo.getValueAt(linha, 1);
+        String nome = valorTabela(linha, 1);
 
-        if (JOptionPane.showConfirmDialog(this, "Deseja excluir permanentemente " + nome + "?", 
+        if (JOptionPane.showConfirmDialog(this, "Deseja excluir permanentemente " + nome + "?",
             "Aviso", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            
+
             setEstadoBotoes(false, "Excluindo...");
             SwingWorker<Void, Void> worker = new SwingWorker<>() {
-                @Override protected Void doInBackground() throws Exception {
+                @Override protected Void doInBackground() {
                     usuarioDAO.deletarUsuario(id);
                     return null;
                 }
@@ -167,7 +178,15 @@ public class GerenciarUsuariosTela extends TelaBase {
         btnNovo.setEnabled(ativo);
         btnEditar.setEnabled(ativo);
         btnExcluir.setEnabled(ativo);
-        if (!ativo) btnEditar.setText(status);
-        else btnEditar.setText("EDITAR DADOS");
+        if (!ativo) {
+            btnEditar.setText(status);
+        } else {
+            btnEditar.setText("EDITAR DADOS");
+        }
+    }
+
+    private String valorTabela(int linha, int coluna) {
+        Object valor = modelo.getValueAt(linha, coluna);
+        return valor == null ? "" : valor.toString();
     }
 }

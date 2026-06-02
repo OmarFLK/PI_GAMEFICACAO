@@ -1,4 +1,4 @@
-INSERT INTO usuario (nomeUsuario, emailUsuario, senha, tipo) VALUES 
+INSERT INTO usuario (nomeUsuario, emailUsuario, senha, tipo) VALUES
 ('Maria do Socorro', 'socorro@etec.sp.gov.br', 'etec123', 'PROFESSOR'),
 ('Guilherme Aluno', 'guilherme@aluno.com', '123456', 'ALUNO');
 

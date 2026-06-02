@@ -38,6 +38,8 @@ CREATE TABLE Partida (
   idPartida INT NOT NULL AUTO_INCREMENT,
   idUsuario INT NOT NULL,
   Pontuacao INT DEFAULT 0,
+  numAcertos INT NOT NULL DEFAULT 0,
+  numErros INT NOT NULL DEFAULT 0,
   dataInicio DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (idPartida),
   CONSTRAINT fk_partida_usuario FOREIGN KEY (idUsuario) REFERENCES usuario (idUsuario)

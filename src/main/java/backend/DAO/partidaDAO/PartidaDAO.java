@@ -6,11 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import backend.servidor.Conexao;
 
 public class PartidaDAO {
 
-    // Salva o resultado final completo de uma partida no banco
     public void salvarResultadoFinal(int idUsuario, int pontuacaoFinal, int numAcertos, int numErros) {
         String sql = "INSERT INTO Partida (idUsuario, Pontuacao, numAcertos, numErros) VALUES (?, ?, ?, ?)";
 
@@ -23,14 +23,13 @@ public class PartidaDAO {
             stmt.setInt(4, numErros);
 
             stmt.executeUpdate();
-            System.out.println("Partida salva com sucesso para o usuário ID: " + idUsuario);
+            System.out.println("Partida salva com sucesso para o usuario ID: " + idUsuario);
 
         } catch (SQLException e) {
             System.err.println("Erro ao salvar resultado da partida: " + e.getMessage());
         }
     }
 
-    // Busca uma partida específica pelo ID
     public Partida getPartida(int idPartida) {
         String sql = "SELECT idPartida, idUsuario, Pontuacao, dataInicio FROM Partida WHERE idPartida = ?";
 
@@ -53,7 +52,6 @@ public class PartidaDAO {
         return null;
     }
 
-    // Lista todas as partidas do banco
     public List<Partida> listarTodasPartidas() {
         List<Partida> lista = new ArrayList<>();
         String sql = "SELECT idPartida, idUsuario, Pontuacao, dataInicio FROM Partida ORDER BY dataInicio DESC";
@@ -75,7 +73,6 @@ public class PartidaDAO {
         return lista;
     }
 
-    // Busca as estatísticas acumuladas de um aluno específico
     public DadosAcumuladosAluno buscarEstatisticasDoAluno(int idUsuario) {
         String sql = "SELECT SUM(Pontuacao) as totalPoints, " +
                 "COUNT(idPartida) as totalPartidas, " +
@@ -100,12 +97,11 @@ public class PartidaDAO {
                 return new DadosAcumuladosAluno(pontos, partidas, questoes, acertos, erros, aproveitamento);
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar estatísticas acumuladas: " + e.getMessage());
+            System.err.println("Erro ao buscar estatisticas acumuladas: " + e.getMessage());
         }
         return new DadosAcumuladosAluno(0, 0, 0, 0, 0, 0);
     }
 
-    // Busca as métricas globais para o painel do professor
     public DadosGeraisProfessor buscarEstatisticasGerais() {
         String sql = "SELECT COUNT(idPartida) as totalPartidas, " +
                 "AVG(Pontuacao) as mediaPontos, " +
@@ -130,54 +126,71 @@ public class PartidaDAO {
                 return new DadosGeraisProfessor(totalPartidas, media, max, acertos, erros, aproveitamento);
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar estatísticas gerais: " + e.getMessage());
+            System.err.println("Erro ao buscar estatisticas gerais: " + e.getMessage());
         }
         return new DadosGeraisProfessor(0, 0, 0, 0, 0, 0);
     }
 
-    // Busca o ranking dos Top 5 alunos usando os nomes reais das colunas da tabela 'usuario'
     public List<RankingItem> buscarRankingGeral() {
         List<RankingItem> lista = new ArrayList<>();
-        // CORRIGIDO: u.nomeUsuario e u.idUsuario baseados na tua base de dados
-        String sql = "SELECT u.nomeUsuario, SUM(p.Pontuacao) as totalPoints " +
-                "FROM Partida p " +
-                "JOIN usuario u ON p.idUsuario = u.idUsuario " +
-                "GROUP BY p.idUsuario, u.nomeUsuario " +
-                "ORDER BY totalPoints DESC LIMIT 5";
+        String sql = "SELECT u.idUsuario, u.nomeUsuario, " +
+                "COALESCE(SUM(p.Pontuacao), 0) as totalPoints, " +
+                "COALESCE(SUM(p.numAcertos), 0) as totalAcertos, " +
+                "COALESCE(SUM(p.numErros), 0) as totalErros " +
+                "FROM usuario u " +
+                "LEFT JOIN Partida p ON p.idUsuario = u.idUsuario " +
+                "WHERE u.tipo = 'ALUNO' " +
+                "GROUP BY u.idUsuario, u.nomeUsuario " +
+                "ORDER BY totalPoints DESC, u.nomeUsuario ASC LIMIT 10";
 
         try (Connection conn = Conexao.conectar();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
-
             while (rs.next()) {
-                // CORRIGIDO: buscar o valor de "nomeUsuario"
-                lista.add(new RankingItem(rs.getString("nomeUsuario"), rs.getInt("totalPoints")));
+                lista.add(new RankingItem(
+                        rs.getInt("idUsuario"),
+                        rs.getString("nomeUsuario"),
+                        rs.getInt("totalPoints"),
+                        rs.getInt("totalAcertos"),
+                        rs.getInt("totalErros")));
             }
         } catch (SQLException e) {
-            System.err.println("Erro no ranking com JOIN, executando fallback por ID: " + e.getMessage());
-            return buscarRankingGeralFallback();
+            System.err.println("Erro ao buscar ranking geral: " + e.getMessage());
         }
         return lista;
     }
 
-    // Fallback de segurança que exibe o ID caso a tabela de usuários falhe
-    private List<RankingItem> buscarRankingGeralFallback() {
-        List<RankingItem> lista = new ArrayList<>();
-        String sql = "SELECT idUsuario, SUM(Pontuacao) as totalPoints FROM Partida GROUP BY idUsuario ORDER BY totalPoints DESC LIMIT 5";
-        
+    public ComparativoAluno buscarComparativoAluno(int idUsuario) {
+        String sql = "SELECT " +
+                "COALESCE(SUM(CASE WHEN u.idUsuario = ? THEN p.numAcertos ELSE 0 END), 0) as acertosAluno, " +
+                "COALESCE(SUM(CASE WHEN u.idUsuario <> ? THEN p.numAcertos ELSE 0 END), 0) as acertosOutros, " +
+                "COALESCE(SUM(CASE WHEN u.idUsuario = ? THEN p.numErros ELSE 0 END), 0) as errosAluno, " +
+                "COALESCE(SUM(CASE WHEN u.idUsuario <> ? THEN p.numErros ELSE 0 END), 0) as errosOutros " +
+                "FROM usuario u " +
+                "LEFT JOIN Partida p ON p.idUsuario = u.idUsuario " +
+                "WHERE u.tipo = 'ALUNO'";
+
         try (Connection conn = Conexao.conectar();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                lista.add(new RankingItem("Aluno ID: " + rs.getInt("idUsuario"), rs.getInt("totalPoints")));
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUsuario);
+            stmt.setInt(2, idUsuario);
+            stmt.setInt(3, idUsuario);
+            stmt.setInt(4, idUsuario);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new ComparativoAluno(
+                        rs.getInt("acertosAluno"),
+                        rs.getInt("acertosOutros"),
+                        rs.getInt("errosAluno"),
+                        rs.getInt("errosOutros"));
             }
         } catch (SQLException e) {
-            System.err.println("Erro no fallback do ranking: " + e.getMessage());
+            System.err.println("Erro ao buscar comparativo do aluno: " + e.getMessage());
         }
-        return lista;
+        return new ComparativoAluno(0, 0, 0, 0);
     }
 
-    // Estrutura de dados para o painel do aluno
     public static class DadosAcumuladosAluno {
         private final int pontuacaoTotal;
         private final int partidasJogadas;
@@ -203,7 +216,6 @@ public class PartidaDAO {
         public int getAproveitamento() { return aproveitamento; }
     }
 
-    // Estrutura de dados para o painel do professor
     public static class DadosGeraisProfessor {
         private final int totalPartidas;
         private final int pontuacaoMedia;
@@ -229,17 +241,48 @@ public class PartidaDAO {
         public int getAproveitamentoGeral() { return aproveitamentoGeral; }
     }
 
-    // Estrutura de dados para os itens do ranking
     public static class RankingItem {
+        private final int idUsuario;
         private final String nome;
         private final int pontuacao;
+        private final int acertos;
+        private final int erros;
 
         public RankingItem(String nome, int pontuacao) {
-            this.nome = nome;
-            this.pontuacao = pontuacao;
+            this(0, nome, pontuacao, 0, 0);
         }
 
+        public RankingItem(int idUsuario, String nome, int pontuacao, int acertos, int erros) {
+            this.idUsuario = idUsuario;
+            this.nome = nome;
+            this.pontuacao = pontuacao;
+            this.acertos = acertos;
+            this.erros = erros;
+        }
+
+        public int getIdUsuario() { return idUsuario; }
         public String getNome() { return nome; }
         public int getPontuacao() { return pontuacao; }
+        public int getAcertos() { return acertos; }
+        public int getErros() { return erros; }
+    }
+
+    public static class ComparativoAluno {
+        private final int acertosAluno;
+        private final int acertosOutros;
+        private final int errosAluno;
+        private final int errosOutros;
+
+        public ComparativoAluno(int acertosAluno, int acertosOutros, int errosAluno, int errosOutros) {
+            this.acertosAluno = acertosAluno;
+            this.acertosOutros = acertosOutros;
+            this.errosAluno = errosAluno;
+            this.errosOutros = errosOutros;
+        }
+
+        public int getAcertosAluno() { return acertosAluno; }
+        public int getAcertosOutros() { return acertosOutros; }
+        public int getErrosAluno() { return errosAluno; }
+        public int getErrosOutros() { return errosOutros; }
     }
 }
