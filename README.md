@@ -28,6 +28,7 @@ A aplicação foi desenvolvida em **Java**, utilizando os princípios de **Progr
 
 O projeto é voltado principalmente para:
 
+
 - alunos ingressantes do 1º ano do curso técnico em Química;
 - estudantes do Ensino Médio Técnico;
 - professores que desejam acompanhar o desempenho dos alunos;
