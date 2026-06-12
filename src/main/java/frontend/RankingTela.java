@@ -25,6 +25,7 @@ import backend.DAO.partidaDAO.PartidaDAO.RankingItem;
 import backend.DAO.usuarioDAO.Usuario;
 import backend.Seguranca.SessaoUsuario;
 import frontend.base.TelaBase;
+import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
 public class RankingTela extends TelaBase {
@@ -32,12 +33,11 @@ public class RankingTela extends TelaBase {
     private final String tipoUsuario;
     private final PartidaDAO partidaDAO;
 
-    private final Color corTextoPrincipal = new Color(44, 62, 80);
-    private final Color corTextoMuted = new Color(127, 140, 141);
-    private final Color corAcertos = new Color(46, 204, 113);
-    private final Color corErros = new Color(231, 76, 60);
-    private final Color corPontos = new Color(52, 152, 219);
-    private final Color corOutros = new Color(118, 148, 184);
+    private static final Color COR_TEXTO_PRINCIPAL = AppTheme.TEXT;
+    private static final Color COR_TEXTO_MUTED = AppTheme.TEXT_MUTED;
+    private static final Color COR_ALUNO = AppTheme.STUDENT_HIGHLIGHT;
+    private static final Color COR_TOP_1 = AppTheme.RANK_FIRST;
+    private static final Color COR_OUTROS = AppTheme.NEUTRAL_DARK;
 
     public RankingTela(String tipoUsuario) {
         super("QuimLab - Ranking Geral");
@@ -64,7 +64,7 @@ public class RankingTela extends TelaBase {
         conteudo.setOpaque(false);
 
         conteudo.add(criarTopo(), BorderLayout.NORTH);
-        conteudo.add(criarCorpo(nomeAluno, ranking, comparativo), BorderLayout.CENTER);
+        conteudo.add(criarCorpo(idUsuario, nomeAluno, ranking, comparativo), BorderLayout.CENTER);
 
         canvas.add(conteudo, BorderLayout.CENTER);
         painelExterno.add(canvas, BorderLayout.CENTER);
@@ -79,7 +79,7 @@ public class RankingTela extends TelaBase {
 
         JLabel titulo = new JLabel("Ranking Geral", SwingConstants.LEFT);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 30));
-        titulo.setForeground(corTextoPrincipal);
+        titulo.setForeground(COR_TEXTO_PRINCIPAL);
 
         JButton voltarButton = criarBotaoLink("Voltar");
         voltarButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -94,7 +94,7 @@ public class RankingTela extends TelaBase {
         return topo;
     }
 
-    private JPanel criarCorpo(String nomeAluno, List<RankingItem> ranking, ComparativoAluno comparativo) {
+    private JPanel criarCorpo(int idUsuario, String nomeAluno, List<RankingItem> ranking, ComparativoAluno comparativo) {
         JPanel corpo = new JPanel(new GridLayout(1, 2, 30, 0));
         corpo.setOpaque(false);
 
@@ -102,86 +102,115 @@ public class RankingTela extends TelaBase {
         colunaRanking.setOpaque(false);
         colunaRanking.setLayout(new BoxLayout(colunaRanking, BoxLayout.Y_AXIS));
         colunaRanking.add(criarAreaGrafico(
-                "Pontuacao dos Alunos",
-                "Comparacao geral por pontos acumulados",
-                new RankingBarChartPanel(ranking)));
+                "Pontuação dos Alunos",
+                "Comparação geral por pontos acumulados",
+                new RankingBarChartPanel(ranking, idUsuario)));
         colunaRanking.add(Box.createVerticalStrut(18));
-        colunaRanking.add(criarListaRanking(ranking));
+        colunaRanking.add(criarListaRanking(ranking, idUsuario));
 
         JPanel colunaComparativos = new JPanel(new GridLayout(2, 1, 0, 24));
         colunaComparativos.setOpaque(false);
         colunaComparativos.add(criarAreaGrafico(
-                "Acertos: voce vs outros alunos",
+                "Acertos: você vs outros alunos",
                 nomeAluno + " comparado ao acumulado dos demais alunos",
                 new DonutComparativoPanel(
                         comparativo.getAcertosAluno(),
                         comparativo.getAcertosOutros(),
-                        "Voce",
+                        "Você",
                         "Outros alunos",
-                        corAcertos,
-                        corOutros)));
+                        COR_ALUNO,
+                        COR_OUTROS)));
         colunaComparativos.add(criarAreaGrafico(
-                "Erros: voce vs outros alunos",
+                "Erros: você vs outros alunos",
                 nomeAluno + " comparado ao acumulado dos demais alunos",
                 new DonutComparativoPanel(
                         comparativo.getErrosAluno(),
                         comparativo.getErrosOutros(),
-                        "Voce",
+                        "Você",
                         "Outros alunos",
-                        corErros,
-                        corOutros)));
+                        COR_ALUNO,
+                        COR_OUTROS)));
 
         corpo.add(colunaRanking);
         corpo.add(colunaComparativos);
         return corpo;
     }
 
-    private JPanel criarListaRanking(List<RankingItem> ranking) {
+    private JPanel criarListaRanking(List<RankingItem> ranking, int idUsuario) {
         JPanel card = criarCartaoSuave();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setPreferredSize(new Dimension(0, 180));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 190));
+        card.setPreferredSize(new Dimension(0, 220));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 230));
 
-        JLabel titulo = new JLabel("Top alunos por pontuacao", SwingConstants.LEFT);
-        titulo.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        titulo.setForeground(corTextoPrincipal);
-        titulo.setAlignmentX(LEFT_ALIGNMENT);
+        JLabel titulo = new JLabel("Top alunos por pontuação", SwingConstants.CENTER);
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        titulo.setForeground(COR_TEXTO_PRINCIPAL);
+        titulo.setAlignmentX(CENTER_ALIGNMENT);
+        titulo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
         card.add(titulo);
-        card.add(Box.createVerticalStrut(10));
+        card.add(Box.createVerticalStrut(8));
 
         if (ranking.isEmpty()) {
-            JLabel vazio = new JLabel("Nenhuma partida registrada ate o momento.");
+            JLabel vazio = new JLabel("Nenhuma partida registrada até o momento.", SwingConstants.CENTER);
             vazio.setFont(new Font("Segoe UI", Font.ITALIC, 13));
-            vazio.setForeground(corTextoMuted);
+            vazio.setForeground(COR_TEXTO_MUTED);
+            vazio.setAlignmentX(CENTER_ALIGNMENT);
+            vazio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
             card.add(vazio);
             return card;
         }
 
         int limite = Math.min(5, ranking.size());
         for (int i = 0; i < limite; i++) {
-            RankingItem item = ranking.get(i);
-            JPanel linha = new JPanel(new BorderLayout());
-            linha.setOpaque(false);
-
-            JLabel nome = new JLabel((i + 1) + ". " + item.getNome());
-            nome.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-            nome.setForeground(corTextoPrincipal);
-
-            JLabel pontos = new JLabel(item.getPontuacao() + " pts");
-            pontos.setFont(new Font("Segoe UI", Font.BOLD, 13));
-            pontos.setForeground(i == 0 ? corAcertos : corTextoMuted);
-
-            linha.add(nome, BorderLayout.WEST);
-            linha.add(pontos, BorderLayout.EAST);
-            card.add(linha);
-            card.add(Box.createVerticalStrut(6));
+            card.add(criarLinhaRanking(ranking.get(i), i, idUsuario));
+            if (i < limite - 1) {
+                card.add(Box.createVerticalStrut(3));
+            }
         }
         return card;
     }
 
+    private JPanel criarLinhaRanking(RankingItem item, int indice, int idUsuario) {
+        Color corDestaque = getRankingHighlightColor(item, indice, idUsuario);
+        boolean isAlunoLogado = isLoggedStudent(item, idUsuario);
+        int estiloFonte = indice == 0 || isAlunoLogado ? Font.BOLD : Font.PLAIN;
+
+        JPanel linha = new JPanel(new BorderLayout(10, 0));
+        linha.setOpaque(false);
+        linha.setAlignmentX(LEFT_ALIGNMENT);
+        linha.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+        linha.setPreferredSize(new Dimension(0, 25));
+        linha.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 4, 0, 0, corDestaque),
+                BorderFactory.createEmptyBorder(2, 10, 2, 6)));
+
+        JLabel posicao = new JLabel((indice + 1) + ".", SwingConstants.CENTER);
+        posicao.setPreferredSize(new Dimension(28, 20));
+        posicao.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        posicao.setForeground(corDestaque);
+
+        String nomeExibido = abreviarNome(item.getNome(), isAlunoLogado ? 20 : 27);
+        if (isAlunoLogado) {
+            nomeExibido += " (Você)";
+        }
+        JLabel nome = new JLabel(nomeExibido);
+        nome.setToolTipText(item.getNome());
+        nome.setFont(new Font("Segoe UI", estiloFonte, 14));
+        nome.setForeground(corDestaque);
+
+        JLabel pontos = new JLabel(item.getPontuacao() + " pts");
+        pontos.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        pontos.setForeground(corDestaque);
+
+        linha.add(posicao, BorderLayout.WEST);
+        linha.add(nome, BorderLayout.CENTER);
+        linha.add(pontos, BorderLayout.EAST);
+        return linha;
+    }
+
     private JPanel criarAreaGrafico(String titulo, String subtitulo, JPanel grafico) {
-        JPanel area = new JPanel(new BorderLayout(0, 8));
-        area.setOpaque(false);
+        JPanel area = criarCartaoSuave();
+        area.setLayout(new BorderLayout(0, 8));
 
         JPanel header = new JPanel();
         header.setOpaque(false);
@@ -189,11 +218,11 @@ public class RankingTela extends TelaBase {
 
         JLabel tituloLabel = new JLabel(titulo);
         tituloLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        tituloLabel.setForeground(corTextoPrincipal);
+        tituloLabel.setForeground(COR_TEXTO_PRINCIPAL);
 
         JLabel subtituloLabel = new JLabel(subtitulo);
         subtituloLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtituloLabel.setForeground(corTextoMuted);
+        subtituloLabel.setForeground(COR_TEXTO_MUTED);
 
         header.add(tituloLabel);
         header.add(Box.createVerticalStrut(2));
@@ -206,12 +235,14 @@ public class RankingTela extends TelaBase {
 
     private class RankingBarChartPanel extends JPanel {
         private final List<RankingItem> ranking;
+        private final int idUsuario;
 
-        RankingBarChartPanel(List<RankingItem> ranking) {
+        RankingBarChartPanel(List<RankingItem> ranking, int idUsuario) {
             this.ranking = ranking;
+            this.idUsuario = idUsuario;
             setOpaque(false);
-            setPreferredSize(new Dimension(0, 350));
-            setMinimumSize(new Dimension(0, 300));
+            setPreferredSize(new Dimension(0, 260));
+            setMinimumSize(new Dimension(0, 190));
         }
 
         @Override
@@ -253,20 +284,20 @@ public class RankingTela extends TelaBase {
                 int x = startX + i * (barWidth + gap);
                 int y = baseY - height;
 
-                Color corBarra = i == 0 ? corAcertos : corPontos;
+                Color corBarra = getRankingHighlightColor(item, i, idUsuario);
                 g2.setColor(corBarra);
                 g2.fillRoundRect(x, y, barWidth, height, 12, 12);
                 g2.fillRect(x, baseY - 5, barWidth, 5);
 
-                g2.setColor(corTextoPrincipal);
+                g2.setColor(COR_TEXTO_PRINCIPAL);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
                 String valor = item.getPontuacao() + " pts";
                 int valorX = x + barWidth / 2 - g2.getFontMetrics().stringWidth(valor) / 2;
                 g2.drawString(valor, valorX, y - 8);
 
-                g2.setColor(corTextoMuted);
+                g2.setColor(corBarra);
                 g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-                String nome = abreviarNome(item.getNome());
+                String nome = isLoggedStudent(item, idUsuario) ? "Você" : abreviarNome(item.getNome());
                 int nomeX = x + barWidth / 2 - g2.getFontMetrics().stringWidth(nome) / 2;
                 g2.drawString(nome, nomeX, baseY + 24);
             }
@@ -305,8 +336,8 @@ public class RankingTela extends TelaBase {
                 return;
             }
 
-            int size = Math.min(150, Math.min(getHeight() - 24, getWidth() - 260));
-            size = Math.max(110, size);
+            int size = Math.min(140, Math.min(getHeight() - 16, getWidth() - 220));
+            size = Math.max(90, size);
             int x = 24;
             int y = (getHeight() - size) / 2;
 
@@ -323,7 +354,7 @@ public class RankingTela extends TelaBase {
 
             int percentualAluno = Math.round(100f * valorAluno / total);
             String centro = percentualAluno + "%";
-            g2.setColor(corTextoPrincipal);
+            g2.setColor(COR_TEXTO_PRINCIPAL);
             g2.setFont(new Font("Segoe UI", Font.BOLD, 24));
             int textoX = x + size / 2 - g2.getFontMetrics().stringWidth(centro) / 2;
             g2.drawString(centro, textoX, y + size / 2 + 8);
@@ -338,14 +369,14 @@ public class RankingTela extends TelaBase {
         private void desenharLegenda(Graphics2D g2, int x, int y, Color cor, String texto) {
             g2.setColor(cor);
             g2.fillRoundRect(x, y - 12, 16, 16, 6, 6);
-            g2.setColor(corTextoPrincipal);
+            g2.setColor(COR_TEXTO_PRINCIPAL);
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
             g2.drawString(texto, x + 26, y + 1);
         }
     }
 
     private void desenharMensagemVazia(Graphics2D g2, String texto, int largura, int altura) {
-        g2.setColor(corTextoMuted);
+        g2.setColor(COR_TEXTO_MUTED);
         g2.setFont(new Font("Segoe UI", Font.ITALIC, 15));
         int x = largura / 2 - g2.getFontMetrics().stringWidth(texto) / 2;
         int y = altura / 2;
@@ -353,14 +384,32 @@ public class RankingTela extends TelaBase {
     }
 
     private String abreviarNome(String nome) {
+        return abreviarNome(nome, 12);
+    }
+
+    private String abreviarNome(String nome, int limite) {
         if (nome == null || nome.trim().isEmpty()) {
             return "Aluno";
         }
 
         String texto = nome.trim();
-        if (texto.length() <= 12) {
+        if (texto.length() <= limite) {
             return texto;
         }
-        return texto.substring(0, 11) + "...";
+        return texto.substring(0, Math.max(1, limite - 1)) + "...";
+    }
+
+    private boolean isLoggedStudent(RankingItem item, int idUsuario) {
+        return idUsuario > 0 && item.getIdUsuario() == idUsuario;
+    }
+
+    private Color getRankingHighlightColor(RankingItem item, int indice, int idUsuario) {
+        if (indice == 0) {
+            return COR_TOP_1;
+        }
+        if (isLoggedStudent(item, idUsuario)) {
+            return COR_ALUNO;
+        }
+        return COR_OUTROS;
     }
 }

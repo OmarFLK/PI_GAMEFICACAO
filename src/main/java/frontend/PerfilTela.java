@@ -59,7 +59,8 @@ public class PerfilTela extends TelaBase {
         cabecalho.setPreferredSize(new Dimension(0, 100));
 
         JLabel lbTituloHeader = new JLabel(tituloTela);
-        lbTituloHeader.setFont(new Font("Segoe UI", Font.BOLD, 42));
+        int tamanhoTitulo = Navegador.TIPO_PROFESSOR.equals(tipoUsuario) ? 34 : 42;
+        lbTituloHeader.setFont(new Font("Segoe UI", Font.BOLD, tamanhoTitulo));
         lbTituloHeader.setForeground(COR_AZUL_ESCURO);
         lbTituloHeader.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -151,8 +152,9 @@ public class PerfilTela extends TelaBase {
         lbTitulo.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         JLabel lbValor = new JLabel(valor);
-        lbValor.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        lbValor.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         lbValor.setForeground(COR_AZUL_ESCURO);
+        lbValor.setToolTipText(valor);
 
         p.add(lbTitulo, BorderLayout.NORTH);
         p.add(lbValor, BorderLayout.CENTER);

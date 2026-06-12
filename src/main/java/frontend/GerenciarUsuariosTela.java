@@ -2,7 +2,6 @@ package frontend;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -10,7 +9,6 @@ import java.awt.GridLayout;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import backend.DAO.usuarioDAO.Usuario;
 import backend.DAO.usuarioDAO.UsuarioDAO;
 import frontend.base.TelaBase;
+import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
 public class GerenciarUsuariosTela extends TelaBase {
@@ -41,34 +40,33 @@ public class GerenciarUsuariosTela extends TelaBase {
 
     private void initComponents() {
         JPanel painelPrincipal = criarPainelPrincipal();
-        JPanel painelExterno = new JPanel(new BorderLayout(0, 20));
+        JPanel painelExterno = new JPanel(new BorderLayout());
         painelExterno.setOpaque(false);
-        painelExterno.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
+        painelExterno.setBorder(BorderFactory.createEmptyBorder(24, 60, 24, 60));
+
+        JPanel canvas = criarCanvasCentral();
+        JPanel conteudo = new JPanel(new BorderLayout(0, 20));
+        conteudo.setOpaque(false);
 
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-        topo.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        topo.setPreferredSize(new Dimension(0, 50));
 
-        JLabel titulo = new JLabel("Gestao de Alunos e Professores", SwingConstants.CENTER);
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 32));
-        titulo.setForeground(new Color(44, 62, 80));
+        JLabel titulo = new JLabel("Gestão de Alunos e Professores", SwingConstants.LEFT);
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titulo.setForeground(AppTheme.TEXT);
 
-        JButton btnVoltar = criarBotaoSecundario("<- Voltar");
-        btnVoltar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnVoltar.setPreferredSize(new Dimension(150, 40));
+        JButton btnVoltar = criarBotaoLink("Voltar");
+        btnVoltar.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnVoltar.addActionListener(e -> Navegador.abrirHome(this, Navegador.TIPO_PROFESSOR));
 
-        JPanel containerVoltar = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel containerVoltar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 10));
         containerVoltar.setOpaque(false);
         containerVoltar.add(btnVoltar);
 
-        Dimension tamanhoBotao = btnVoltar.getPreferredSize();
-        Component spacer = Box.createRigidArea(tamanhoBotao);
-
-        topo.add(containerVoltar, BorderLayout.WEST);
         topo.add(titulo, BorderLayout.CENTER);
-        topo.add(spacer, BorderLayout.EAST);
-        painelExterno.add(topo, BorderLayout.NORTH);
+        topo.add(containerVoltar, BorderLayout.EAST);
+        conteudo.add(topo, BorderLayout.NORTH);
 
         modelo = new DefaultTableModel(new Object[]{"ID", "Nome", "E-mail", "Tipo"}, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
@@ -78,10 +76,16 @@ public class GerenciarUsuariosTela extends TelaBase {
         tabela.setGridColor(COR_BORDA);
         tabela.setSelectionBackground(new Color(255, 241, 243));
         tabela.setSelectionForeground(COR_PRETO);
-        tabela.getTableHeader().setBackground(COR_PRETO);
+        tabela.getTableHeader().setBackground(AppTheme.NEUTRAL_DARK);
         tabela.getTableHeader().setForeground(COR_BRANCO);
-        tabela.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
-        painelExterno.add(new JScrollPane(tabela), BorderLayout.CENTER);
+        tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+        JScrollPane scrollTabela = new JScrollPane(tabela);
+        scrollTabela.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        JPanel cardTabela = criarCartaoSuave();
+        cardTabela.setLayout(new BorderLayout());
+        cardTabela.add(scrollTabela, BorderLayout.CENTER);
+        conteudo.add(cardTabela, BorderLayout.CENTER);
 
         JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0));
         acoes.setOpaque(false);
@@ -93,15 +97,17 @@ public class GerenciarUsuariosTela extends TelaBase {
         btnEditar.addActionListener(e -> prepararEdicao());
 
         btnExcluir = criarBotaoNeutro("EXCLUIR");
-        btnExcluir.setForeground(Color.RED);
+        btnExcluir.setForeground(AppTheme.ERROR_HIGHLIGHT);
         btnExcluir.addActionListener(e -> excluirUsuario());
 
         acoes.add(btnNovo);
         acoes.add(btnEditar);
         acoes.add(btnExcluir);
 
-        painelExterno.add(acoes, BorderLayout.SOUTH);
-        painelPrincipal.add(painelExterno);
+        conteudo.add(acoes, BorderLayout.SOUTH);
+        canvas.add(conteudo, BorderLayout.CENTER);
+        painelExterno.add(canvas, BorderLayout.CENTER);
+        painelPrincipal.add(painelExterno, BorderLayout.CENTER);
         setContentPane(painelPrincipal);
     }
 

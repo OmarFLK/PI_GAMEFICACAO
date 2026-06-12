@@ -1,7 +1,6 @@
 package frontend;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 
@@ -13,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import frontend.base.TelaBase;
+import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
 public class HomeProfessorTela extends TelaBase {
@@ -38,7 +38,9 @@ public class HomeProfessorTela extends TelaBase {
 
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-        topo.add(criarBadge("PROFESSOR", new Color(235, 240, 255), new Color(50, 100, 200)), BorderLayout.WEST);
+        JLabel professorBadge = criarBadge("PROFESSOR", AppTheme.RED_SOFT, AppTheme.PROFESSOR_HIGHLIGHT);
+        professorBadge.setPreferredSize(new Dimension(150, 42));
+        topo.add(professorBadge, BorderLayout.WEST);
         topo.add(perfilButton, BorderLayout.EAST);
 
         JPanel centro = criarColunaCentral(740);
@@ -58,15 +60,19 @@ public class HomeProfessorTela extends TelaBase {
         apoio.setForeground(COR_TEXTO_SUAVE);
 
         JButton gerenciarPerguntasButton = criarBotaoPrincipal("GERENCIAR PERGUNTAS");
+        configurarBotaoMenu(gerenciarPerguntasButton);
         gerenciarPerguntasButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarPerguntasTela()));
 
         JButton gerenciarUsuariosButton = criarBotaoPrincipal("GERENCIAR USUÁRIOS");
+        configurarBotaoMenu(gerenciarUsuariosButton);
         gerenciarUsuariosButton.addActionListener(evt -> Navegador.abrirTela(this, new GerenciarUsuariosTela()));
 
         JButton jogarButton = criarBotaoPrincipal("MODO JOGADOR (TESTAR QUESTÕES)");
+        configurarBotaoMenu(jogarButton);
         jogarButton.addActionListener(evt -> new SelecaoNivelModal(this, Navegador.TIPO_PROFESSOR).setVisible(true));
 
         JButton estatisticasButton = criarBotaoSecundario("Estatísticas das Turmas");
+        configurarBotaoMenu(estatisticasButton);
         estatisticasButton.addActionListener(evt -> Navegador.abrirTela(this, new TurmasEstatisticasTela()));
 
         centro.add(Box.createVerticalStrut(18));
@@ -109,5 +115,11 @@ public class HomeProfessorTela extends TelaBase {
         painelExterno.add(canvas, BorderLayout.CENTER);
         painelPrincipal.add(painelExterno, BorderLayout.CENTER);
         setContentPane(painelPrincipal);
+    }
+
+    private void configurarBotaoMenu(JButton botao) {
+        botao.setPreferredSize(new Dimension(460, 64));
+        botao.setMaximumSize(new Dimension(460, 64));
+        botao.setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 }

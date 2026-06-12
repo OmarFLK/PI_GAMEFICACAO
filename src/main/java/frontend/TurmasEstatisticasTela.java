@@ -17,27 +17,27 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
 import backend.DAO.partidaDAO.PartidaDAO;
 import backend.DAO.partidaDAO.PartidaDAO.DadosGeraisProfessor;
 import backend.DAO.partidaDAO.PartidaDAO.RankingItem;
 import frontend.base.TelaBase;
+import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
 public class TurmasEstatisticasTela extends TelaBase {
 
     private final PartidaDAO partidaDAO;
 
-    // Paleta de Cores do Dashboard Moderno
-    private final Color COR_FUNDO_CARD = Color.WHITE;
-    private final Color COR_BORDA_CARD = new Color(230, 235, 240);
-    private final Color COR_TEXTO_PRINCIPAL = new Color(44, 62, 80);
-    private final Color COR_TEXTO_MUTED = new Color(127, 140, 141);
-    
-    private final Color COLOR_ACERTOS = new Color(46, 204, 113); // Verde
-    private final Color COLOR_ERROS = new Color(231, 76, 60);    // Vermelho
-    private final Color COLOR_PONTOS = new Color(52, 152, 219);  // Azul
+    private static final Color COR_FUNDO_CARD = AppTheme.SURFACE;
+    private static final Color COR_BORDA_CARD = AppTheme.BORDER;
+    private static final Color COR_TEXTO_PRINCIPAL = AppTheme.TEXT;
+    private static final Color COR_TEXTO_MUTED = AppTheme.TEXT_MUTED;
+    private static final Color COR_DADOS_GERAIS = AppTheme.NEUTRAL_DARK;
+    private static final Color COR_ERROS = AppTheme.ERROR_HIGHLIGHT;
+    private static final Color COR_TOP_1 = AppTheme.RANK_FIRST;
 
     public TurmasEstatisticasTela() {
         super("QuimLab - Painel Geral de Estatísticas");
@@ -91,37 +91,32 @@ public class TurmasEstatisticasTela extends TelaBase {
     }
 
     private JPanel criarCorpo(DadosGeraisProfessor dados, List<RankingItem> ranking) {
-        JPanel corpo = new JPanel(new GridLayout(1, 2, 30, 0));
+        JPanel corpo = new JPanel(new BorderLayout(0, 12));
         corpo.setOpaque(false);
-
-        // COLUNA DA ESQUERDA - Indicadores Brutos e Tabela de Ranking
-        JPanel colunaDados = new JPanel();
-        colunaDados.setOpaque(false);
-        colunaDados.setLayout(new BoxLayout(colunaDados, BoxLayout.Y_AXIS));
 
         JLabel tituloDados = new JLabel("Métricas Globais do Sistema");
         tituloDados.setFont(new Font("Segoe UI", Font.BOLD, 18));
         tituloDados.setForeground(COR_TEXTO_PRINCIPAL);
-        tituloDados.setAlignmentX(LEFT_ALIGNMENT);
-        colunaDados.add(tituloDados);
-        colunaDados.add(Box.createVerticalStrut(14));
+        tituloDados.setHorizontalAlignment(SwingConstants.LEFT);
 
-        // Grid com os cartões puxando dados reais das somas do banco
+        JPanel cabecalhosDashboard = new JPanel(new GridLayout(1, 2, 30, 0));
+        cabecalhosDashboard.setOpaque(false);
+        cabecalhosDashboard.add(tituloDados);
+
+        JPanel espacoCabecalhoGraficos = new JPanel();
+        espacoCabecalhoGraficos.setOpaque(false);
+        cabecalhosDashboard.add(espacoCabecalhoGraficos);
+
         JPanel cardsGrid = new JPanel(new GridLayout(3, 2, 16, 16));
         cardsGrid.setOpaque(false);
         
-        cardsGrid.add(criarCartaoEstatistica("Quizzes Concluídos", String.valueOf(dados.getTotalPartidas()), "Total de partidas jogadas", COLOR_PONTOS));
-        cardsGrid.add(criarCartaoEstatistica("Pontuação Média", dados.getPontuacaoMedia() + " pts", "Média por partida", COLOR_PONTOS));
-        cardsGrid.add(criarCartaoEstatistica("Recorde do Quiz", dados.getMaiorPontuacao() + " pts", "Maior pontuação única", COLOR_ACERTOS));
-        cardsGrid.add(criarCartaoEstatistica("Aproveitamento Geral", dados.getAproveitamentoGeral() + "%", "Taxa global de acertos", COLOR_ACERTOS));
-        cardsGrid.add(criarCartaoEstatistica("Respostas Corretas", String.valueOf(dados.getTotalAcertos()), "Total acumulado", COLOR_ACERTOS));
-        cardsGrid.add(criarCartaoEstatistica("Respostas Incorretas", String.valueOf(dados.getTotalErros()), "Total acumulado", COLOR_ERROS));
+        cardsGrid.add(criarCartaoEstatistica("Quizzes Concluídos", String.valueOf(dados.getTotalPartidas()), "Total de partidas jogadas", COR_DADOS_GERAIS));
+        cardsGrid.add(criarCartaoEstatistica("Pontuação Média", dados.getPontuacaoMedia() + " pts", "Média por partida", COR_DADOS_GERAIS));
+        cardsGrid.add(criarCartaoEstatistica("Recorde do Quiz", dados.getMaiorPontuacao() + " pts", "Maior pontuação única", COR_DADOS_GERAIS));
+        cardsGrid.add(criarCartaoEstatistica("Aproveitamento Geral", dados.getAproveitamentoGeral() + "%", "Taxa global de acertos", COR_DADOS_GERAIS));
+        cardsGrid.add(criarCartaoEstatistica("Respostas Corretas", String.valueOf(dados.getTotalAcertos()), "Total acumulado", COR_DADOS_GERAIS));
+        cardsGrid.add(criarCartaoEstatistica("Respostas Incorretas", String.valueOf(dados.getTotalErros()), "Total acumulado", COR_ERROS));
 
-        colunaDados.add(cardsGrid);
-        colunaDados.add(Box.createVerticalStrut(24));
-        colunaDados.add(criarRankingAlunos(ranking));
-
-        // COLUNA DA DIREITA - Gráficos Analíticos Dinâmicos
         JPanel colunaGraficos = new JPanel(new GridLayout(2, 1, 0, 24));
         colunaGraficos.setOpaque(false);
         
@@ -137,22 +132,33 @@ public class TurmasEstatisticasTela extends TelaBase {
                         new String[] {"Acertos", "Erros"},
                         new int[] {dados.getTotalAcertos(), dados.getTotalErros()})));
 
-        corpo.add(colunaDados);
-        corpo.add(colunaGraficos);
+        JPanel colunaDados = new JPanel(new BorderLayout(0, 24));
+        colunaDados.setOpaque(false);
+        cardsGrid.setPreferredSize(new Dimension(0, 250));
+        colunaDados.add(cardsGrid, BorderLayout.NORTH);
+        colunaDados.add(criarRankingAlunos(ranking), BorderLayout.CENTER);
+
+        JPanel dashboard = new JPanel(new GridLayout(1, 2, 30, 0));
+        dashboard.setOpaque(false);
+        dashboard.add(colunaDados);
+        dashboard.add(colunaGraficos);
+
+        corpo.add(cabecalhosDashboard, BorderLayout.NORTH);
+        corpo.add(dashboard, BorderLayout.CENTER);
         return corpo;
     }
 
     private JPanel criarCartaoEstatistica(String titulo, String valor, String detalhe, Color corValor) {
         JPanel card = new PainelArredondado(14, COR_FUNDO_CARD, COR_BORDA_CARD);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+        card.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
 
         JLabel tituloLabel = new JLabel(titulo);
         tituloLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         tituloLabel.setForeground(COR_TEXTO_MUTED);
 
         JLabel valorLabel = new JLabel(valor);
-        valorLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        valorLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         valorLabel.setForeground(corValor);
 
         JLabel detalheLabel = new JLabel(detalhe);
@@ -160,56 +166,79 @@ public class TurmasEstatisticasTela extends TelaBase {
         detalheLabel.setForeground(COR_TEXTO_MUTED);
 
         card.add(tituloLabel);
-        card.add(Box.createVerticalStrut(4));
-        card.add(valorLabel);
         card.add(Box.createVerticalStrut(2));
+        card.add(valorLabel);
+        card.add(Box.createVerticalStrut(1));
         card.add(detalheLabel);
         return card;
     }
 
     private JPanel criarRankingAlunos(List<RankingItem> ranking) {
-        JPanel card = new PainelArredondado(16, COR_FUNDO_CARD, COR_BORDA_CARD);
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBorder(BorderFactory.createEmptyBorder(16, 20, 16, 20));
+        JPanel card = criarCartaoSuave();
+        card.setLayout(new BorderLayout(0, 8));
 
         JLabel titulo = new JLabel("Líderes de Pontuação (Global)", SwingConstants.LEFT);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 15));
         titulo.setForeground(COR_TEXTO_PRINCIPAL);
-        titulo.setAlignmentX(LEFT_ALIGNMENT);
-        card.add(titulo);
-        card.add(Box.createVerticalStrut(12));
+        card.add(titulo, BorderLayout.NORTH);
+
+        JPanel lista = new JPanel();
+        lista.setOpaque(false);
+        lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
 
         if (ranking.isEmpty()) {
             JLabel vazio = new JLabel("Nenhuma partida registrada até o momento.");
             vazio.setFont(new Font("Segoe UI", Font.ITALIC, 13));
             vazio.setForeground(COR_TEXTO_MUTED);
-            card.add(vazio);
+            lista.add(vazio);
         } else {
             for (int i = 0; i < ranking.size(); i++) {
                 RankingItem item = ranking.get(i);
                 JPanel linha = new JPanel(new BorderLayout());
                 linha.setOpaque(false);
+                linha.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
                 
-                JLabel nome = new JLabel((i + 1) + ". " + item.getNome());
-                nome.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                nome.setForeground(COR_TEXTO_PRINCIPAL);
+                JLabel nome = new JLabel((i + 1) + ". " + abreviarNome(item.getNome()));
+                nome.setToolTipText(item.getNome());
+                nome.setFont(new Font("Segoe UI", i == 0 ? Font.BOLD : Font.PLAIN, 13));
+                nome.setForeground(i == 0 ? COR_TOP_1 : COR_DADOS_GERAIS);
                 
                 JLabel pontos = new JLabel(item.getPontuacao() + " pts");
                 pontos.setFont(new Font("Segoe UI", Font.BOLD, 13));
-                pontos.setForeground(i == 0 ? COLOR_ACERTOS : COR_TEXTO_MUTED);
+                pontos.setForeground(i == 0 ? COR_TOP_1 : COR_DADOS_GERAIS);
                 
                 linha.add(nome, BorderLayout.WEST);
                 linha.add(pontos, BorderLayout.EAST);
-                card.add(linha);
-                card.add(Box.createVerticalStrut(6));
+                lista.add(linha);
+                if (i < ranking.size() - 1) {
+                    lista.add(Box.createVerticalStrut(3));
+                }
             }
         }
+
+        JScrollPane scroll = new JScrollPane(
+                lista,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setBorder(null);
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        card.add(scroll, BorderLayout.CENTER);
         return card;
     }
 
+    private String abreviarNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            return "Aluno";
+        }
+        String texto = nome.trim();
+        return texto.length() <= 24 ? texto : texto.substring(0, 23) + "...";
+    }
+
     private JPanel criarAreaGrafico(String titulo, String subtitulo, JPanel grafico) {
-        JPanel area = new JPanel(new BorderLayout(0, 8));
-        area.setOpaque(false);
+        JPanel area = criarCartaoSuave();
+        area.setLayout(new BorderLayout(0, 8));
 
         JPanel header = new JPanel();
         header.setOpaque(false);
@@ -277,30 +306,44 @@ public class TurmasEstatisticasTela extends TelaBase {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int size = Math.min(130, Math.min(getHeight() - 20, getWidth() - 220));
+            int size = Math.min(130, Math.min(getHeight() - 16, getWidth() - 220));
+            size = Math.max(80, size);
             int x = 20;
             int y = (getHeight() - size) / 2;
 
             g2.setColor(new Color(240, 244, 248));
             g2.fillOval(x, y, size, size);
             
-            g2.setColor(COLOR_ACERTOS);
+            g2.setColor(COR_DADOS_GERAIS);
             g2.fillArc(x, y, size, size, 90, -Math.round(360f * percentagem / 100f));
             
-            g2.setColor(getBackground());
-            g2.fillOval(x + 22, y + 22, size - 44, size - 44);
+            int tamanhoFuro = size - 44;
+            int furoX = x + 22;
+            int furoY = y + 22;
+            g2.setColor(COR_FUNDO_CARD);
+            g2.fillOval(furoX, furoY, tamanhoFuro, tamanhoFuro);
 
             g2.setColor(COR_TEXTO_PRINCIPAL);
-            g2.setFont(new Font("Segoe UI", Font.BOLD, 22));
-            int textoX = x + size / 2 - g2.getFontMetrics().stringWidth(textoCentral) / 2;
-            g2.drawString(textoCentral, textoX, y + size / 2 + 8);
+            ajustarFonteAoDonut(g2, textoCentral, tamanhoFuro - 12);
+            int textoX = furoX + (tamanhoFuro - g2.getFontMetrics().stringWidth(textoCentral)) / 2;
+            int textoY = furoY + (tamanhoFuro - g2.getFontMetrics().getHeight()) / 2
+                    + g2.getFontMetrics().getAscent();
+            g2.drawString(textoCentral, textoX, textoY);
 
             int legendaX = x + size + 40;
             int legendaY = y + (size / 2) - 15;
             
-            desenharLegenda(g2, legendaX, legendaY, COLOR_ACERTOS, "Acertos: " + percentagem + "%");
-            desenharLegenda(g2, legendaX, legendaY + 26, COLOR_ERROS, "Erros: " + (100 - percentagem) + "%");
+            desenharLegenda(g2, legendaX, legendaY, COR_DADOS_GERAIS, "Acertos: " + percentagem + "%");
+            desenharLegenda(g2, legendaX, legendaY + 26, COR_ERROS, "Erros: " + (100 - percentagem) + "%");
             g2.dispose();
+        }
+
+        private void ajustarFonteAoDonut(Graphics2D g2, String texto, int larguraMaxima) {
+            int tamanhoFonte = 22;
+            do {
+                g2.setFont(new Font("Segoe UI", Font.BOLD, tamanhoFonte));
+                tamanhoFonte--;
+            } while (tamanhoFonte >= 14 && g2.getFontMetrics().stringWidth(texto) > larguraMaxima);
         }
 
         private void desenharLegenda(Graphics2D g2, int x, int y, Color cor, String texto) {
@@ -332,11 +375,11 @@ public class TurmasEstatisticasTela extends TelaBase {
             int max = Math.max(1, getMaximo());
             int topSpace = 25;
             int bottomSpace = 25;
-            int chartHeight = getHeight() - topSpace - bottomSpace;
+            int chartHeight = Math.max(40, getHeight() - topSpace - bottomSpace);
             int barWidth = 52;
             int gap = 45;
             int totalWidth = valores.length * barWidth + (valores.length - 1) * gap;
-            int startX = (getWidth() - totalWidth) / 2;
+            int startX = Math.max(24, (getWidth() - totalWidth) / 2);
             int baseY = getHeight() - bottomSpace;
 
             for (int i = 0; i < valores.length; i++) {
@@ -344,7 +387,7 @@ public class TurmasEstatisticasTela extends TelaBase {
                 int x = startX + i * (barWidth + gap);
                 int y = baseY - height;
                 
-                Color corBarra = (i == 0) ? COLOR_ACERTOS : COLOR_ERROS;
+                Color corBarra = (i == 0) ? COR_DADOS_GERAIS : COR_ERROS;
 
                 g2.setColor(corBarra);
                 g2.fillRoundRect(x, y, barWidth, height, 10, 10);

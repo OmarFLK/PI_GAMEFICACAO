@@ -2,8 +2,6 @@ package frontend;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -26,6 +24,7 @@ import javax.swing.table.DefaultTableModel;
 import backend.DAO.perguntaDAO.Pergunta;
 import backend.DAO.perguntaDAO.PerguntaDAO;
 import frontend.base.TelaBase;
+import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
 public class GerenciarPerguntasTela extends TelaBase {
@@ -43,51 +42,34 @@ public class GerenciarPerguntasTela extends TelaBase {
 
     private void initComponents() {
         JPanel painelPrincipal = criarPainelPrincipal();
-        JPanel painelExterno = new JPanel(new BorderLayout(0, 20));
+        JPanel painelExterno = new JPanel(new BorderLayout());
         painelExterno.setOpaque(false);
-        painelExterno.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
+        painelExterno.setBorder(BorderFactory.createEmptyBorder(24, 60, 24, 60));
 
-        // --- TOPO ---
+        JPanel canvas = criarCanvasCentral();
+        JPanel conteudo = new JPanel(new BorderLayout(0, 20));
+        conteudo.setOpaque(false);
+
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-        topo.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        topo.setPreferredSize(new Dimension(0, 50));
 
-        // Título centralizado com 32px
-        JLabel titulo = new JLabel("Gerenciamento de Banco de Dados", SwingConstants.CENTER);
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 32));
-        titulo.setForeground(new Color(44, 62, 80));
+        JLabel titulo = new JLabel("Gerenciamento de Perguntas", SwingConstants.LEFT);
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titulo.setForeground(AppTheme.TEXT);
 
-        // BOTÃO VOLTAR (Estilo Meu Perfil - Corrigido)
-        JButton btnVoltarHome = new JButton("← Voltar");
-        btnVoltarHome.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnVoltarHome.setForeground(new Color(44, 62, 80));
-        btnVoltarHome.setBackground(Color.WHITE);
-        btnVoltarHome.setOpaque(true);
-        btnVoltarHome.setFocusPainted(false);
-        btnVoltarHome.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        // Usando uma borda arredondada padrão do Swing para evitar erros de compilação
-        btnVoltarHome.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true), 
-            BorderFactory.createEmptyBorder(8, 20, 8, 20)
-        ));
+        JButton btnVoltarHome = criarBotaoLink("Voltar");
+        btnVoltarHome.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnVoltarHome.addActionListener(e -> Navegador.abrirHome(this, Navegador.TIPO_PROFESSOR));
 
-        // Container para alinhar à esquerda
-        JPanel containerVoltar = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel containerVoltar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 10));
         containerVoltar.setOpaque(false);
         containerVoltar.add(btnVoltarHome);
 
-        // Spacer para manter o título no centro exato
-        Dimension tamanhoBotao = btnVoltarHome.getPreferredSize();
-        Component spacer = Box.createRigidArea(tamanhoBotao);
-
-        topo.add(containerVoltar, BorderLayout.WEST);
         topo.add(titulo, BorderLayout.CENTER);
-        topo.add(spacer, BorderLayout.EAST);
-        painelExterno.add(topo, BorderLayout.NORTH);
+        topo.add(containerVoltar, BorderLayout.EAST);
+        conteudo.add(topo, BorderLayout.NORTH);
 
-        // --- TABELA ---
         modelo = new DefaultTableModel(new Object[]{"ID", "Enunciado", "Dificuldade", "Status"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -96,12 +78,17 @@ public class GerenciarPerguntasTela extends TelaBase {
         tabela.setGridColor(COR_BORDA);
         tabela.setSelectionBackground(new Color(255, 241, 243));
         tabela.setSelectionForeground(COR_PRETO);
-        tabela.getTableHeader().setBackground(COR_PRETO);
+        tabela.getTableHeader().setBackground(AppTheme.NEUTRAL_DARK);
         tabela.getTableHeader().setForeground(COR_BRANCO);
-        tabela.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
-        painelExterno.add(new JScrollPane(tabela), BorderLayout.CENTER);
+        tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        // --- AÇÕES ---
+        JScrollPane scrollTabela = new JScrollPane(tabela);
+        scrollTabela.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        JPanel cardTabela = criarCartaoSuave();
+        cardTabela.setLayout(new BorderLayout());
+        cardTabela.add(scrollTabela, BorderLayout.CENTER);
+        conteudo.add(cardTabela, BorderLayout.CENTER);
+
         JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0));
         acoes.setOpaque(false);
         btnNovo = criarBotaoPrincipal("NOVA PERGUNTA");
@@ -111,13 +98,15 @@ public class GerenciarPerguntasTela extends TelaBase {
         btnEditar.addActionListener(e -> prepararEdicao());
         
         btnExcluir = criarBotaoNeutro("EXCLUIR");
-        btnExcluir.setForeground(Color.RED);
+        btnExcluir.setForeground(AppTheme.ERROR_HIGHLIGHT);
         btnExcluir.addActionListener(e -> confirmarExclusao());
         
         acoes.add(btnNovo); acoes.add(btnEditar); acoes.add(btnExcluir);
 
-        painelExterno.add(acoes, BorderLayout.SOUTH);
-        painelPrincipal.add(painelExterno);
+        conteudo.add(acoes, BorderLayout.SOUTH);
+        canvas.add(conteudo, BorderLayout.CENTER);
+        painelExterno.add(canvas, BorderLayout.CENTER);
+        painelPrincipal.add(painelExterno, BorderLayout.CENTER);
         setContentPane(painelPrincipal);
     }
 

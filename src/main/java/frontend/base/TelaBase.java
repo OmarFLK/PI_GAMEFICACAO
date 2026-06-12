@@ -358,7 +358,10 @@ public class TelaBase extends JFrame {
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), raio, raio);
             if (destaque) {
                 g2.setColor(new Color(COR_VERMELHO_ETEC.getRed(), COR_VERMELHO_ETEC.getGreen(), COR_VERMELHO_ETEC.getBlue(), 190));
-                g2.fillRoundRect(0, 0, getWidth(), 4, raio, raio);
+                g2.setStroke(new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                int margemDestaque = Math.max(8, raio / 2);
+                int fimDestaque = Math.max(margemDestaque, getWidth() - margemDestaque - 1);
+                g2.drawLine(margemDestaque, 2, fimDestaque, 2);
             }
             g2.dispose();
             super.paintComponent(g);
