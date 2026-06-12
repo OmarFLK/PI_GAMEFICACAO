@@ -17,6 +17,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import frontend.theme.ThemeAware;
+import frontend.theme.ThemeManager;
+import frontend.theme.ThemePalette;
 import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
@@ -34,6 +37,7 @@ public class SelecaoNivelModal extends JDialog {
         setBackground(new Color(0, 0, 0, 0));
 
         initComponents();
+        ThemeManager.applyTheme(this);
         
         pack();
         setLocationRelativeTo(pai);
@@ -137,9 +141,10 @@ public class SelecaoNivelModal extends JDialog {
 
             int largura = getWidth() - 10;
             int altura = getHeight() - 12;
-            g2.setColor(AppTheme.SURFACE);
+            ThemePalette palette = ThemeManager.getCurrentPalette();
+            g2.setColor(palette.surface());
             g2.fillRoundRect(0, 0, largura, altura, 32, 32);
-            g2.setColor(AppTheme.BORDER);
+            g2.setColor(palette.border());
             g2.drawRoundRect(0, 0, largura - 1, altura - 1, 32, 32);
             g2.dispose();
 
@@ -147,13 +152,14 @@ public class SelecaoNivelModal extends JDialog {
         }
     }
 
-    private static class BotaoNivel extends JButton {
+    private static class BotaoNivel extends JButton implements ThemeAware {
         private final Color corFundo;
+        private final Color corTexto;
 
         BotaoNivel(String texto, Color corFundo, Color corTexto) {
             super(texto);
             this.corFundo = corFundo;
-            setForeground(corTexto);
+            this.corTexto = corTexto;
             setFont(new Font("Segoe UI", Font.BOLD, 16));
             setFocusPainted(false);
             setBorderPainted(false);
@@ -167,7 +173,10 @@ public class SelecaoNivelModal extends JDialog {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            Color corAtual = getModel().isRollover() ? corFundo.darker() : corFundo;
+            Color corBase = ThemeManager.resolveBackground(corFundo);
+            Color corAtual = getModel().isRollover()
+                    ? (ThemeManager.isDarkMode() ? corBase.brighter() : corBase.darker())
+                    : corBase;
             if (getModel().isArmed()) {
                 corAtual = corAtual.darker();
             }
@@ -177,6 +186,14 @@ public class SelecaoNivelModal extends JDialog {
             g2.dispose();
 
             super.paintComponent(g);
+        }
+
+        @Override
+        public void applyTheme(ThemePalette palette) {
+            setForeground(ThemeManager.isDarkMode() && Color.WHITE.equals(corTexto)
+                    ? palette.buttonText()
+                    : ThemeManager.resolveForeground(corTexto));
+            repaint();
         }
     }
 

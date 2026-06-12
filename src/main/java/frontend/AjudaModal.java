@@ -13,6 +13,9 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import frontend.theme.ThemeManager;
+import frontend.util.AppTheme;
+
 public class AjudaModal extends JDialog {
 
     private final GameplayTela telaJogo;
@@ -28,6 +31,7 @@ public class AjudaModal extends JDialog {
         setBackground(new Color(0, 0, 0, 0));
 
         initComponents();
+        ThemeManager.applyTheme(this);
 
         pack();
         setLocationRelativeTo(pai);
@@ -36,23 +40,23 @@ public class AjudaModal extends JDialog {
     private void initComponents() {
 
         JPanel painel = new JPanel();
-        painel.setBackground(Color.WHITE);
+        painel.setBackground(AppTheme.SURFACE);
         painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
         painel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(33, 37, 41), 2, true),
+                BorderFactory.createLineBorder(AppTheme.BORDER, 2, true),
                 BorderFactory.createEmptyBorder(30, 40, 30, 40)));
 
         JLabel titulo = new JLabel("Ajuda");
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
         titulo.setAlignmentX(CENTER_ALIGNMENT);
-        titulo.setForeground(new Color(33, 37, 41));
+        titulo.setForeground(AppTheme.TEXT);
 
         JLabel sub = new JLabel("Escolha sua ajuda!");
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         sub.setAlignmentX(CENTER_ALIGNMENT);
-        sub.setForeground(Color.GRAY);
+        sub.setForeground(AppTheme.TEXT_MUTED);
 
-        JButton btn50 = criarBotaoModal("Tirar metade das alternativas", new Color(220, 53, 69));
+        JButton btn50 = criarBotaoModal("Tirar metade das alternativas", AppTheme.ERROR_HIGHLIGHT);
         btn50.addActionListener(e -> {
             telaJogo.tirarDuasAlternativas();
             tirarMetadeTentativas--;
@@ -61,7 +65,7 @@ public class AjudaModal extends JDialog {
             }
         });
 
-        btnDica = criarBotaoModal("Dica do professor", new Color(120, 53, 69));
+        btnDica = criarBotaoModal("Dica do professor", AppTheme.RED);
         btnDica.addActionListener(e -> {
             telaJogo.mostrarDica();
             telaJogo.ajudaButton.setEnabled(false);
@@ -75,9 +79,9 @@ public class AjudaModal extends JDialog {
         dicaFalseLabel = new JLabel("Essa questão não tem dica");
         dicaFalseLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         dicaFalseLabel.setAlignmentX(CENTER_ALIGNMENT);
-        dicaFalseLabel.setForeground(Color.GRAY);
+        dicaFalseLabel.setForeground(AppTheme.TEXT_MUTED);
         
-        JButton btnFechar = criarBotaoModal("Voltar ao Jogo", new Color(108, 117, 125));
+        JButton btnFechar = criarBotaoModal("Voltar ao Jogo", AppTheme.SECONDARY_DARK);
         btnFechar.addActionListener(e -> dispose());
 
         painel.add(titulo);

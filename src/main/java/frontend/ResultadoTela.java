@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import frontend.base.TelaBase;
+import frontend.theme.ThemeManager;
 import frontend.util.Navegador;
 
 public class ResultadoTela extends TelaBase {
@@ -43,7 +44,10 @@ public class ResultadoTela extends TelaBase {
         conteudo.setLayout(new BoxLayout(conteudo, BoxLayout.Y_AXIS));
 
         // 2. Cabeçalho e Badges (Mantendo o que já funcionava)
-        conteudo.add(criarBadge("PARTIDA ENCERRADA", new java.awt.Color(228, 240, 248), COR_AZUL_ESCURO));
+        conteudo.add(criarBadge(
+                "PARTIDA ENCERRADA",
+                ThemeManager.getCurrentPalette().mutedSurface(),
+                ThemeManager.getCurrentPalette().neutralChart()));
         conteudo.add(Box.createVerticalStrut(16));
         conteudo.add(criarCabecalhoMarca("Resultado", "Resumo rápido do seu desempenho"));
         conteudo.add(Box.createVerticalStrut(24));

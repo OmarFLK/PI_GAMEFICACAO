@@ -12,6 +12,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -24,11 +26,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import frontend.theme.ThemeAware;
+import frontend.theme.ThemeManager;
+import frontend.theme.ThemePalette;
+import frontend.theme.ThemeToggleButton;
 import frontend.util.AppTheme;
 
 public class TelaBase extends JFrame {
+
+    private ThemeToggleButton themeToggleButton;
 
     protected static final Color COR_FUNDO_ESCURO = AppTheme.BACKGROUND;
     protected static final Color COR_FUNDO_CLARO = AppTheme.BACKGROUND;
@@ -54,6 +63,43 @@ public class TelaBase extends JFrame {
         setSize(1440, 810);
         getContentPane().setBackground(COR_FUNDO_CLARO);
         setLocationRelativeTo(null);
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        if (visible) {
+            instalarBotaoTema();
+            ThemeManager.applyTheme(this);
+        }
+        super.setVisible(visible);
+        if (visible) {
+            SwingUtilities.invokeLater(this::posicionarBotaoTema);
+        }
+    }
+
+    private void instalarBotaoTema() {
+        if (themeToggleButton != null) {
+            return;
+        }
+
+        themeToggleButton = new ThemeToggleButton();
+        getLayeredPane().add(themeToggleButton, javax.swing.JLayeredPane.DRAG_LAYER);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent event) {
+                posicionarBotaoTema();
+            }
+        });
+        posicionarBotaoTema();
+    }
+
+    private void posicionarBotaoTema() {
+        if (themeToggleButton == null) {
+            return;
+        }
+        themeToggleButton.setBounds(20, 16, 126, 34);
+        themeToggleButton.revalidate();
+        themeToggleButton.repaint();
     }
 
     protected JPanel criarPainelPrincipal() {
@@ -315,16 +361,16 @@ public class TelaBase extends JFrame {
     private static class GradientPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(COR_FUNDO_ESCURO);
+            g2.setColor(ThemeManager.getCurrentPalette().background());
             g2.fillRect(0, 0, getWidth(), getHeight());
             g2.dispose();
-            super.paintComponent(g);
         }
     }
 
-    protected static class RoundedPanel extends JPanel {
+    protected static class RoundedPanel extends JPanel implements ThemeAware {
         private final int raio;
         private final Color fundo;
         private final Color sombra;
@@ -351,13 +397,17 @@ public class TelaBase extends JFrame {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             if (sombra.getAlpha() > 0) {
-                g2.setColor(sombra);
+                g2.setColor(ThemeManager.getCurrentPalette().shadow());
                 g2.fillRoundRect(offsetX, offsetY, getWidth() - offsetX - 4, getHeight() - offsetY - 2, raio, raio);
             }
-            g2.setColor(fundo);
+            Color fundoAtual = destaque
+                    ? ThemeManager.getCurrentPalette().cardBackground()
+                    : ThemeManager.resolveBackground(fundo);
+            g2.setColor(fundoAtual);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), raio, raio);
             if (destaque) {
-                g2.setColor(new Color(COR_VERMELHO_ETEC.getRed(), COR_VERMELHO_ETEC.getGreen(), COR_VERMELHO_ETEC.getBlue(), 190));
+                Color destaqueAtual = ThemeManager.getCurrentPalette().primaryRed();
+                g2.setColor(new Color(destaqueAtual.getRed(), destaqueAtual.getGreen(), destaqueAtual.getBlue(), 190));
                 g2.setStroke(new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 int margemDestaque = Math.max(8, raio / 2);
                 int fimDestaque = Math.max(margemDestaque, getWidth() - margemDestaque - 1);
@@ -366,9 +416,14 @@ public class TelaBase extends JFrame {
             g2.dispose();
             super.paintComponent(g);
         }
+
+        @Override
+        public void applyTheme(ThemePalette palette) {
+            repaint();
+        }
     }
 
-    protected static class RoundedButton extends JButton {
+    protected static class RoundedButton extends JButton implements ThemeAware {
         private final Color fundo;
         // private final Color texto;
         private final int raio;
@@ -395,13 +450,16 @@ public class TelaBase extends JFrame {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             boolean hover = getModel().isRollover();
-            Color corAtual = getModel().isArmed() ? fundo.darker() : fundo;
-            if (hover && isDark(fundo)) {
-                corAtual = AppTheme.RED_HOVER;
+            ThemePalette palette = ThemeManager.getCurrentPalette();
+            boolean botaoNeutro = !isDark(fundo);
+            Color corBase = botaoNeutro ? palette.neutralButtonBackground() : palette.buttonBackground();
+            Color corAtual = getModel().isArmed() ? corBase.darker() : corBase;
+            if (hover && botaoNeutro) {
+                corAtual = palette.softRed();
             } else if (hover) {
-                corAtual = AppTheme.RED_SOFT;
+                corAtual = palette.primaryRedHover();
             }
-            g2.setColor(new Color(0, 0, 0, 22));
+            g2.setColor(palette.shadow());
             g2.fillRoundRect(0, 4, getWidth(), getHeight() - 4, raio, raio);
             g2.setColor(corAtual);
             g2.fillRoundRect(0, 0, getWidth(), getHeight() - 4, raio, raio);
@@ -411,6 +469,12 @@ public class TelaBase extends JFrame {
 
         private boolean isDark(Color cor) {
             return (cor.getRed() + cor.getGreen() + cor.getBlue()) / 3 < 130;
+        }
+
+        @Override
+        public void applyTheme(ThemePalette palette) {
+            setForeground(isDark(fundo) ? palette.buttonText() : palette.textPrimary());
+            repaint();
         }
     }
 
@@ -430,7 +494,7 @@ public class TelaBase extends JFrame {
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(cor);
+            g2.setColor(ThemeManager.resolveForeground(cor));
             g2.setStroke(new BasicStroke(espessura));
             g2.drawRoundRect(x + 1, y + 1, width - 3, height - 3, raio, raio);
             g2.dispose();
@@ -456,17 +520,18 @@ public class TelaBase extends JFrame {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ThemePalette palette = ThemeManager.getCurrentPalette();
             int diametro = Math.min(getWidth(), getHeight()) - 36;
             int x = (getWidth() - diametro) / 2;
             int y = (getHeight() - diametro) / 2;
 
-            g2.setColor(new Color(230, 235, 240));
+            g2.setColor(palette.avatarBackground());
             g2.fillOval(x, y, diametro, diametro);
-            g2.setColor(COR_VERMELHO_ETEC);
+            g2.setColor(palette.primaryRed());
             g2.setStroke(new BasicStroke(3f));
             g2.drawOval(x, y, diametro, diametro);
 
-            g2.setColor(new Color(166, 176, 186));
+            g2.setColor(palette.avatarShape());
             int cabeca = Math.round(diametro * 0.30f);
             int cabecaX = x + (diametro - cabeca) / 2;
             int cabecaY = y + Math.round(diametro * 0.22f);

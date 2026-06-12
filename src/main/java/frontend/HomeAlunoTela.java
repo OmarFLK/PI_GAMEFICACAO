@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import frontend.base.TelaBase;
+import frontend.theme.ThemeManager;
 import frontend.util.Navegador;
 
 public class HomeAlunoTela extends TelaBase {
@@ -36,7 +37,10 @@ public class HomeAlunoTela extends TelaBase {
 
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
-        topo.add(criarBadge("ALUNO", new java.awt.Color(228, 245, 239), COR_VERDE.darker()), BorderLayout.WEST);
+        topo.add(criarBadge(
+                "ALUNO",
+                ThemeManager.getCurrentPalette().successSurface(),
+                ThemeManager.getCurrentPalette().success()), BorderLayout.WEST);
         topo.add(perfilButton, BorderLayout.EAST);
 
         JPanel centro = criarColunaCentral(740);

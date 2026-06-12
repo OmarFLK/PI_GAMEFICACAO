@@ -25,6 +25,8 @@ import backend.DAO.partidaDAO.PartidaDAO.RankingItem;
 import backend.DAO.usuarioDAO.Usuario;
 import backend.Seguranca.SessaoUsuario;
 import frontend.base.TelaBase;
+import frontend.theme.ThemeManager;
+import frontend.theme.ThemePalette;
 import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
@@ -250,6 +252,7 @@ public class RankingTela extends TelaBase {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ThemePalette palette = ThemeManager.getCurrentPalette();
 
             if (ranking.isEmpty()) {
                 desenharMensagemVazia(g2, "Sem dados para montar o ranking.", getWidth(), getHeight());
@@ -275,7 +278,7 @@ public class RankingTela extends TelaBase {
             int startX = leftSpace + Math.max(0, (availableWidth - totalWidth) / 2);
             int baseY = getHeight() - bottomSpace;
 
-            g2.setColor(new Color(233, 238, 244));
+            g2.setColor(palette.chartTrack());
             g2.drawLine(leftSpace, baseY, getWidth() - rightSpace, baseY);
 
             for (int i = 0; i < limite; i++) {
@@ -289,7 +292,7 @@ public class RankingTela extends TelaBase {
                 g2.fillRoundRect(x, y, barWidth, height, 12, 12);
                 g2.fillRect(x, baseY - 5, barWidth, 5);
 
-                g2.setColor(COR_TEXTO_PRINCIPAL);
+                g2.setColor(palette.textPrimary());
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
                 String valor = item.getPontuacao() + " pts";
                 int valorX = x + barWidth / 2 - g2.getFontMetrics().stringWidth(valor) / 2;
@@ -328,6 +331,7 @@ public class RankingTela extends TelaBase {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ThemePalette palette = ThemeManager.getCurrentPalette();
 
             int total = valorAluno + valorOutros;
             if (total <= 0) {
@@ -342,41 +346,41 @@ public class RankingTela extends TelaBase {
             int y = (getHeight() - size) / 2;
 
             int arcoAluno = Math.round(360f * valorAluno / total);
-            g2.setColor(corOutrosGrafico);
+            g2.setColor(ThemeManager.resolveForeground(corOutrosGrafico));
             g2.fillOval(x, y, size, size);
-            g2.setColor(corAluno);
+            g2.setColor(ThemeManager.resolveForeground(corAluno));
             g2.fillArc(x, y, size, size, 90, -arcoAluno);
 
-            g2.setColor(COR_BRANCO);
+            g2.setColor(palette.cardBackground());
             int furo = Math.round(size * 0.62f);
             int furoOffset = (size - furo) / 2;
             g2.fillOval(x + furoOffset, y + furoOffset, furo, furo);
 
             int percentualAluno = Math.round(100f * valorAluno / total);
             String centro = percentualAluno + "%";
-            g2.setColor(COR_TEXTO_PRINCIPAL);
+            g2.setColor(palette.textPrimary());
             g2.setFont(new Font("Segoe UI", Font.BOLD, 24));
             int textoX = x + size / 2 - g2.getFontMetrics().stringWidth(centro) / 2;
             g2.drawString(centro, textoX, y + size / 2 + 8);
 
             int legendaX = x + size + 44;
             int legendaY = y + size / 2 - 24;
-            desenharLegenda(g2, legendaX, legendaY, corAluno, labelAluno + ": " + valorAluno);
-            desenharLegenda(g2, legendaX, legendaY + 32, corOutrosGrafico, labelOutros + ": " + valorOutros);
+            desenharLegenda(g2, legendaX, legendaY, ThemeManager.resolveForeground(corAluno), labelAluno + ": " + valorAluno);
+            desenharLegenda(g2, legendaX, legendaY + 32, ThemeManager.resolveForeground(corOutrosGrafico), labelOutros + ": " + valorOutros);
             g2.dispose();
         }
 
         private void desenharLegenda(Graphics2D g2, int x, int y, Color cor, String texto) {
             g2.setColor(cor);
             g2.fillRoundRect(x, y - 12, 16, 16, 6, 6);
-            g2.setColor(COR_TEXTO_PRINCIPAL);
+            g2.setColor(ThemeManager.getCurrentPalette().textPrimary());
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
             g2.drawString(texto, x + 26, y + 1);
         }
     }
 
     private void desenharMensagemVazia(Graphics2D g2, String texto, int largura, int altura) {
-        g2.setColor(COR_TEXTO_MUTED);
+        g2.setColor(ThemeManager.getCurrentPalette().textSecondary());
         g2.setFont(new Font("Segoe UI", Font.ITALIC, 15));
         int x = largura / 2 - g2.getFontMetrics().stringWidth(texto) / 2;
         int y = altura / 2;
@@ -404,12 +408,13 @@ public class RankingTela extends TelaBase {
     }
 
     private Color getRankingHighlightColor(RankingItem item, int indice, int idUsuario) {
+        ThemePalette palette = ThemeManager.getCurrentPalette();
         if (indice == 0) {
-            return COR_TOP_1;
+            return palette.topOneGold();
         }
         if (isLoggedStudent(item, idUsuario)) {
-            return COR_ALUNO;
+            return palette.primaryRed();
         }
-        return COR_OUTROS;
+        return palette.neutralChart();
     }
 }

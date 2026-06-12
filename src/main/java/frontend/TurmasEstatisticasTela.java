@@ -24,6 +24,8 @@ import backend.DAO.partidaDAO.PartidaDAO;
 import backend.DAO.partidaDAO.PartidaDAO.DadosGeraisProfessor;
 import backend.DAO.partidaDAO.PartidaDAO.RankingItem;
 import frontend.base.TelaBase;
+import frontend.theme.ThemeManager;
+import frontend.theme.ThemePalette;
 import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
@@ -280,10 +282,13 @@ public class TurmasEstatisticasTela extends TelaBase {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
-            g2.setColor(corFundo);
+            Color fundoAtual = corFundo.equals(AppTheme.SURFACE)
+                    ? ThemeManager.getCurrentPalette().cardBackground()
+                    : ThemeManager.resolveBackground(corFundo);
+            g2.setColor(fundoAtual);
             g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, raio, raio);
             
-            g2.setColor(corBorda);
+            g2.setColor(ThemeManager.resolveForeground(corBorda));
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, raio, raio);
             g2.dispose();
         }
@@ -305,25 +310,26 @@ public class TurmasEstatisticasTela extends TelaBase {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ThemePalette palette = ThemeManager.getCurrentPalette();
 
             int size = Math.min(130, Math.min(getHeight() - 16, getWidth() - 220));
             size = Math.max(80, size);
             int x = 20;
             int y = (getHeight() - size) / 2;
 
-            g2.setColor(new Color(240, 244, 248));
+            g2.setColor(palette.chartTrack());
             g2.fillOval(x, y, size, size);
             
-            g2.setColor(COR_DADOS_GERAIS);
+            g2.setColor(palette.neutralChart());
             g2.fillArc(x, y, size, size, 90, -Math.round(360f * percentagem / 100f));
             
             int tamanhoFuro = size - 44;
             int furoX = x + 22;
             int furoY = y + 22;
-            g2.setColor(COR_FUNDO_CARD);
+            g2.setColor(palette.cardBackground());
             g2.fillOval(furoX, furoY, tamanhoFuro, tamanhoFuro);
 
-            g2.setColor(COR_TEXTO_PRINCIPAL);
+            g2.setColor(palette.textPrimary());
             ajustarFonteAoDonut(g2, textoCentral, tamanhoFuro - 12);
             int textoX = furoX + (tamanhoFuro - g2.getFontMetrics().stringWidth(textoCentral)) / 2;
             int textoY = furoY + (tamanhoFuro - g2.getFontMetrics().getHeight()) / 2
@@ -333,8 +339,8 @@ public class TurmasEstatisticasTela extends TelaBase {
             int legendaX = x + size + 40;
             int legendaY = y + (size / 2) - 15;
             
-            desenharLegenda(g2, legendaX, legendaY, COR_DADOS_GERAIS, "Acertos: " + percentagem + "%");
-            desenharLegenda(g2, legendaX, legendaY + 26, COR_ERROS, "Erros: " + (100 - percentagem) + "%");
+            desenharLegenda(g2, legendaX, legendaY, palette.neutralChart(), "Acertos: " + percentagem + "%");
+            desenharLegenda(g2, legendaX, legendaY + 26, palette.dangerRed(), "Erros: " + (100 - percentagem) + "%");
             g2.dispose();
         }
 
@@ -349,7 +355,7 @@ public class TurmasEstatisticasTela extends TelaBase {
         private void desenharLegenda(Graphics2D g2, int x, int y, Color cor, String texto) {
             g2.setColor(cor);
             g2.fillRoundRect(x, y - 10, 14, 14, 6, 6);
-            g2.setColor(COR_TEXTO_PRINCIPAL);
+            g2.setColor(ThemeManager.getCurrentPalette().textPrimary());
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 13));
             g2.drawString(texto, x + 24, y + 2);
         }
@@ -371,6 +377,7 @@ public class TurmasEstatisticasTela extends TelaBase {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ThemePalette palette = ThemeManager.getCurrentPalette();
 
             int max = Math.max(1, getMaximo());
             int topSpace = 25;
@@ -387,18 +394,18 @@ public class TurmasEstatisticasTela extends TelaBase {
                 int x = startX + i * (barWidth + gap);
                 int y = baseY - height;
                 
-                Color corBarra = (i == 0) ? COR_DADOS_GERAIS : COR_ERROS;
+                Color corBarra = (i == 0) ? palette.neutralChart() : palette.dangerRed();
 
                 g2.setColor(corBarra);
                 g2.fillRoundRect(x, y, barWidth, height, 10, 10);
                 g2.fillRect(x, baseY - 5, barWidth, 5); 
 
-                g2.setColor(COR_TEXTO_PRINCIPAL);
+                g2.setColor(palette.textPrimary());
                 g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
                 String valorStr = valores[i] + " qst";
                 g2.drawString(valorStr, x + barWidth / 2 - g2.getFontMetrics().stringWidth(valorStr) / 2, y - 6);
 
-                g2.setColor(COR_TEXTO_MUTED);
+                g2.setColor(palette.textSecondary());
                 g2.setFont(new Font("Segoe UI", Font.PLAIN, 13));
                 g2.drawString(rotulos[i], x + barWidth / 2 - g2.getFontMetrics().stringWidth(rotulos[i]) / 2, baseY + 18);
             }

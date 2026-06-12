@@ -14,6 +14,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import frontend.theme.ThemeManager;
+import frontend.util.AppTheme;
+
 public class PerdeuModal extends JDialog {
 
     public PerdeuModal(JFrame pai) {
@@ -22,6 +25,7 @@ public class PerdeuModal extends JDialog {
         setBackground(new Color(0, 0, 0, 0));
 
         initComponents();
+        ThemeManager.applyTheme(this);
 
         pack();
         setLocationRelativeTo(pai);
@@ -29,23 +33,23 @@ public class PerdeuModal extends JDialog {
 
     private void initComponents() {
         JPanel painel = new JPanel();
-        painel.setBackground(Color.WHITE);
+        painel.setBackground(AppTheme.SURFACE);
         painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
         painel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(33, 37, 41), 2, true),
+                BorderFactory.createLineBorder(AppTheme.BORDER, 2, true),
                 BorderFactory.createEmptyBorder(30, 40, 30, 40)));
 
         JLabel titulo = new JLabel("Você perdeu!");
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
         titulo.setAlignmentX(CENTER_ALIGNMENT);
-        titulo.setForeground(new Color(33, 37, 41));
+        titulo.setForeground(AppTheme.TEXT);
 
         JLabel sub = new JLabel("Boa sorte na próxima!");
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         sub.setAlignmentX(CENTER_ALIGNMENT);
-        sub.setForeground(Color.GRAY);
+        sub.setForeground(AppTheme.TEXT_MUTED);
 
-        JButton btnOK = criarBotaoModal("OK", new Color(220, 53, 69));
+        JButton btnOK = criarBotaoModal("OK", AppTheme.ERROR_HIGHLIGHT);
 
         btnOK.addActionListener(e -> dispose());
 

@@ -16,6 +16,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import frontend.theme.ThemeManager;
+import frontend.util.AppTheme;
+
 public class SairModal extends JDialog {
     private boolean confirmarSair = false;
 
@@ -23,6 +26,7 @@ public class SairModal extends JDialog {
         super(parent, "Sair", true);
         setUndecorated(true); // Tira as bordas padrão de janela
         initComponents();
+        ThemeManager.applyTheme(this);
         pack();
         setLocationRelativeTo(parent);
     }
@@ -31,25 +35,25 @@ public class SairModal extends JDialog {
         // Painel Principal com borda arredondada (simulada por margem)
         JPanel painel = new JPanel();
         painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
-        painel.setBackground(Color.WHITE);
+        painel.setBackground(AppTheme.SURFACE);
         painel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+            BorderFactory.createLineBorder(AppTheme.BORDER, 1),
             new EmptyBorder(30, 40, 30, 40)
         ));
 
         JLabel titulo = new JLabel("Deseja sair?");
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titulo.setForeground(new Color(45, 45, 45));
+        titulo.setForeground(AppTheme.TEXT);
 
         JLabel mensagem = new JLabel("Você retornará à tela de login.");
         mensagem.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         mensagem.setAlignmentX(Component.CENTER_ALIGNMENT);
-        mensagem.setForeground(Color.GRAY);
+        mensagem.setForeground(AppTheme.TEXT_MUTED);
 
         // Botão de Confirmar (Estilo Vermelho)
         JButton btnSair = new JButton("SAIR");
-        btnSair.setBackground(new Color(220, 53, 69));
+        btnSair.setBackground(AppTheme.ERROR_HIGHLIGHT);
         btnSair.setForeground(Color.WHITE);
         btnSair.setFocusPainted(false);
         btnSair.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -65,7 +69,7 @@ public class SairModal extends JDialog {
         JButton btnVoltar = new JButton("Continuar jogando");
         btnVoltar.setContentAreaFilled(false);
         btnVoltar.setBorderPainted(false);
-        btnVoltar.setForeground(Color.GRAY);
+        btnVoltar.setForeground(AppTheme.TEXT_MUTED);
         btnVoltar.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btnVoltar.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnVoltar.setCursor(new Cursor(Cursor.HAND_CURSOR));

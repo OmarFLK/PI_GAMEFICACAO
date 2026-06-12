@@ -35,6 +35,9 @@ import backend.DAO.perguntaDAO.Pergunta;
 import backend.DAO.perguntaDAO.PerguntaDAO;
 import backend.Seguranca.SessaoUsuario;
 import frontend.base.TelaBase;
+import frontend.theme.ThemeManager;
+import frontend.theme.ThemePalette;
+import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
 public class GameplayTela extends TelaBase {
@@ -62,10 +65,6 @@ public class GameplayTela extends TelaBase {
     public JButton ajudaButton;
     private JButton proximaButton;
     private AjudaModal ajudaModal = new AjudaModal(this, dicaExiste);
-
-    private final Color COR_BORDA_PADRAO = new Color(200, 210, 220);
-    private final Color COR_FUNDO_PADRAO = new Color(241, 246, 250);
-    private final Color COR_FUNDO_SELECIONADO = new Color(225, 235, 245);
 
     public GameplayTela(String tipoUsuario, String modoTela) {
         super("QuimLab - Gameplay");
@@ -106,7 +105,7 @@ public class GameplayTela extends TelaBase {
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
         dificuldadeLabel = criarTexto("Dificuldade: ");
-        dificuldadeLabel.setForeground(COR_VERDE.darker());
+        dificuldadeLabel.setForeground(AppTheme.NEUTRAL_DARK);
         dificuldadeLabel.setFont(dificuldadeLabel.getFont().deriveFont(java.awt.Font.BOLD, 16f));
         progressoLabel = criarTextoSuave("");
         progressoLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -193,22 +192,22 @@ public class GameplayTela extends TelaBase {
     private JRadioButton criarOpcaoResposta() {
         JRadioButton radio = new JRadioButton();
         radio.setOpaque(true);
-        radio.setBackground(COR_FUNDO_PADRAO);
+        radio.setBackground(corFundoPadrao());
         radio.setFocusPainted(false);
         radio.setHorizontalAlignment(SwingConstants.CENTER);
-        radio.setBorder(BorderFactory.createLineBorder(COR_BORDA_PADRAO, 2));
+        radio.setBorder(BorderFactory.createLineBorder(corBordaPadrao(), 2));
         radio.setBorderPainted(true);
         radio.setPreferredSize(new Dimension(0, 120));
 
         radio.addActionListener(e -> {
             erroLabel.setVisible(false);
             for (JRadioButton rb : alternativasRadioButtons) {
-                rb.setBorder(BorderFactory.createLineBorder(COR_BORDA_PADRAO, 2));
-                rb.setBackground(COR_FUNDO_PADRAO);
+                rb.setBorder(BorderFactory.createLineBorder(corBordaPadrao(), 2));
+                rb.setBackground(corFundoPadrao());
             }
             if (radio.isSelected()) {
-                radio.setBorder(BorderFactory.createLineBorder(COR_AZUL_ESCURO, 4));
-                radio.setBackground(COR_FUNDO_SELECIONADO);
+                radio.setBorder(BorderFactory.createLineBorder(ThemeManager.getCurrentPalette().primaryRed(), 4));
+                radio.setBackground(corFundoSelecionado());
             }
         });
         return radio;
@@ -265,14 +264,15 @@ public class GameplayTela extends TelaBase {
                     ajudaModal.atualizarVisibilidadeDica(dicaExiste);
                 }
                 dicaLabel.setVisible(false);
-                dicaLabel.setText("<html><body style='width: 850px; text-align: center; color: red;'>" +
+                dicaLabel.setForeground(ThemeManager.getCurrentPalette().primaryRed());
+                dicaLabel.setText("<html><body style='width: 850px; text-align: center;'>" +
                             perguntaSendoCarregada.getAjuda() +
                             "</body></html>");
                 for (int i = 0; i < alternativasRadioButtons.length; i++) {
                     if (i < alternativasAtuais.size()) {
                         JRadioButton rb = alternativasRadioButtons[i];
-                        rb.setBorder(BorderFactory.createLineBorder(COR_BORDA_PADRAO, 2));
-                        rb.setBackground(COR_FUNDO_PADRAO);
+                        rb.setBorder(BorderFactory.createLineBorder(corBordaPadrao(), 2));
+                        rb.setBackground(corFundoPadrao());
                         if (imgsAlternativas[i] != null) {
                             rb.setText("");
                             rb.setIcon(imgsAlternativas[i]);
@@ -345,6 +345,7 @@ public class GameplayTela extends TelaBase {
         }
 
         boolean correta = alternativasAtuais.get(sel).getCorreta() == 1;
+        ThemePalette palette = ThemeManager.getCurrentPalette();
 
         if (correta) {
             Pergunta pergunta = perguntas.get(indicePergunta);
@@ -358,16 +359,16 @@ public class GameplayTela extends TelaBase {
             }
 
             acertos++;
-            alternativasRadioButtons[sel].setBackground(new Color(200, 255, 200));
-            alternativasRadioButtons[sel].setBorder(BorderFactory.createLineBorder(new Color(40, 167, 69), 4));
+            alternativasRadioButtons[sel].setBackground(palette.successSurface());
+            alternativasRadioButtons[sel].setBorder(BorderFactory.createLineBorder(palette.success(), 4));
         } else {
-            alternativasRadioButtons[sel].setBackground(new Color(255, 200, 200));
-            alternativasRadioButtons[sel].setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69), 4));
+            alternativasRadioButtons[sel].setBackground(palette.dangerSurface());
+            alternativasRadioButtons[sel].setBorder(BorderFactory.createLineBorder(palette.dangerRed(), 4));
 
             for (int i = 0; i < alternativasAtuais.size(); i++) {
                 if (alternativasAtuais.get(i).getCorreta() == 1) {
                     alternativasRadioButtons[i]
-                            .setBorder(BorderFactory.createLineBorder(new Color(40, 167, 69), 2));
+                            .setBorder(BorderFactory.createLineBorder(palette.success(), 2));
                 }
             }
             if (dificuldadeSelecionada.equalsIgnoreCase("PROGRESSIVO")) {
@@ -404,7 +405,7 @@ public class GameplayTela extends TelaBase {
         for (int i = 0; i < alternativasRadioButtons.length; i++) {
             if (alternativasAtuais.get(i).getCorreta() == 0 && r < 2) {
                 alternativasRadioButtons[i].setEnabled(false);
-                alternativasRadioButtons[i].setBackground(new Color(220, 226, 232));
+                alternativasRadioButtons[i].setBackground(ThemeManager.getCurrentPalette().mutedSurface());
                 r++;
             }
         }
@@ -424,5 +425,17 @@ public class GameplayTela extends TelaBase {
         if (t == null)
             return "";
         return t.substring(0, 1).toUpperCase() + t.substring(1).toLowerCase();
+    }
+
+    private Color corBordaPadrao() {
+        return ThemeManager.getCurrentPalette().border();
+    }
+
+    private Color corFundoPadrao() {
+        return ThemeManager.getCurrentPalette().inputBackground();
+    }
+
+    private Color corFundoSelecionado() {
+        return ThemeManager.getCurrentPalette().selectionBackground();
     }
 }
