@@ -30,8 +30,11 @@ public class HomeProfessorTela extends TelaBase {
         painelExterno.setBorder(BorderFactory.createEmptyBorder(28, 110, 28, 110));
 
         JPanel canvas = criarCanvasCentral();
-        JPanel conteudo = new JPanel(new BorderLayout(0, 18));
-        conteudo.setOpaque(false);
+
+        // Coluna central única, igual ao Login
+        JPanel coluna = criarColunaCentral(740);
+        coluna.setLayout(new BoxLayout(coluna, BoxLayout.Y_AXIS));
+        coluna.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // --- PAINEL DIREITO (Perfil + Tema) ---
         JPanel painelDireita = new JPanel();
@@ -51,21 +54,21 @@ public class HomeProfessorTela extends TelaBase {
         painelDireita.add(perfilButton);
         painelDireita.add(Box.createVerticalStrut(8));
         painelDireita.add(btnTema);
-        // ----------------------------------------
 
+        // --- TOPO ---
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
+        topo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         JLabel professorBadge = criarBadge("PROFESSOR", AppTheme.RED_SOFT, AppTheme.PROFESSOR_HIGHLIGHT);
         professorBadge.setPreferredSize(new Dimension(150, 42));
         topo.add(professorBadge, BorderLayout.WEST);
-        topo.add(painelDireita, BorderLayout.EAST); // Adiciona o grupo da direita no topo
+        topo.add(painelDireita, BorderLayout.EAST);
 
-        JPanel centro = criarColunaCentral(740);
-        centro.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        // --- CONTEÚDO CENTRAL ---
         JPanel marcaPanel = new JPanel();
         marcaPanel.setOpaque(false);
         marcaPanel.setLayout(new BoxLayout(marcaPanel, BoxLayout.X_AXIS));
+        marcaPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         marcaPanel.add(criarIconeLaboratorio());
         marcaPanel.add(Box.createHorizontalStrut(16));
         marcaPanel.add(criarTituloHero("QuimLab Pro"));
@@ -92,43 +95,48 @@ public class HomeProfessorTela extends TelaBase {
         configurarBotaoMenu(estatisticasButton);
         estatisticasButton.addActionListener(evt -> Navegador.abrirTela(this, new TurmasEstatisticasTela()));
 
-        centro.add(Box.createVerticalStrut(18));
-        centro.add(marcaPanel);
-        centro.add(Box.createVerticalStrut(8));
-        centro.add(criarLinhaDestaque());
-        centro.add(Box.createVerticalStrut(10));
-        centro.add(subtitulo);
-        centro.add(Box.createVerticalStrut(8));
-        centro.add(apoio);
-        centro.add(Box.createVerticalStrut(30));
-
-        centro.add(jogarButton);
-        centro.add(Box.createVerticalStrut(12));
-        centro.add(gerenciarPerguntasButton);
-        centro.add(Box.createVerticalStrut(12));
-        centro.add(gerenciarUsuariosButton);
-        centro.add(Box.createVerticalStrut(12));
-        centro.add(estatisticasButton);
-
-        JPanel rodape = new JPanel(new BorderLayout());
-        rodape.setOpaque(false);
-        rodape.add(criarTextoSuave("Painel Administrativo | ETEC Química"), BorderLayout.WEST);
-
+        // --- RODAPÉ ---
         JButton sairButton = criarBotaoLink("Encerrar Sessão");
         sairButton.addActionListener(evt -> {
             SairModal modal = new SairModal(this);
             modal.setVisible(true);
-
             if (modal.isConfirmarSair()) {
                 Navegador.abrirTela(this, new LoginTela());
             }
         });
+
+        JPanel rodape = new JPanel(new BorderLayout());
+        rodape.setOpaque(false);
+        rodape.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        rodape.add(criarTextoSuave("Painel Administrativo | ETEC Química"), BorderLayout.WEST);
         rodape.add(sairButton, BorderLayout.EAST);
 
-        conteudo.add(topo, BorderLayout.NORTH);
-        conteudo.add(centro, BorderLayout.CENTER);
-        conteudo.add(rodape, BorderLayout.SOUTH);
-        canvas.add(conteudo, BorderLayout.CENTER);
+        // --- MONTAGEM DA COLUNA (igual ao Login) ---
+        coluna.add(topo);
+        coluna.add(Box.createVerticalGlue());
+        coluna.add(marcaPanel);
+        coluna.add(Box.createVerticalStrut(8));
+        coluna.add(criarLinhaDestaque());
+        coluna.add(Box.createVerticalStrut(10));
+        coluna.add(subtitulo);
+        coluna.add(Box.createVerticalStrut(8));
+        coluna.add(apoio);
+        coluna.add(Box.createVerticalStrut(30));
+        coluna.add(jogarButton);
+        coluna.add(Box.createVerticalStrut(12));
+        coluna.add(gerenciarPerguntasButton);
+        coluna.add(Box.createVerticalStrut(12));
+        coluna.add(gerenciarUsuariosButton);
+        coluna.add(Box.createVerticalStrut(12));
+        coluna.add(estatisticasButton);
+        coluna.add(Box.createVerticalGlue());
+        coluna.add(rodape);
+
+        JPanel centro = new JPanel(new BorderLayout());
+        centro.setOpaque(false);
+        centro.add(coluna, BorderLayout.CENTER);
+
+        canvas.add(centro, BorderLayout.CENTER);
         painelExterno.add(canvas, BorderLayout.CENTER);
         painelPrincipal.add(painelExterno, BorderLayout.CENTER);
         setContentPane(painelPrincipal);
