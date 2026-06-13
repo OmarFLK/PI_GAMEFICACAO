@@ -9,8 +9,9 @@ public class Usuario {
     private final String nome;
     private final String email;
     private final String tipo;
+    private String fotoPerfil; // <-- NOVO ATRIBUTO
 
-    // Construtor
+    // Construtor original mantido
     public Usuario(int id, String nome, String email, String tipo) {
         this.id = id;
         this.nome = nome;
@@ -33,5 +34,14 @@ public class Usuario {
 
     public String getEmail() {
         return email;
+    }
+
+    // --- NOVOS MÉTODOS PARA A FOTO DE PERFIL ---
+    public String getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(String fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
     }
 }

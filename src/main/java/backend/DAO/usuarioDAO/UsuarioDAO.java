@@ -13,7 +13,8 @@ import backend.servidor.Conexao;
 public class UsuarioDAO {
 
     public Usuario efetuarLogin(String email, String senhaDigitada) {
-        String sql = "SELECT idUsuario, nomeUsuario, emailUsuario, tipo, senha FROM usuario WHERE emailUsuario = ?";
+        // ATUALIZADO: Selecionar também a foto_perfil
+        String sql = "SELECT idUsuario, nomeUsuario, emailUsuario, tipo, senha, foto_perfil FROM usuario WHERE emailUsuario = ?";
 
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -25,11 +26,15 @@ public class UsuarioDAO {
                 String senhaDoBanco = rs.getString("senha");
                 try {
                     if (SenhaService.verificarSenha(senhaDigitada, senhaDoBanco)) {
-                        return new Usuario(
+                        Usuario u = new Usuario(
                                 rs.getInt("idUsuario"),
                                 rs.getString("nomeUsuario"),
                                 rs.getString("emailUsuario"),
                                 rs.getString("tipo"));
+                        
+                        // ATUALIZADO: Preenche a foto de perfil após autenticar
+                        u.setFotoPerfil(rs.getString("foto_perfil"));
+                        return u;
                     }
                 } catch (IllegalArgumentException e) {
                     System.err.println("Senha no banco nao esta em formato BCrypt: " + e.getMessage());
@@ -39,6 +44,21 @@ public class UsuarioDAO {
             System.err.println("Erro ao efetuar login: " + e.getMessage());
         }
         return null;
+    }
+
+    // --- NOVO MÉTODO PARA ATUALIZAR APENAS A FOTO ---
+    public void atualizarFoto(int id, String novaFoto) {
+        String sql = "UPDATE usuario SET foto_perfil = ? WHERE idUsuario = ?";
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, novaFoto);
+            stmt.setInt(2, id);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar foto de perfil: " + e.getMessage());
+        }
     }
 
     public boolean cadastrarUsuario(String nome, String email, String senha, String tipo) {
@@ -108,18 +128,21 @@ public class UsuarioDAO {
 
     public List<Usuario> listarTodos() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT idUsuario, nomeUsuario, emailUsuario, tipo FROM usuario ORDER BY nomeUsuario ASC";
+        // ATUALIZADO: Selecionar a foto_perfil para listagem caso precise no futuro
+        String sql = "SELECT idUsuario, nomeUsuario, emailUsuario, tipo, foto_perfil FROM usuario ORDER BY nomeUsuario ASC";
 
         try (Connection conn = Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                usuarios.add(new Usuario(
+                Usuario u = new Usuario(
                         rs.getInt("idUsuario"),
                         rs.getString("nomeUsuario"),
                         rs.getString("emailUsuario"),
-                        rs.getString("tipo")));
+                        rs.getString("tipo"));
+                u.setFotoPerfil(rs.getString("foto_perfil"));
+                usuarios.add(u);
             }
         } catch (SQLException e) {
             System.err.println("Erro ao listar usuarios: " + e.getMessage());
