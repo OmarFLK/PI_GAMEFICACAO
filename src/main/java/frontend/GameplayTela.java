@@ -72,6 +72,8 @@ public class GameplayTela extends TelaBase {
     public JButton ajudaButton;
     private JButton proximaButton;
     private AjudaModal ajudaModal = new AjudaModal(this, dicaExiste);
+    private boolean modoPreview = false;
+    private java.awt.Component telaOrigem = null;
 
     public GameplayTela(String tipoUsuario, String modoTela) {
         super("QuimLab - Gameplay");
@@ -95,6 +97,22 @@ public class GameplayTela extends TelaBase {
             return;
         }
 
+        initComponents();
+        carregarPergunta();
+    }
+
+    /**
+     * Construtor de preview: exibe uma única pergunta sem salvar pontuação ou partida.
+     * Usado pelo botão "Testar Pergunta" em GerenciarPerguntasTela.
+     */
+    public GameplayTela(Pergunta pergunta, java.awt.Component origem) {
+        super("QuimLab - Preview da Pergunta");
+        this.tipoUsuario = Navegador.TIPO_PROFESSOR;
+        this.dificuldadeSelecionada = pergunta.getDificuldade() != null ? pergunta.getDificuldade() : "PREVIEW";
+        this.perguntas = new java.util.ArrayList<>();
+        this.perguntas.add(pergunta);
+        this.modoPreview = true;
+        this.telaOrigem = origem;
         initComponents();
         carregarPergunta();
     }
@@ -184,7 +202,11 @@ public class GameplayTela extends TelaBase {
             SairModal modal = new SairModal(this);
             modal.setVisible(true);
             if (modal.isConfirmarSair()) {
-                Navegador.abrirHome(this, tipoUsuario);
+                if (modoPreview && telaOrigem instanceof GerenciarPerguntasTela) {
+                    Navegador.abrirTela(this, (GerenciarPerguntasTela) telaOrigem);
+                } else {
+                    Navegador.abrirHome(this, tipoUsuario);
+                }
             }
         });
 
@@ -379,8 +401,12 @@ public class GameplayTela extends TelaBase {
             @Override
             protected void done() {
                 difficultyLabel.setText("Dificuldade: " + formatarTexto(perguntaSendoCarregada.getDificuldade()));
-                progressoLabel.setText(
-                        "Pergunta " + (indicePergunta + 1) + " de " + perguntas.size() + " | Pontos " + pontuacao);
+                if (modoPreview) {
+                    progressoLabel.setText("MODO PREVIEW — sem pontuação");
+                } else {
+                    progressoLabel.setText(
+                            "Pergunta " + (indicePergunta + 1) + " de " + perguntas.size() + " | Pontos " + pontuacao);
+                }
 
                 perguntaLabel.setText("<html><body style='width: 850px; text-align: center;'>" +
                         perguntaSendoCarregada.getEnunciado() +
@@ -563,7 +589,7 @@ public class GameplayTela extends TelaBase {
                     alternativasRadioButtons[i].setBorder(criarBordaAlternativa(palette.success(), 2));
                 }
             }
-            if (dificuldadeSelecionada.equalsIgnoreCase("PROGRESSIVO")) {
+            if (!modoPreview && dificuldadeSelecionada.equalsIgnoreCase("PROGRESSIVO")) {
                 new PerdeuModal(this).setVisible(true);
                 Navegador.abrirHome(this, tipoUsuario);
             }
@@ -572,13 +598,26 @@ public class GameplayTela extends TelaBase {
         javax.swing.Timer timerFeedback = new javax.swing.Timer(800, e -> {
             indicePergunta++;
             if (indicePergunta >= perguntas.size()) {
-                backend.DAO.usuarioDAO.Usuario u = SessaoUsuario.getInstancia().getUsuario();
-                if (u != null && Navegador.TIPO_ALUNO.equals(u.getTipo())) {
-                    int totalErros = perguntas.size() - acertos;
-                    new PartidaDAO().salvarResultadoFinal(u.getId(), pontuacao, acertos, totalErros);
+                if (!modoPreview) {
+                    backend.DAO.usuarioDAO.Usuario u = SessaoUsuario.getInstancia().getUsuario();
+                    if (u != null && Navegador.TIPO_ALUNO.equals(u.getTipo())) {
+                        int totalErros = perguntas.size() - acertos;
+                        new PartidaDAO().salvarResultadoFinal(u.getId(), pontuacao, acertos, totalErros);
+                    }
+                    Navegador.abrirTela(this, new ResultadoTela(tipoUsuario, pontuacao, acertos, perguntas.size()));
+                } else {
+                    // Modo preview: mostra resultado inline sem salvar e volta para a tela de origem
+                    boolean acertou = acertos > 0;
+                    String msg = acertou
+                        ? "<html><b>✔ Resposta correta!</b><br>Esta pergunta está funcionando corretamente.</html>"
+                        : "<html><b>✘ Resposta incorreta.</b><br>A alternativa certa foi destacada em verde.</html>";
+                    JOptionPane.showMessageDialog(this, msg, "Resultado do Preview", JOptionPane.INFORMATION_MESSAGE);
+                    if (telaOrigem instanceof GerenciarPerguntasTela) {
+                        Navegador.abrirTela(this, (GerenciarPerguntasTela) telaOrigem);
+                    } else {
+                        Navegador.abrirHome(this, tipoUsuario);
+                    }
                 }
-
-                Navegador.abrirTela(this, new ResultadoTela(tipoUsuario, pontuacao, acertos, perguntas.size()));
             } else {
                 carregarPergunta();
             }

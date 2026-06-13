@@ -35,7 +35,7 @@ public class GerenciarPerguntasTela extends TelaBase {
     private JTable tabela;
     private DefaultTableModel modelo;
     private final PerguntaDAO perguntaDAO = new PerguntaDAO();
-    private JButton btnNovo, btnEditar, btnExcluir;
+    private JButton btnNovo, btnEditar, btnExcluir, btnTestar;
 
     public GerenciarPerguntasTela() {
         super("QuimLab Pro - Gerenciar Questões");
@@ -170,19 +170,22 @@ public class GerenciarPerguntasTela extends TelaBase {
         cardTabela.add(scrollTabela, BorderLayout.CENTER);
         conteudo.add(cardTabela, BorderLayout.CENTER);
 
-        JPanel acoes = new JPanel(new GridLayout(1, 3, 15, 0));
+        JPanel acoes = new JPanel(new GridLayout(1, 4, 15, 0));
         acoes.setOpaque(false);
         btnNovo = criarBotaoPrincipal("NOVA PERGUNTA");
         btnNovo.addActionListener(e -> Navegador.abrirTela(this, new PerguntaFormTela(null)));
-        
+
         btnEditar = criarBotaoSecundario("EDITAR SELECIONADA");
         btnEditar.addActionListener(e -> prepararEdicao());
-        
+
+        btnTestar = criarBotaoSecundario("TESTAR PERGUNTA");
+        btnTestar.addActionListener(e -> testarPerguntaSelecionada());
+
         btnExcluir = criarBotaoNeutro("EXCLUIR");
         btnExcluir.setForeground(AppTheme.ERROR_HIGHLIGHT);
         btnExcluir.addActionListener(e -> confirmarExclusao());
-        
-        acoes.add(btnNovo); acoes.add(btnEditar); acoes.add(btnExcluir);
+
+        acoes.add(btnNovo); acoes.add(btnEditar); acoes.add(btnTestar); acoes.add(btnExcluir);
 
         conteudo.add(acoes, BorderLayout.SOUTH);
         canvas.add(conteudo, BorderLayout.CENTER);
@@ -237,7 +240,10 @@ public class GerenciarPerguntasTela extends TelaBase {
 
     private void confirmarExclusao() {
         int linha = tabela.getSelectedRow();
-        if (linha == -1) return;
+        if (linha == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione uma pergunta para excluir.");
+            return;
+        }
         int id = (int) modelo.getValueAt(linha, 0);
         
         if (JOptionPane.showConfirmDialog(this, "Excluir pergunta " + id + "?", "Aviso", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -255,16 +261,55 @@ public class GerenciarPerguntasTela extends TelaBase {
         }
     }
 
+    private void testarPerguntaSelecionada() {
+        int linha = tabela.getSelectedRow();
+        if (linha == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione uma pergunta para testar.");
+            return;
+        }
+
+        setEstadoBotoes(false, "Carregando...");
+        int id = (int) modelo.getValueAt(linha, 0);
+
+        SwingWorker<backend.DAO.perguntaDAO.Pergunta, Void> worker = new SwingWorker<>() {
+            @Override
+            protected backend.DAO.perguntaDAO.Pergunta doInBackground() throws Exception {
+                return perguntaDAO.getPergunta(id);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    backend.DAO.perguntaDAO.Pergunta pergunta = get();
+                    if (pergunta != null) {
+                        setEstadoBotoes(true, "");
+                        Navegador.abrirTela(GerenciarPerguntasTela.this,
+                                new GameplayTela(pergunta, GerenciarPerguntasTela.this));
+                    } else {
+                        JOptionPane.showMessageDialog(GerenciarPerguntasTela.this, "Pergunta não encontrada.");
+                        setEstadoBotoes(true, "");
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(GerenciarPerguntasTela.this, "Erro ao carregar pergunta.");
+                    setEstadoBotoes(true, "");
+                }
+            }
+        };
+        worker.execute();
+    }
+
     private void setEstadoBotoes(boolean ativo, String textoStatus) {
         btnNovo.setEnabled(ativo);
         btnEditar.setEnabled(ativo);
+        btnTestar.setEnabled(ativo);
         btnExcluir.setEnabled(ativo);
-        
+
         if (!ativo) {
-            btnEditar.setText(textoStatus);
+            btnTestar.setText(textoStatus);
         } else {
             btnNovo.setText("NOVA PERGUNTA");
             btnEditar.setText("EDITAR SELECIONADA");
+            btnTestar.setText("TESTAR PERGUNTA");
             btnExcluir.setText("EXCLUIR");
         }
     }
