@@ -1,7 +1,7 @@
 package frontend;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -19,11 +18,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 import backend.DAO.perguntaDAO.Pergunta;
 import backend.DAO.perguntaDAO.PerguntaDAO;
 import frontend.base.TelaBase;
+import frontend.theme.ThemeManager;
+import frontend.theme.ThemePalette;
 import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
@@ -70,20 +73,98 @@ public class GerenciarPerguntasTela extends TelaBase {
         topo.add(containerVoltar, BorderLayout.EAST);
         conteudo.add(topo, BorderLayout.NORTH);
 
+        // --- INÍCIO DA TABELA MINIMALISTA DINÂMICA ---
         modelo = new DefaultTableModel(new Object[]{"ID", "Enunciado", "Dificuldade", "Status"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
-        tabela = new JTable(modelo);
-        tabela.setRowHeight(35);
-        tabela.setGridColor(COR_BORDA);
-        tabela.setSelectionBackground(new Color(255, 241, 243));
-        tabela.setSelectionForeground(COR_PRETO);
-        tabela.getTableHeader().setBackground(AppTheme.NEUTRAL_DARK);
-        tabela.getTableHeader().setForeground(COR_BRANCO);
-        tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+        tabela = new JTable(modelo) {
+            @Override
+            public void paint(java.awt.Graphics g) {
+                setGridColor(ThemeManager.getCurrentPalette().border());
+                super.paint(g);
+            }
+        };
+        
+        tabela.setRowHeight(46);
+        tabela.setShowGrid(false);
+        tabela.setShowVerticalLines(false);
+        tabela.setShowHorizontalLines(true);
+        tabela.setIntercellSpacing(new java.awt.Dimension(0, 0));
+        tabela.setFocusable(false);
+        tabela.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+        JTableHeader header = tabela.getTableHeader();
+        header.setReorderingAllowed(false);
+        header.setPreferredSize(new java.awt.Dimension(0, 42));
+        
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+                ThemePalette palette = ThemeManager.getCurrentPalette();
+                
+                setText(value == null ? "" : value.toString().toUpperCase());
+                
+                java.awt.Color headerBg = ThemeManager.isDarkMode() ? new java.awt.Color(14, 14, 20) : new java.awt.Color(245, 245, 250);
+                setBackground(headerBg);
+                setForeground(palette.textSecondary());
+                setFont(new Font("Segoe UI", Font.BOLD, 11));
+                
+                setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 0, palette.border()),
+                    BorderFactory.createEmptyBorder(0, 18, 0, 18)
+                ));
+                setHorizontalAlignment(SwingConstants.LEFT);
+                return this;
+            }
+        });
+
+        DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+                ThemePalette palette = ThemeManager.getCurrentPalette();
+                
+                setBorder(BorderFactory.createEmptyBorder(0, 18, 0, 18));
+                setHorizontalAlignment(col == 0 ? SwingConstants.CENTER : SwingConstants.LEFT);
+                
+                if (isSelected) {
+                    setBackground(palette.selectionBackground());
+                    setForeground(ThemeManager.isDarkMode() ? java.awt.Color.WHITE : palette.textPrimary());
+                    setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                } else {
+                    java.awt.Color zebraColor = ThemeManager.isDarkMode() 
+                        ? new java.awt.Color(32, 32, 44) 
+                        : new java.awt.Color(250, 250, 253);
+                        
+                    setBackground(row % 2 == 0 ? palette.surface() : zebraColor);
+                    
+                    setForeground(col == 0 ? palette.textSecondary() : palette.textPrimary());
+                    setFont(col == 0 ? new Font("Segoe UI", Font.BOLD, 12) : new Font("Segoe UI", Font.PLAIN, 14));
+                }
+                return this;
+            }
+        };
+        tabela.setDefaultRenderer(Object.class, cellRenderer);
+        
+        // Ajusta a largura do ID e do Status
+        tabela.getColumnModel().getColumn(0).setMaxWidth(64); 
+        tabela.getColumnModel().getColumn(0).setMinWidth(48);
+        tabela.getColumnModel().getColumn(3).setMaxWidth(100); 
+        // --- FIM DA TABELA MINIMALISTA DINÂMICA ---
 
         JScrollPane scrollTabela = new JScrollPane(tabela);
-        scrollTabela.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        scrollTabela.setBorder(BorderFactory.createEmptyBorder());
+        
+        // Deixar o scroll transparente
+        scrollTabela.setOpaque(false);
+        scrollTabela.getViewport().setOpaque(false);
+
+        // Esconder as barras de rolagem
+        scrollTabela.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scrollTabela.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         JPanel cardTabela = criarCartaoSuave();
         cardTabela.setLayout(new BorderLayout());
         cardTabela.add(scrollTabela, BorderLayout.CENTER);
