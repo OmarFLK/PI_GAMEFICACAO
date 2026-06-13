@@ -12,8 +12,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -26,18 +24,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import frontend.theme.ThemeAware;
 import frontend.theme.ThemeManager;
 import frontend.theme.ThemePalette;
-import frontend.theme.ThemeToggleButton;
 import frontend.util.AppTheme;
 
 public class TelaBase extends JFrame {
-
-    private ThemeToggleButton themeToggleButton;
 
     protected static final Color COR_FUNDO_ESCURO = AppTheme.BACKGROUND;
     protected static final Color COR_FUNDO_CLARO = AppTheme.BACKGROUND;
@@ -68,38 +62,9 @@ public class TelaBase extends JFrame {
     @Override
     public void setVisible(boolean visible) {
         if (visible) {
-            instalarBotaoTema();
             ThemeManager.applyTheme(this);
         }
         super.setVisible(visible);
-        if (visible) {
-            SwingUtilities.invokeLater(this::posicionarBotaoTema);
-        }
-    }
-
-    private void instalarBotaoTema() {
-        if (themeToggleButton != null) {
-            return;
-        }
-
-        themeToggleButton = new ThemeToggleButton();
-        getLayeredPane().add(themeToggleButton, javax.swing.JLayeredPane.DRAG_LAYER);
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent event) {
-                posicionarBotaoTema();
-            }
-        });
-        posicionarBotaoTema();
-    }
-
-    private void posicionarBotaoTema() {
-        if (themeToggleButton == null) {
-            return;
-        }
-        themeToggleButton.setBounds(20, 16, 126, 34);
-        themeToggleButton.revalidate();
-        themeToggleButton.repaint();
     }
 
     protected JPanel criarPainelPrincipal() {
@@ -113,8 +78,9 @@ public class TelaBase extends JFrame {
         RoundedPanel painel = new RoundedPanel(46, COR_BRANCO, new Color(0, 0, 0, 28), 12, 14);
         painel.setLayout(new BorderLayout());
         painel.setBorder(BorderFactory.createCompoundBorder(
-                new RoundedLineBorder(new Color(255, 255, 255, 150), 1, 44, 0),
-                new EmptyBorder(34, 36, 34, 36)));
+            new RoundedLineBorder(new Color(255, 255, 255, 150), 1, 44, 0),
+            new EmptyBorder(34, 36, 34, 36)
+        ));
         return painel;
     }
 
@@ -190,21 +156,18 @@ public class TelaBase extends JFrame {
     }
 
     protected JTextField criarCampoTexto(String texto) {
-        // Criamos o campo sobrescrevendo a pintura do fundo
         JTextField campo = new JTextField(texto) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(getBackground());
-                // Pinta um fundo arredondado com o mesmo raio da borda (30)
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        campo.setOpaque(false); // Desliga o fundo retangular padrão que causava o vazamento
-
+        campo.setOpaque(false);
         campo.setHorizontalAlignment(SwingConstants.CENTER);
         campo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         campo.setForeground(COR_CINZA);
@@ -232,8 +195,9 @@ public class TelaBase extends JFrame {
     protected JButton criarBotaoNeutro(String texto) {
         RoundedButton botao = new RoundedButton(texto, new Color(252, 252, 252), COR_PRETO, 24, 14);
         botao.setBorder(BorderFactory.createCompoundBorder(
-                new RoundedLineBorder(COR_PRETO, 1, 24, 12),
-                new EmptyBorder(0, 0, 0, 0)));
+            new RoundedLineBorder(COR_PRETO, 1, 24, 12),
+            new EmptyBorder(0, 0, 0, 0)
+        ));
         botao.setMaximumSize(new Dimension(Integer.MAX_VALUE, 58));
         botao.setPreferredSize(new Dimension(0, 58));
         return botao;
@@ -255,8 +219,9 @@ public class TelaBase extends JFrame {
         RoundedPanel painel = new RoundedPanel(28, COR_CARTAO, new Color(0, 0, 0, 12), 6, 8, true);
         painel.setLayout(new BorderLayout());
         painel.setBorder(BorderFactory.createCompoundBorder(
-                new RoundedLineBorder(new Color(224, 224, 224), 1, 28, 0),
-                new EmptyBorder(20, 22, 20, 22)));
+            new RoundedLineBorder(new Color(224, 224, 224), 1, 28, 0),
+            new EmptyBorder(20, 22, 20, 22)
+        ));
         return painel;
     }
 
@@ -296,8 +261,9 @@ public class TelaBase extends JFrame {
         RoundedPanel painel = new RoundedPanel(28, new Color(248, 248, 248), new Color(0, 0, 0, 10), 4, 6);
         painel.setLayout(new BorderLayout());
         painel.setBorder(BorderFactory.createCompoundBorder(
-                new RoundedLineBorder(COR_PRETO, 1, 28, 0),
-                new EmptyBorder(12, 14, 12, 14)));
+            new RoundedLineBorder(COR_PRETO, 1, 28, 0),
+            new EmptyBorder(12, 14, 12, 14)
+        ));
         JLabel label = new JLabel("\u2697", SwingConstants.CENTER);
         label.setFont(new Font("SansSerif", Font.BOLD, 24));
         label.setForeground(COR_PRETO);
@@ -308,11 +274,11 @@ public class TelaBase extends JFrame {
     protected JLabel criarPlaceholder(String texto) {
         RoundedPanel painel = new RoundedPanel(28, new Color(246, 246, 246), new Color(0, 0, 0, 10), 4, 6);
         painel.setBorder(BorderFactory.createCompoundBorder(
-                new RoundedLineBorder(new Color(226, 226, 226), 1, 28, 0),
-                new EmptyBorder(18, 18, 18, 18)));
+            new RoundedLineBorder(new Color(226, 226, 226), 1, 28, 0),
+            new EmptyBorder(18, 18, 18, 18)
+        ));
         painel.setLayout(new BorderLayout());
-        JLabel label = new JLabel("<html><div style='text-align:center;'>" + texto + "</div></html>",
-                SwingConstants.CENTER);
+        JLabel label = new JLabel("<html><div style='text-align:center;'>" + texto + "</div></html>", SwingConstants.CENTER);
         label.setFont(new Font("SansSerif", Font.PLAIN, 18));
         label.setForeground(COR_TEXTO_SUAVE);
         painel.add(label, BorderLayout.CENTER);
@@ -435,16 +401,12 @@ public class TelaBase extends JFrame {
 
     protected static class RoundedButton extends JButton implements ThemeAware {
         private final Color fundo;
-        // private final Color texto;
         private final int raio;
-        // private final int tamanhoFonte;
 
         RoundedButton(String textoBotao, Color fundo, Color texto, int raio, int tamanhoFonte) {
             super(textoBotao);
             this.fundo = fundo;
-            // this.texto = texto;
             this.raio = raio;
-            // this.tamanhoFonte = tamanhoFonte;
             setFocusPainted(false);
             setContentAreaFilled(false);
             setBorderPainted(false);

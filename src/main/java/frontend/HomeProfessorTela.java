@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import frontend.base.TelaBase;
+import frontend.theme.ThemeToggleButton;
 import frontend.util.AppTheme;
 import frontend.util.Navegador;
 
@@ -32,16 +33,32 @@ public class HomeProfessorTela extends TelaBase {
         JPanel conteudo = new JPanel(new BorderLayout(0, 18));
         conteudo.setOpaque(false);
 
+        // --- PAINEL DIREITO (Perfil + Tema) ---
+        JPanel painelDireita = new JPanel();
+        painelDireita.setOpaque(false);
+        painelDireita.setLayout(new BoxLayout(painelDireita, BoxLayout.Y_AXIS));
+
         JButton perfilButton = criarBotaoNeutro("Meu perfil");
         perfilButton.setPreferredSize(new Dimension(170, 58));
+        perfilButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
         perfilButton.addActionListener(evt -> Navegador.abrirTela(this, new PerfilTela(Navegador.TIPO_PROFESSOR)));
+
+        ThemeToggleButton btnTema = new ThemeToggleButton();
+        btnTema.setPreferredSize(new Dimension(170, 36));
+        btnTema.setMaximumSize(new Dimension(170, 36));
+        btnTema.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        painelDireita.add(perfilButton);
+        painelDireita.add(Box.createVerticalStrut(8));
+        painelDireita.add(btnTema);
+        // ----------------------------------------
 
         JPanel topo = new JPanel(new BorderLayout());
         topo.setOpaque(false);
         JLabel professorBadge = criarBadge("PROFESSOR", AppTheme.RED_SOFT, AppTheme.PROFESSOR_HIGHLIGHT);
         professorBadge.setPreferredSize(new Dimension(150, 42));
         topo.add(professorBadge, BorderLayout.WEST);
-        topo.add(perfilButton, BorderLayout.EAST);
+        topo.add(painelDireita, BorderLayout.EAST); // Adiciona o grupo da direita no topo
 
         JPanel centro = criarColunaCentral(740);
         centro.setAlignmentX(Component.CENTER_ALIGNMENT);
