@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -12,8 +15,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.SwingWorker;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 
 import backend.DAO.usuarioDAO.UsuarioDAO;
 import frontend.base.TelaBase;
@@ -100,7 +103,19 @@ public class RegistroTela extends TelaBase {
     }
 
     private JPasswordField criarCampoSenha(String texto) {
-        JPasswordField campo = new JPasswordField(texto);
+        JPasswordField campo = new JPasswordField(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 30, 30);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        campo.setOpaque(false); // Desliga o fundo retangular
+        
         campo.setHorizontalAlignment(JTextField.CENTER);
         campo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         campo.setForeground(COR_CINZA);
