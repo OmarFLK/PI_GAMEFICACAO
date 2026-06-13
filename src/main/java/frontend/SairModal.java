@@ -5,13 +5,17 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -21,23 +25,64 @@ import frontend.util.AppTheme;
 
 public class SairModal extends JDialog {
     private boolean confirmarSair = false;
+    private final JFrame pai;
+    private Component glassPaneOriginal;
+    private ComponentAdapter rastreadorMovimento;
 
-    public SairModal(Frame parent) {
+    public SairModal(JFrame parent) {
         super(parent, "Sair", true);
-        setUndecorated(true); // Tira as bordas padrão de janela
+        this.pai = parent;
+        setUndecorated(true); 
+        // Bug do Wayland corrigido: removido o setBackground transparente
+
         initComponents();
         ThemeManager.applyTheme(this);
         pack();
         setLocationRelativeTo(parent);
     }
 
+    @Override
+    public void setVisible(boolean b) {
+        if (b) {
+            glassPaneOriginal = pai.getGlassPane();
+            JPanel mascaraEscura = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.setColor(new Color(0, 0, 0, 160));
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+            };
+            mascaraEscura.setOpaque(false);
+            mascaraEscura.addMouseListener(new MouseAdapter() {});
+            pai.setGlassPane(mascaraEscura);
+            mascaraEscura.setVisible(true);
+
+            rastreadorMovimento = new ComponentAdapter() {
+                @Override
+                public void componentMoved(ComponentEvent e) { setLocationRelativeTo(pai); }
+                @Override
+                public void componentResized(ComponentEvent e) { setLocationRelativeTo(pai); }
+            };
+            pai.addComponentListener(rastreadorMovimento);
+        }
+        super.setVisible(b);
+        if (b) {
+            if (rastreadorMovimento != null) pai.removeComponentListener(rastreadorMovimento);
+            if (glassPaneOriginal != null) {
+                pai.getGlassPane().setVisible(false);
+                pai.setGlassPane(glassPaneOriginal);
+            }
+        }
+    }
+
     private void initComponents() {
-        // Painel Principal com borda arredondada (simulada por margem)
         JPanel painel = new JPanel();
+        painel.setOpaque(true);
         painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
         painel.setBackground(AppTheme.SURFACE);
         painel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(AppTheme.BORDER, 1),
+            BorderFactory.createLineBorder(AppTheme.BORDER, 2, true),
             new EmptyBorder(30, 40, 30, 40)
         ));
 
@@ -46,12 +91,11 @@ public class SairModal extends JDialog {
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         titulo.setForeground(AppTheme.TEXT);
 
-        JLabel mensagem = new JLabel("Você retornará à tela de login.");
+        JLabel mensagem = new JLabel("Você voltará para a tela inicial.");
         mensagem.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         mensagem.setAlignmentX(Component.CENTER_ALIGNMENT);
         mensagem.setForeground(AppTheme.TEXT_MUTED);
 
-        // Botão de Confirmar (Estilo Vermelho)
         JButton btnSair = new JButton("SAIR");
         btnSair.setBackground(AppTheme.ERROR_HIGHLIGHT);
         btnSair.setForeground(Color.WHITE);
@@ -65,7 +109,6 @@ public class SairModal extends JDialog {
             dispose();
         });
 
-        // Botão de Cancelar (Link/Neutro)
         JButton btnVoltar = new JButton("Continuar jogando");
         btnVoltar.setContentAreaFilled(false);
         btnVoltar.setBorderPainted(false);
@@ -83,7 +126,7 @@ public class SairModal extends JDialog {
         painel.add(Box.createVerticalStrut(10));
         painel.add(btnVoltar);
 
-        getContentPane().add(painel);
+        add(painel);
     }
 
     public boolean isConfirmarSair() {
